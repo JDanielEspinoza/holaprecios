@@ -21,6 +21,7 @@ export const pricingTiers: PricingTier[] = [
   { clients: 2300, wispro: 270, acs: 135, holaBasic: 135, total: 540 },
   { clients: 2600, wispro: 285, acs: 142.5, holaBasic: 142.5, total: 570 },
   { clients: 2900, wispro: 300, acs: 150, holaBasic: 150, total: 600 },
+  { clients: 3200, wispro: 315, acs: 157.5, holaBasic: 157.5, total: 630 },
   { clients: 3500, wispro: 330, acs: 165, holaBasic: 165, total: 660 },
   { clients: 4000, wispro: 340, acs: 170, holaBasic: 170, total: 680 },
   { clients: 4500, wispro: 345, acs: 172.5, holaBasic: 172.5, total: 690 },

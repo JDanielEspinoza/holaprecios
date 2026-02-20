@@ -1,21 +1,46 @@
 import { useState, useMemo } from "react";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { pricingTiers, findTier, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, DollarSign, Zap, Cloud, Plus, Minus } from "lucide-react";
+import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
+import { Users, DollarSign, Zap, Cloud, Plus, Minus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const fmt = (n: number) =>
   n.toLocaleString("es-AR", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
 
+const fmtClients = (n: number) => n.toLocaleString("es-AR");
+
 const Index = () => {
   const [clientCount, setClientCount] = useState(1000);
+  const [selectedProducts, setSelectedProducts] = useState({
+    wispro: true,
+    acs: true,
+    holaBasic: true,
+  });
   const [addonQty, setAddonQty] = useState<Record<string, number>>(
     Object.fromEntries(addons.map((a) => [a.name, a.name === "Accesos extra" ? 15 : 0]))
   );
+  const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
 
-  const tier = useMemo(() => findTier(clientCount), [clientCount]);
+  const tier = useMemo(
+    () => pricingTiers.find((t) => t.clients === clientCount) || pricingTiers[0],
+    [clientCount]
+  );
+
+  const ecosystemTotal = useMemo(() => {
+    let sum = 0;
+    if (selectedProducts.wispro) sum += tier.wispro;
+    if (selectedProducts.acs) sum += tier.acs;
+    if (selectedProducts.holaBasic) sum += tier.holaBasic;
+    return sum;
+  }, [tier, selectedProducts]);
 
   const addonTotal = useMemo(() => {
     return addons.reduce((sum, a) => {
@@ -28,8 +53,17 @@ const Index = () => {
     }, 0);
   }, [addonQty]);
 
+  const cloudPrice = useMemo(() => {
+    if (!selectedCloud) return 0;
+    return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
+  }, [selectedCloud]);
+
   const licenseBase = 170;
-  const totalMensual = tier ? licenseBase + addonTotal : 0;
+  const grandTotal = licenseBase + ecosystemTotal + addonTotal + cloudPrice;
+
+  const toggleProduct = (key: keyof typeof selectedProducts) => {
+    setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,7 +80,7 @@ const Index = () => {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
-        {/* Client input */}
+        {/* Client selector */}
         <Card className="border-2 border-primary/20">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
@@ -54,67 +88,67 @@ const Index = () => {
                 <Users className="h-8 w-8 text-primary" />
                 <span className="text-lg font-semibold text-foreground">Cantidad de Clientes</span>
               </div>
-              <div className="flex-1 w-full md:max-w-md">
-                <Input
-                  type="number"
-                  min={500}
-                  max={100000}
-                  step={100}
-                  value={clientCount}
-                  onChange={(e) => setClientCount(Math.max(500, Number(e.target.value)))}
-                  className="text-2xl font-bold text-center h-14"
-                />
-              </div>
-              <div className="flex-1 w-full">
-                <Slider
-                  value={[clientCount]}
-                  onValueChange={([v]) => setClientCount(v)}
-                  min={500}
-                  max={100000}
-                  step={100}
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>500</span>
-                  <span>100.000</span>
-                </div>
+              <div className="w-full md:max-w-xs">
+                <Select
+                  value={String(clientCount)}
+                  onValueChange={(v) => setClientCount(Number(v))}
+                >
+                  <SelectTrigger className="text-xl font-bold h-14">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pricingTiers.map((t) => (
+                      <SelectItem key={t.clients} value={String(t.clients)}>
+                        {fmtClients(t.clients)} clientes
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Pricing results */}
-        {tier && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <PriceCard
-              title="Wispro"
-              value={tier.wispro}
-              icon={<Zap className="h-5 w-5" />}
-              color="text-blue-500"
-            />
-            <PriceCard
-              title="ACS"
-              value={tier.acs}
-              icon={<DollarSign className="h-5 w-5" />}
-              color="text-emerald-500"
-            />
-            <PriceCard
-              title="Hola Basic"
-              value={tier.holaBasic}
-              icon={<DollarSign className="h-5 w-5" />}
-              color="text-amber-500"
-            />
-            <PriceCard
-              title="Total Ecosistema"
-              value={tier.total}
-              icon={<DollarSign className="h-5 w-5" />}
-              color="text-primary"
-              highlight
-            />
-          </div>
-        )}
+        {/* Ecosystem products with checkboxes */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <ProductCard
+            title="Wispro"
+            value={tier.wispro}
+            icon={<Zap className="h-5 w-5" />}
+            color="text-blue-500"
+            checked={selectedProducts.wispro}
+            onToggle={() => toggleProduct("wispro")}
+          />
+          <ProductCard
+            title="ACS"
+            value={tier.acs}
+            icon={<DollarSign className="h-5 w-5" />}
+            color="text-emerald-500"
+            checked={selectedProducts.acs}
+            onToggle={() => toggleProduct("acs")}
+          />
+          <ProductCard
+            title="Hola Basic"
+            value={tier.holaBasic}
+            icon={<DollarSign className="h-5 w-5" />}
+            color="text-amber-500"
+            checked={selectedProducts.holaBasic}
+            onToggle={() => toggleProduct("holaBasic")}
+          />
+          <Card className="border-2 border-primary bg-primary/5">
+            <CardContent className="pt-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2 text-primary">
+                <DollarSign className="h-5 w-5" />
+                <span className="text-sm font-medium">Total Ecosistema</span>
+              </div>
+              <p className="text-3xl font-bold text-primary">{fmt(ecosystemTotal)}</p>
+              <p className="text-xs text-muted-foreground mt-1">/ mes</p>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Personalización */}
+          {/* Personalización Hola */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
@@ -125,9 +159,9 @@ const Index = () => {
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm font-medium text-muted-foreground border-b border-border pb-2">
                 <span>Servicio</span>
-                <div className="flex gap-12">
+                <div className="flex gap-8">
                   <span>Cant.</span>
-                  <span>Precio</span>
+                  <span>P/U</span>
                   <span className="w-20 text-right">Subtotal</span>
                 </div>
               </div>
@@ -135,7 +169,7 @@ const Index = () => {
               {/* Licencia base */}
               <div className="flex justify-between items-center text-sm py-1">
                 <span className="font-medium text-foreground">Licencia base</span>
-                <span className="font-semibold text-foreground">{fmt(licenseBase)}</span>
+                <span className="font-semibold text-foreground w-20 text-right">{fmt(licenseBase)}</span>
               </div>
 
               {addons.map((addon) => {
@@ -146,7 +180,14 @@ const Index = () => {
                     : qty * addon.unitPrice;
                 return (
                   <div key={addon.name} className="flex justify-between items-center text-sm py-1">
-                    <span className="text-foreground">{addon.name}</span>
+                    <span className="text-foreground">
+                      {addon.name}
+                      {addon.included && (
+                        <span className="text-xs text-muted-foreground ml-1">
+                          ({addon.included} incluidos)
+                        </span>
+                      )}
+                    </span>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
                         <Button
@@ -189,85 +230,198 @@ const Index = () => {
               })}
 
               <div className="border-t border-border pt-3 flex justify-between items-center">
-                <span className="text-lg font-bold text-foreground">Total Mensual</span>
-                <span className="text-2xl font-bold text-primary">{fmt(totalMensual)}</span>
+                <span className="font-semibold text-foreground">Subtotal Hola</span>
+                <span className="text-xl font-bold text-primary">{fmt(licenseBase + addonTotal)}</span>
               </div>
             </CardContent>
           </Card>
 
-          {/* Hola Cloud */}
+          {/* Hola Cloud selectable */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Cloud className="h-5 w-5" />
                 Hola Cloud
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Seleccioná un plan para sumarlo al ecosistema
+              </p>
             </CardHeader>
             <CardContent className="space-y-2">
-              {holaCloudPlans.map((plan) => (
-                <div
-                  key={plan.name}
-                  className="flex justify-between items-center rounded-lg border border-border px-4 py-3 hover:bg-accent/50 transition-colors"
-                >
-                  <span className="font-medium text-foreground">{plan.name}</span>
-                  <span className="font-bold text-foreground">{fmt(plan.price)}</span>
+              {holaCloudPlans.map((plan) => {
+                const isSelected = selectedCloud === plan.name;
+                return (
+                  <button
+                    key={plan.name}
+                    onClick={() => setSelectedCloud(isSelected ? null : plan.name)}
+                    className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
+                      isSelected
+                        ? "border-primary bg-primary/10 ring-2 ring-primary/30"
+                        : "border-border hover:bg-accent/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                          isSelected ? "border-primary bg-primary" : "border-muted-foreground"
+                        }`}
+                      >
+                        {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                      </div>
+                      <span className={`font-medium ${isSelected ? "text-foreground" : "text-foreground"}`}>
+                        {plan.name}
+                      </span>
+                    </div>
+                    <span className="font-bold text-foreground">{fmt(plan.price)}</span>
+                  </button>
+                );
+              })}
+              {selectedCloud && (
+                <div className="border-t border-border pt-3 flex justify-between items-center">
+                  <span className="font-semibold text-foreground">Cloud seleccionado</span>
+                  <span className="text-xl font-bold text-primary">{fmt(cloudPrice)}</span>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Installation */}
-        {tier && (
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Summary */}
+        <Card className="border-2 border-primary/30 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Detalle completo para {fmtClients(clientCount)} clientes
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Ecosistema
+              </h3>
+              <SummaryLine
+                label="Wispro"
+                value={tier.wispro}
+                active={selectedProducts.wispro}
+              />
+              <SummaryLine
+                label="ACS"
+                value={tier.acs}
+                active={selectedProducts.acs}
+              />
+              <SummaryLine
+                label="Hola Basic"
+                value={tier.holaBasic}
+                active={selectedProducts.holaBasic}
+              />
+            </div>
+
+            <div className="border-t border-border pt-3 space-y-2">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Personalización Hola
+              </h3>
+              <SummaryLine label="Licencia base" value={licenseBase} active />
+              {addons.map((addon) => {
+                const qty = addonQty[addon.name] || 0;
+                if (qty === 0) return null;
+                const subtotal =
+                  addon.name === "Accesos extra"
+                    ? Math.max(0, qty - (addon.included || 0)) * addon.unitPrice
+                    : qty * addon.unitPrice;
+                return (
+                  <SummaryLine
+                    key={addon.name}
+                    label={`${addon.name} (x${qty})`}
+                    value={subtotal}
+                    active
+                  />
+                );
+              })}
+            </div>
+
+            {selectedCloud && (
+              <div className="border-t border-border pt-3 space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Cloud
+                </h3>
+                <SummaryLine label={selectedCloud} value={cloudPrice} active />
+              </div>
+            )}
+
+            <div className="border-t-2 border-primary/30 pt-4 flex justify-between items-center">
               <div>
-                <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
-                <p className="text-3xl font-bold text-foreground">{fmt(100)}</p>
+                <p className="text-xl font-bold text-foreground">Total Mensual</p>
+                <p className="text-xs text-muted-foreground">Ecosistema + Personalización + Cloud</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">
-                  Tier aplicado: {tier.clients.toLocaleString("es-AR")} clientes
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              <p className="text-4xl font-bold text-primary">{fmt(grandTotal)}</p>
+            </div>
+
+            <div className="border-t border-border pt-3 flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
+              <p className="text-lg font-bold text-foreground">{fmt(100)}</p>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
 };
 
-function PriceCard({
+function ProductCard({
   title,
   value,
   icon,
   color,
-  highlight,
+  checked,
+  onToggle,
 }: {
   title: string;
   value: number;
   icon: React.ReactNode;
   color: string;
-  highlight?: boolean;
+  checked: boolean;
+  onToggle: () => void;
 }) {
   return (
-    <Card className={highlight ? "border-2 border-primary bg-primary/5" : ""}>
+    <Card
+      className={`cursor-pointer transition-all ${
+        checked ? "" : "opacity-40"
+      }`}
+      onClick={onToggle}
+    >
       <CardContent className="pt-6 text-center">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Checkbox checked={checked} className="pointer-events-none" />
+        </div>
         <div className={`flex items-center justify-center gap-2 mb-2 ${color}`}>
           {icon}
           <span className="text-sm font-medium">{title}</span>
         </div>
-        <p className={`text-3xl font-bold ${highlight ? "text-primary" : "text-foreground"}`}>
-          {value.toLocaleString("es-AR", {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 2,
-          })}
-        </p>
+        <p className="text-3xl font-bold text-foreground">{fmt(value)}</p>
         <p className="text-xs text-muted-foreground mt-1">/ mes</p>
       </CardContent>
     </Card>
+  );
+}
+
+function SummaryLine({
+  label,
+  value,
+  active,
+}: {
+  label: string;
+  value: number;
+  active: boolean;
+}) {
+  return (
+    <div
+      className={`flex justify-between items-center text-sm py-1 ${
+        active ? "text-foreground" : "text-muted-foreground line-through opacity-50"
+      }`}
+    >
+      <span>{label}</span>
+      <span className="font-semibold">{fmt(active ? value : 0)}</span>
+    </div>
   );
 }
 
