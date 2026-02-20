@@ -26,7 +26,7 @@ const Index = () => {
     holaBasic: true,
   });
   const [addonQty, setAddonQty] = useState<Record<string, number>>(
-    Object.fromEntries(addons.map((a) => [a.name, a.name === "Accesos extra" ? 15 : 0]))
+    Object.fromEntries(addons.map((a) => [a.name, 0]))
   );
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
 
@@ -46,10 +46,6 @@ const Index = () => {
   const addonTotal = useMemo(() => {
     return addons.reduce((sum, a) => {
       const qty = addonQty[a.name] || 0;
-      if (a.name === "Accesos extra") {
-        const extra = Math.max(0, qty - (a.included || 0));
-        return sum + extra * a.unitPrice;
-      }
       return sum + qty * a.unitPrice;
     }, 0);
   }, [addonQty]);
@@ -59,8 +55,8 @@ const Index = () => {
     return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
   }, [selectedCloud]);
 
-  const licenseBase = 170;
-  const grandTotal = licenseBase + ecosystemTotal + addonTotal + cloudPrice;
+  const licenseBase = selectedProducts.holaBasic ? tier.holaBasic : 0;
+  const grandTotal = ecosystemTotal + licenseBase + addonTotal + cloudPrice;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
@@ -135,7 +131,7 @@ const Index = () => {
                 <DollarSign className="h-5 w-5" />
                 <span className="text-sm font-medium">Total Ecosistema</span>
               </div>
-              <p className="text-3xl font-bold text-primary">{fmt(ecosystemTotal)}</p>
+              <p className="text-3xl font-bold text-primary">{fmt(grandTotal)}</p>
               <p className="text-xs text-muted-foreground mt-1">/ mes</p>
             </CardContent>
           </Card>
@@ -147,7 +143,7 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
               <p className="text-sm text-muted-foreground">
-                HOLA BASIC: 1 WhatsApp oficial + hospedaje en META + 3 accesos
+                HOLA BASIC: 1 WhatsApp oficial + hospedaje en META
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -163,24 +159,16 @@ const Index = () => {
               {/* Licencia base */}
               <div className="flex justify-between items-center text-sm py-1">
                 <span className="font-medium text-foreground">Licencia base</span>
-                <span className="font-semibold text-foreground w-20 text-right">{fmt(licenseBase)}</span>
+                <span className="font-semibold text-foreground w-20 text-right">{fmt(tier.holaBasic)}</span>
               </div>
 
               {addons.map((addon) => {
                 const qty = addonQty[addon.name] || 0;
-                const subtotal =
-                  addon.name === "Accesos extra"
-                    ? Math.max(0, qty - (addon.included || 0)) * addon.unitPrice
-                    : qty * addon.unitPrice;
+                const subtotal = qty * addon.unitPrice;
                 return (
                   <div key={addon.name} className="flex justify-between items-center text-sm py-1">
                     <span className="text-foreground">
                       {addon.name}
-                      {addon.included && (
-                        <span className="text-xs text-muted-foreground ml-1">
-                          ({addon.included} incluidos)
-                        </span>
-                      )}
                     </span>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
@@ -318,10 +306,7 @@ const Index = () => {
               {addons.map((addon) => {
                 const qty = addonQty[addon.name] || 0;
                 if (qty === 0) return null;
-                const subtotal =
-                  addon.name === "Accesos extra"
-                    ? Math.max(0, qty - (addon.included || 0)) * addon.unitPrice
-                    : qty * addon.unitPrice;
+                const subtotal = qty * addon.unitPrice;
                 return (
                   <SummaryLine
                     key={addon.name}
