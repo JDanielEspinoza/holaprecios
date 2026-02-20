@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
 import { Users, DollarSign, Zap, Cloud, Plus, Minus, Check } from "lucide-react";
+import holaBanner from "@/assets/holabanner.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -67,16 +68,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            ¡Hola! Suite — Cotizador
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Calculá el costo mensual de tu ecosistema según la cantidad de clientes
-          </p>
-        </div>
+      {/* Banner */}
+      <header>
+        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full h-auto object-cover" />
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
