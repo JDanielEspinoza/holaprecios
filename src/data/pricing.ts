@@ -55,11 +55,10 @@ export const pricingTiers: PricingTier[] = [
 export type Addon = {
   name: string;
   unitPrice: number;
-  included?: number;
 };
 
 export const addons: Addon[] = [
-  { name: "Accesos extra", unitPrice: 5, included: 15 },
+  { name: "Accesos extra", unitPrice: 5 },
   { name: "WhatsApp extra", unitPrice: 23 },
   { name: "Instagram", unitPrice: 23 },
   { name: "Messenger", unitPrice: 23 },
