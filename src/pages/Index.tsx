@@ -422,7 +422,14 @@ function ProductCard({
           <Checkbox checked={checked} className="pointer-events-none" />
         </div>
         <div className="flex items-center justify-center mb-3">
-          <img src={logo} alt={title} className="h-10 w-auto object-contain" />
+          <img
+            src={logo}
+            alt={title}
+            className={`h-16 w-auto object-contain ${
+              title === "Hola! Suite" ? "rounded-xl" : ""
+            } ${title === "ACS" ? "border-0 shadow-none" : ""}`}
+            style={title === "ACS" ? { border: "none", outline: "none" } : undefined}
+          />
         </div>
         <p className="text-2xl font-bold text-foreground">{fmt(value)}</p>
         <p className="text-xs text-muted-foreground mt-1">/ mes</p>
