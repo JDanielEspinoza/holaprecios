@@ -1,8 +1,11 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, DollarSign, Zap, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import holaBanner from "@/assets/holabanner.jpg";
+import logoWispro from "@/assets/logo-wispro.png";
+import logoAcs from "@/assets/logo-acs.png";
+import logoHola from "@/assets/logo-hola.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 const fmt = (n: number) =>
-  n.toLocaleString("es-AR", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
+  "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
@@ -124,31 +127,27 @@ const Index = () => {
           <ProductCard
             title="Wispro"
             value={tier.wispro}
-            icon={<Zap className="h-5 w-5" />}
-            color="text-blue-500"
+            logo={logoWispro}
             checked={selectedProducts.wispro}
             onToggle={() => toggleProduct("wispro")}
           />
           <ProductCard
             title="ACS"
             value={tier.acs}
-            icon={<DollarSign className="h-5 w-5" />}
-            color="text-emerald-500"
+            logo={logoAcs}
             checked={selectedProducts.acs}
             onToggle={() => toggleProduct("acs")}
           />
           <ProductCard
             title="Hola! Suite"
             value={tier.holaBasic}
-            icon={<DollarSign className="h-5 w-5" />}
-            color="text-amber-500"
+            logo={logoHola}
             checked={selectedProducts.holaBasic}
             onToggle={() => toggleProduct("holaBasic")}
           />
           <Card className="border-2 border-primary bg-primary/5">
             <CardContent className="pt-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-2 text-primary">
-                <DollarSign className="h-5 w-5" />
                 <span className="text-sm font-medium">Total Ecosistema</span>
               </div>
               <p className="text-3xl font-bold text-primary">{fmt(grandTotal)}</p>
@@ -401,15 +400,13 @@ const Index = () => {
 function ProductCard({
   title,
   value,
-  icon,
-  color,
+  logo,
   checked,
   onToggle,
 }: {
   title: string;
   value: number;
-  icon: React.ReactNode;
-  color: string;
+  logo: string;
   checked: boolean;
   onToggle: () => void;
 }) {
@@ -420,15 +417,14 @@ function ProductCard({
       }`}
       onClick={onToggle}
     >
-      <CardContent className="pt-6 text-center">
-        <div className="flex items-center justify-center gap-2 mb-1">
+      <CardContent className="pt-5 text-center">
+        <div className="flex items-center justify-center mb-2">
           <Checkbox checked={checked} className="pointer-events-none" />
         </div>
-        <div className={`flex items-center justify-center gap-2 mb-2 ${color}`}>
-          {icon}
-          <span className="text-sm font-medium">{title}</span>
+        <div className="flex items-center justify-center mb-3">
+          <img src={logo} alt={title} className="h-10 w-auto object-contain" />
         </div>
-        <p className="text-3xl font-bold text-foreground">{fmt(value)}</p>
+        <p className="text-2xl font-bold text-foreground">{fmt(value)}</p>
         <p className="text-xs text-muted-foreground mt-1">/ mes</p>
       </CardContent>
     </Card>
