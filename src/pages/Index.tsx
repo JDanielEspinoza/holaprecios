@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, DollarSign, Zap, Cloud, Plus, Minus, Check } from "lucide-react";
+import { Users, DollarSign, Zap, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import holaBanner from "@/assets/holabanner.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +25,7 @@ const Index = () => {
     acs: true,
     holaBasic: true,
   });
+  const [discount, setDiscount] = useState(0);
   const [addonQty, setAddonQty] = useState<Record<string, number>>(
     Object.fromEntries(addons.map((a) => [a.name, 0]))
   );
@@ -56,11 +57,21 @@ const Index = () => {
   }, [selectedCloud]);
 
   const licenseBase = selectedProducts.holaBasic ? tier.holaBasic : 0;
-  const grandTotal = ecosystemTotal + licenseBase + addonTotal + cloudPrice;
+  const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
   };
+
+  const resetAll = () => {
+    setSelectedProducts({ wispro: false, acs: false, holaBasic: false });
+    setAddonQty(Object.fromEntries(addons.map((a) => [a.name, 0])));
+    setSelectedCloud(null);
+    setDiscount(0);
+  };
+
+  const discountAmount = grandTotal * (discount / 100);
+  const discountedTotal = grandTotal - discountAmount;
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,6 +106,15 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                onClick={resetAll}
+                title="Reiniciar todo"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -118,7 +138,7 @@ const Index = () => {
             onToggle={() => toggleProduct("acs")}
           />
           <ProductCard
-            title="Hola Basic"
+            title="Hola! Suite"
             value={tier.holaBasic}
             icon={<DollarSign className="h-5 w-5" />}
             color="text-amber-500"
@@ -292,7 +312,7 @@ const Index = () => {
                 active={selectedProducts.acs}
               />
               <SummaryLine
-                label="Hola Basic"
+                label="Hola! Suite"
                 value={tier.holaBasic}
                 active={selectedProducts.holaBasic}
               />
@@ -327,12 +347,44 @@ const Index = () => {
               </div>
             )}
 
-            <div className="border-t-2 border-primary/30 pt-4 flex justify-between items-center">
-              <div>
-                <p className="text-xl font-bold text-foreground">Total Mensual</p>
-                <p className="text-xs text-muted-foreground">Ecosistema + Personalización + Cloud</p>
+            <div className="border-t-2 border-primary/30 pt-4 space-y-3">
+              {/* Discount selector */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Descuento</span>
+                <Select
+                  value={String(discount)}
+                  onValueChange={(v) => setDiscount(Number(v))}
+                >
+                  <SelectTrigger className="w-32 h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[0, 5, 10, 15, 20, 25, 30].map((d) => (
+                      <SelectItem key={d} value={String(d)}>
+                        {d === 0 ? "Sin descuento" : `${d}%`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <p className="text-4xl font-bold text-primary">{fmt(grandTotal)}</p>
+
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xl font-bold text-foreground">Total Mensual</p>
+                  <p className="text-xs text-muted-foreground">Ecosistema + Personalización + Cloud</p>
+                </div>
+                <div className="text-right">
+                  {discount > 0 ? (
+                    <>
+                      <p className="text-lg text-muted-foreground line-through">{fmt(grandTotal)}</p>
+                      <p className="text-4xl font-bold text-primary">{fmt(discountedTotal)}</p>
+                      <p className="text-sm text-emerald-600 font-medium">Ahorro: {fmt(discountAmount)}</p>
+                    </>
+                  ) : (
+                    <p className="text-4xl font-bold text-primary">{fmt(grandTotal)}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="border-t border-border pt-3 flex justify-between items-center">
