@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
 import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
+import { QuoteShare } from "@/components/QuoteShare";
 import holaBanner from "@/assets/holabanner.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
@@ -61,6 +62,8 @@ const Index = () => {
 
   const licenseBase = selectedProducts.holaBasic ? tier.holaBasic : 0;
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
+  const discountAmount = grandTotal * (discount / 100);
+  const discountedTotal = grandTotal - discountAmount;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
@@ -73,8 +76,36 @@ const Index = () => {
     setDiscount(0);
   };
 
-  const discountAmount = grandTotal * (discount / 100);
-  const discountedTotal = grandTotal - discountAmount;
+  const quoteUrl = window.location.href;
+
+  const buildQuoteHtml = () => {
+    const finalTotal = discount > 0 ? discountedTotal : grandTotal;
+    let rows = "";
+    if (selectedProducts.wispro) rows += `<tr><td>Wispro</td><td style="text-align:right">${fmt(tier.wispro)}</td></tr>`;
+    if (selectedProducts.acs) rows += `<tr><td>ACS</td><td style="text-align:right">${fmt(tier.acs)}</td></tr>`;
+    if (selectedProducts.holaBasic) rows += `<tr><td>Hola! Suite</td><td style="text-align:right">${fmt(tier.holaBasic)}</td></tr>`;
+    addons.forEach((a) => {
+      const qty = addonQty[a.name] || 0;
+      if (qty > 0) rows += `<tr><td>${a.name} (x${qty})</td><td style="text-align:right">${fmt(qty * a.unitPrice)}</td></tr>`;
+    });
+    if (selectedCloud) rows += `<tr><td>${selectedCloud}</td><td style="text-align:right">${fmt(cloudPrice)}</td></tr>`;
+    if (discount > 0) rows += `<tr><td>Descuento (${discount}%)</td><td style="text-align:right;color:#16a34a">-${fmt(discountAmount)}</td></tr>`;
+
+    return `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+        <h2 style="color:#6d28d9">Cotización Hola Suite</h2>
+        <p>Para <strong>${fmtClients(clientCount)} clientes</strong></p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <thead><tr style="border-bottom:2px solid #e5e7eb"><th style="text-align:left;padding:8px 0">Servicio</th><th style="text-align:right;padding:8px 0">Precio</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="border-top:2px solid #6d28d9;padding-top:12px;text-align:right">
+          <span style="font-size:24px;font-weight:bold;color:#6d28d9">${fmt(finalTotal)} / mes</span>
+        </div>
+        <p style="color:#6b7280;font-size:12px;margin-top:16px">Instalación (único pago): ${fmt(100)}</p>
+      </div>
+    `;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -392,6 +423,8 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Share */}
+        <QuoteShare quoteHtml={buildQuoteHtml()} quoteUrl={quoteUrl} />
       </main>
     </div>
   );
