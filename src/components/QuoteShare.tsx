@@ -109,7 +109,7 @@ export function QuoteShare({ quoteHtml, quoteUrl }: QuoteShareProps) {
           </div>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
-              <QRCodeSVG id="quote-qr" value={quoteUrl} size={120} />
+              <QRCodeSVG id="quote-qr" value={quoteUrl} size={120} level="L" />
             </div>
             <Button variant="outline" onClick={downloadQR} className="gap-2">
               <Download className="h-4 w-4" />
