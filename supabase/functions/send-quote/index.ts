@@ -1,5 +1,3 @@
-import { Resend } from "npm:resend@4.0.0";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -12,49 +10,30 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { to, subject, quoteHtml } = await req.json();
+    const { to, subject, quoteHtml, webhookUrl } = await req.json();
 
-    if (!to || !quoteHtml) {
-      return new Response(JSON.stringify({ error: "Missing 'to' or 'quoteHtml'" }), {
+    if (!to || !quoteHtml || !webhookUrl) {
+      return new Response(JSON.stringify({ error: "Faltan campos requeridos (to, quoteHtml, webhookUrl)" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) {
-      return new Response(JSON.stringify({ error: "RESEND_API_KEY not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const resend = new Resend(resendKey);
-
-    const { data, error } = await resend.emails.send({
-      from: "Cotizador Hola <onboarding@resend.dev>",
-      to: [to],
-      subject: subject || "Tu Cotización - Hola Suite",
-      html: quoteHtml,
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to,
+        subject: subject || "Tu Cotización - Hola Suite",
+        html_body: quoteHtml,
+        timestamp: new Date().toISOString(),
+      }),
     });
 
-    if (error) {
-      const msg = error.message || "";
-      if (msg.includes("only send testing emails")) {
-        return new Response(JSON.stringify({ 
-          error: "Resend está en modo sandbox. Solo podés enviar emails a tu propia cuenta verificada. Para enviar a cualquier destinatario, verificá un dominio en resend.com/domains." 
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify({ error: msg }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Zapier webhooks return "success" as text
+    const text = await response.text();
 
-    return new Response(JSON.stringify({ success: true, id: data?.id }), {
+    return new Response(JSON.stringify({ success: true, zapier_response: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
