@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Send, QrCode, Download, Loader2, Check } from "lucide-react";
+import { Mail, Send, QrCode, Download, Loader2, Check, Link } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,14 +12,26 @@ interface QuoteShareProps {
   quoteUrl: string;
 }
 
+const WEBHOOK_STORAGE_KEY = "zapier_webhook_url";
+
 export function QuoteShare({ quoteHtml, quoteUrl }: QuoteShareProps) {
   const [email, setEmail] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem(WEBHOOK_STORAGE_KEY) || "");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  const handleSaveWebhook = useCallback((url: string) => {
+    setWebhookUrl(url);
+    localStorage.setItem(WEBHOOK_STORAGE_KEY, url);
+  }, []);
 
   const handleSendEmail = useCallback(async () => {
     if (!email) {
       toast.error("Ingresá un email válido");
+      return;
+    }
+    if (!webhookUrl) {
+      toast.error("Ingresá tu URL de webhook de Zapier");
       return;
     }
     setSending(true);
@@ -30,18 +42,19 @@ export function QuoteShare({ quoteHtml, quoteUrl }: QuoteShareProps) {
           to: email,
           subject: "Tu Cotización - Hola Suite",
           quoteHtml,
+          webhookUrl,
         },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setSent(true);
-      toast.success("Cotización enviada correctamente");
+      toast.success("Cotización enviada a Zapier correctamente");
     } catch (err: any) {
-      toast.error(err.message || "Error al enviar el email");
+      toast.error(err.message || "Error al enviar");
     } finally {
       setSending(false);
     }
-  }, [email, quoteHtml]);
+  }, [email, quoteHtml, webhookUrl]);
 
   const downloadQR = useCallback(() => {
     const svg = document.getElementById("quote-qr");
@@ -71,6 +84,24 @@ export function QuoteShare({ quoteHtml, quoteUrl }: QuoteShareProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Zapier Webhook */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Link className="h-4 w-4" />
+            Webhook de Zapier
+          </div>
+          <Input
+            type="url"
+            placeholder="https://hooks.zapier.com/hooks/catch/..."
+            value={webhookUrl}
+            onChange={(e) => handleSaveWebhook(e.target.value)}
+            className="text-xs"
+          />
+          <p className="text-xs text-muted-foreground">
+            Pegá tu URL de webhook de Zapier. Se guardará para futuras cotizaciones.
+          </p>
+        </div>
+
         {/* Email */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -88,7 +119,7 @@ export function QuoteShare({ quoteHtml, quoteUrl }: QuoteShareProps) {
               }}
               className="flex-1"
             />
-            <Button onClick={handleSendEmail} disabled={sending || !email}>
+            <Button onClick={handleSendEmail} disabled={sending || !email || !webhookUrl}>
               {sending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : sent ? (
