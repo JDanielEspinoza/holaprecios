@@ -39,7 +39,16 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      const msg = error.message || "";
+      if (msg.includes("only send testing emails")) {
+        return new Response(JSON.stringify({ 
+          error: "Resend está en modo sandbox. Solo podés enviar emails a tu propia cuenta verificada. Para enviar a cualquier destinatario, verificá un dominio en resend.com/domains." 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: msg }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
