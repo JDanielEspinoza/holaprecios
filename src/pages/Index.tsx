@@ -76,7 +76,24 @@ const Index = () => {
     setDiscount(0);
   };
 
-  const quoteUrl = window.location.href;
+  const quoteData = useMemo(() => {
+    const items: { label: string; value: number; section: string }[] = [];
+    if (selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
+    if (selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
+    if (selectedProducts.holaBasic) items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
+    if (selectedProducts.holaBasic) items.push({ label: "Licencia base", value: tier.holaBasic, section: "hola" });
+    addons.forEach((a) => {
+      const qty = addonQty[a.name] || 0;
+      if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
+    });
+    if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
+    return { clients: clientCount, items, discount, total: grandTotal, discountedTotal, discountAmount };
+  }, [clientCount, selectedProducts, tier, addonQty, selectedCloud, cloudPrice, discount, grandTotal, discountedTotal, discountAmount]);
+
+  const quoteUrl = useMemo(() => {
+    const encoded = btoa(JSON.stringify(quoteData));
+    return `${window.location.origin}/cotizacion?d=${encoded}`;
+  }, [quoteData]);
 
   const buildQuoteHtml = () => {
     const finalTotal = discount > 0 ? discountedTotal : grandTotal;
