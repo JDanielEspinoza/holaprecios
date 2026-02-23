@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, UserCircle } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import holaBanner from "@/assets/holabanner.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
@@ -9,6 +9,9 @@ import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -23,6 +26,9 @@ const fmt = (n: number) =>
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
 const Index = () => {
+  const { signOut } = useAuth();
+  const { profile } = useProfile();
+  const navigate = useNavigate();
   const [clientCount, setClientCount] = useState<number | null>(null);
   const [selectedProducts, setSelectedProducts] = useState({
     wispro: false,
@@ -118,6 +124,18 @@ const Index = () => {
     if (selectedCloud) rows += `<tr><td>${selectedCloud}</td><td style="text-align:right">${fmt(cloudPrice)}</td></tr>`;
     if (discount > 0) rows += `<tr><td>Descuento (${discount}%)</td><td style="text-align:right;color:#16a34a">-${fmt(discountAmount)}</td></tr>`;
 
+    const profileFooter = profile ? `
+        <div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:16px;display:flex;align-items:center;gap:12px">
+          ${profile.foto_url ? `<img src="${profile.foto_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover" />` : ""}
+          <div>
+            ${profile.nombre ? `<p style="font-weight:bold;margin:0">${profile.nombre}</p>` : ""}
+            ${profile.cargo ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.cargo}</p>` : ""}
+            ${profile.email_contacto ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.email_contacto}</p>` : ""}
+            ${profile.numero ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.numero}</p>` : ""}
+          </div>
+        </div>
+    ` : "";
+
     return `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
         <h2 style="color:#6d28d9">Cotización Hola Suite</h2>
@@ -130,6 +148,7 @@ const Index = () => {
           <span style="font-size:24px;font-weight:bold;color:#6d28d9">${fmt(finalTotal)} / mes</span>
         </div>
         <p style="color:#6b7280;font-size:12px;margin-top:16px">Instalación (único pago): ${fmt(installationCost)}</p>
+        ${profileFooter}
       </div>
     `;
   };
@@ -140,6 +159,15 @@ const Index = () => {
       <header>
         <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full h-auto object-cover" />
       </header>
+
+      {/* User bar */}
+      <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-end gap-3">
+        <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate("/perfil")}>
+          <UserCircle className="h-4 w-4" />
+          {profile?.nombre || "Mi perfil"}
+        </Button>
+        <Button variant="outline" size="sm" onClick={signOut}>Salir</Button>
+      </div>
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
         {/* Client selector */}
