@@ -23,11 +23,11 @@ const fmt = (n: number) =>
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
 const Index = () => {
-  const [clientCount, setClientCount] = useState(1000);
+  const [clientCount, setClientCount] = useState<number | null>(null);
   const [selectedProducts, setSelectedProducts] = useState({
-    wispro: true,
-    acs: true,
-    holaBasic: true,
+    wispro: false,
+    acs: false,
+    holaBasic: false,
   });
   const [discount, setDiscount] = useState(0);
   const [addonQty, setAddonQty] = useState<Record<string, number>>(
@@ -36,11 +36,20 @@ const Index = () => {
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
 
   const tier = useMemo(
-    () => pricingTiers.find((t) => t.clients === clientCount) || pricingTiers[0],
+    () => (clientCount ? pricingTiers.find((t) => t.clients === clientCount) || pricingTiers[0] : null),
     [clientCount]
   );
 
+  const installationCost = useMemo(() => {
+    let count = 0;
+    if (selectedProducts.wispro) count++;
+    if (selectedProducts.acs) count++;
+    if (selectedProducts.holaBasic) count++;
+    return count * 50;
+  }, [selectedProducts]);
+
   const ecosystemTotal = useMemo(() => {
+    if (!tier) return 0;
     let sum = 0;
     if (selectedProducts.wispro) sum += tier.wispro;
     if (selectedProducts.acs) sum += tier.acs;
@@ -60,7 +69,7 @@ const Index = () => {
     return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
   }, [selectedCloud]);
 
-  const licenseBase = selectedProducts.holaBasic ? tier.holaBasic : 0;
+  const licenseBase = selectedProducts.holaBasic && tier ? tier.holaBasic : 0;
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
   const discountAmount = grandTotal * (discount / 100);
   const discountedTotal = grandTotal - discountAmount;
@@ -70,6 +79,7 @@ const Index = () => {
   };
 
   const resetAll = () => {
+    setClientCount(null);
     setSelectedProducts({ wispro: false, acs: false, holaBasic: false });
     setAddonQty(Object.fromEntries(addons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
@@ -78,16 +88,16 @@ const Index = () => {
 
   const quoteData = useMemo(() => {
     const items: { label: string; value: number; section: string }[] = [];
-    if (selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
-    if (selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
-    if (selectedProducts.holaBasic) items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
-    if (selectedProducts.holaBasic) items.push({ label: "Licencia base", value: tier.holaBasic, section: "hola" });
+    if (tier && selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
+    if (tier && selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
+    if (tier && selectedProducts.holaBasic) items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
+    if (tier && selectedProducts.holaBasic) items.push({ label: "Licencia base", value: tier.holaBasic, section: "hola" });
     addons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
     });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
-    return { clients: clientCount, items, discount, total: grandTotal, discountedTotal, discountAmount };
+    return { clients: clientCount || 0, items, discount, total: grandTotal, discountedTotal, discountAmount, installationCost };
   }, [clientCount, selectedProducts, tier, addonQty, selectedCloud, cloudPrice, discount, grandTotal, discountedTotal, discountAmount]);
 
   const quoteUrl = useMemo(() => {
@@ -98,9 +108,9 @@ const Index = () => {
   const buildQuoteHtml = () => {
     const finalTotal = discount > 0 ? discountedTotal : grandTotal;
     let rows = "";
-    if (selectedProducts.wispro) rows += `<tr><td>Wispro</td><td style="text-align:right">${fmt(tier.wispro)}</td></tr>`;
-    if (selectedProducts.acs) rows += `<tr><td>ACS</td><td style="text-align:right">${fmt(tier.acs)}</td></tr>`;
-    if (selectedProducts.holaBasic) rows += `<tr><td>Hola! Suite</td><td style="text-align:right">${fmt(tier.holaBasic)}</td></tr>`;
+    if (tier && selectedProducts.wispro) rows += `<tr><td>Wispro</td><td style="text-align:right">${fmt(tier.wispro)}</td></tr>`;
+    if (tier && selectedProducts.acs) rows += `<tr><td>ACS</td><td style="text-align:right">${fmt(tier.acs)}</td></tr>`;
+    if (tier && selectedProducts.holaBasic) rows += `<tr><td>Hola! Suite</td><td style="text-align:right">${fmt(tier.holaBasic)}</td></tr>`;
     addons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) rows += `<tr><td>${a.name} (x${qty})</td><td style="text-align:right">${fmt(qty * a.unitPrice)}</td></tr>`;
@@ -111,7 +121,7 @@ const Index = () => {
     return `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
         <h2 style="color:#6d28d9">Cotización Hola Suite</h2>
-        <p>Para <strong>${fmtClients(clientCount)} clientes</strong></p>
+        <p>Para <strong>${fmtClients(clientCount || 0)} clientes</strong></p>
         <table style="width:100%;border-collapse:collapse;margin:16px 0">
           <thead><tr style="border-bottom:2px solid #e5e7eb"><th style="text-align:left;padding:8px 0">Servicio</th><th style="text-align:right;padding:8px 0">Precio</th></tr></thead>
           <tbody>${rows}</tbody>
@@ -119,7 +129,7 @@ const Index = () => {
         <div style="border-top:2px solid #6d28d9;padding-top:12px;text-align:right">
           <span style="font-size:24px;font-weight:bold;color:#6d28d9">${fmt(finalTotal)} / mes</span>
         </div>
-        <p style="color:#6b7280;font-size:12px;margin-top:16px">Instalación (único pago): ${fmt(100)}</p>
+        <p style="color:#6b7280;font-size:12px;margin-top:16px">Instalación (único pago): ${fmt(installationCost)}</p>
       </div>
     `;
   };
@@ -142,11 +152,11 @@ const Index = () => {
               </div>
               <div className="w-full md:max-w-xs">
                 <Select
-                  value={String(clientCount)}
+                  value={clientCount ? String(clientCount) : ""}
                   onValueChange={(v) => setClientCount(Number(v))}
                 >
                   <SelectTrigger className="text-xl font-bold h-14">
-                    <SelectValue />
+                    <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
                     {pricingTiers.map((t) => (
@@ -174,21 +184,21 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <ProductCard
             title="Wispro"
-            value={tier.wispro}
+            value={tier?.wispro ?? 0}
             logo={logoWispro}
             checked={selectedProducts.wispro}
             onToggle={() => toggleProduct("wispro")}
           />
           <ProductCard
             title="ACS"
-            value={tier.acs}
+            value={tier?.acs ?? 0}
             logo={logoAcs}
             checked={selectedProducts.acs}
             onToggle={() => toggleProduct("acs")}
           />
           <ProductCard
             title="Hola! Suite"
-            value={tier.holaBasic}
+            value={tier?.holaBasic ?? 0}
             logo={logoHola}
             checked={selectedProducts.holaBasic}
             onToggle={() => toggleProduct("holaBasic")}
@@ -226,7 +236,7 @@ const Index = () => {
               {/* Licencia base */}
               <div className="flex justify-between items-center text-sm py-1">
                 <span className="font-medium text-foreground">Licencia base</span>
-                <span className="font-semibold text-foreground w-20 text-right">{fmt(tier.holaBasic)}</span>
+                <span className="font-semibold text-foreground w-20 text-right">{fmt(tier?.holaBasic ?? 0)}</span>
               </div>
 
               {addons.map((addon) => {
@@ -350,17 +360,17 @@ const Index = () => {
               </h3>
               <SummaryLine
                 label="Wispro"
-                value={tier.wispro}
+                value={tier?.wispro ?? 0}
                 active={selectedProducts.wispro}
               />
               <SummaryLine
                 label="ACS"
-                value={tier.acs}
+                value={tier?.acs ?? 0}
                 active={selectedProducts.acs}
               />
               <SummaryLine
                 label="Hola! Suite"
-                value={tier.holaBasic}
+                value={tier?.holaBasic ?? 0}
                 active={selectedProducts.holaBasic}
               />
             </div>
@@ -369,7 +379,7 @@ const Index = () => {
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Personalización Hola
               </h3>
-              <SummaryLine label="Licencia base" value={licenseBase} active />
+              <SummaryLine label="Licencia base" value={licenseBase} active={selectedProducts.holaBasic} />
               {addons.map((addon) => {
                 const qty = addonQty[addon.name] || 0;
                 if (qty === 0) return null;
@@ -436,7 +446,7 @@ const Index = () => {
 
             <div className="border-t border-border pt-3 flex justify-between items-center">
               <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
-              <p className="text-lg font-bold text-foreground">{fmt(100)}</p>
+              <p className="text-lg font-bold text-foreground">{fmt(installationCost)}</p>
             </div>
           </CardContent>
         </Card>
