@@ -203,13 +203,18 @@ const Index = () => {
             checked={selectedProducts.holaBasic}
             onToggle={() => toggleProduct("holaBasic")}
           />
-          <Card className="border-2 border-primary bg-primary/5">
-            <CardContent className="pt-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2 text-primary">
-                <span className="text-sm font-medium">Total Ecosistema</span>
-              </div>
+          <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center">
+            <CardContent className="pt-6 pb-4 text-center flex flex-col items-center justify-center">
+              <span className="text-sm font-medium text-primary mb-2">Total Ecosistema</span>
               <p className="text-3xl font-bold text-primary">{fmt(grandTotal)}</p>
               <p className="text-xs text-muted-foreground mt-1">/ mes</p>
+              {(selectedProducts.wispro || selectedProducts.acs || selectedProducts.holaBasic) && (
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  {selectedProducts.wispro && <img src={logoWispro} alt="Wispro" className="h-6 w-auto object-contain" />}
+                  {selectedProducts.acs && <img src={logoAcs} alt="ACS" className="h-6 w-auto object-contain" />}
+                  {selectedProducts.holaBasic && <img src={logoHola} alt="Hola" className="h-6 w-auto object-contain rounded" />}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -220,7 +225,7 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
               <p className="text-sm text-muted-foreground">
-                HOLA BASIC: 1 WhatsApp oficial + hospedaje en META
+                HOLA BASIC: 1 Whatsapp oficial + hospedaje en META + 3 accesos en la plataforma
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
