@@ -350,7 +350,7 @@ const Index = () => {
           <CardHeader>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Detalle completo para {fmtClients(clientCount)} clientes
+              Detalle completo para {fmtClients(clientCount || 0)} clientes
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
