@@ -1,78 +1,41 @@
 
 
-# Plan: Menu de navegacion + Landing Page de Hola! Suite
+# Plan: Correcciones QR/PDF, limpieza de compartir, perfil en cotización, banner y menú
 
-## Resumen
+## 1. Arreglar QR y generar PDF real
 
-Se reestructura la navegacion de la app con un menu desplegable en la esquina superior izquierda con 3 opciones (Mi Perfil, Landing Page, Cotizar). Se elimina el boton de perfil actual del Index. Se crea una Landing Page completa siguiendo las especificaciones detalladas.
+El QR actualmente apunta a `/cotizacion?d=...` que muestra una vista HTML. Se cambiará para que:
 
-## Cambios en detalle
+- **`/cotizacion`** renderice la cotización con los datos del perfil del vendedor incluidos (nombre, cargo, numero, email) pasados en el payload base64
+- Se agregará un botón "Descargar PDF" en la página `/cotizacion` que use la API del navegador `window.print()` con estilos de impresión optimizados (CSS `@media print`) para generar un PDF real
+- El QR seguirá apuntando a `/cotizacion?d=...` pero ahora el payload incluirá los datos del perfil del vendedor
+- Se ajustará el componente `Cotizacion.tsx` para mostrar el pie con datos del vendedor y el botón de descarga
 
-### 1. Nuevo componente: `src/components/AppMenu.tsx`
-- Menu desplegable (DropdownMenu de Radix) con icono hamburguesa o el logo Hola en la esquina superior izquierda
-- 3 opciones: "Mi Perfil" (navega a /perfil), "Landing Page" (navega a /landing), "Cotizar" (navega a /)
-- Incluye boton "Salir" para cerrar sesion
-- Se reutiliza en Index y Perfil como componente compartido
+## 2. Eliminar webhook Zapier y email de QuoteShare
 
-### 2. Modificar `src/pages/Index.tsx`
-- Reemplazar la barra superior actual (user bar con boton perfil + salir) por el componente `AppMenu`
-- El menu queda en la esquina superior izquierda, sobre o debajo del banner
+- Se simplificará `QuoteShare.tsx` eliminando todo el bloque de webhook Zapier y el bloque de envío por email
+- Solo quedará la sección de QR con el botón de descarga
 
-### 3. Modificar `src/pages/Perfil.tsx`
-- Reemplazar el boton "Volver" y "Cerrar sesion" por el componente `AppMenu`
+## 3. Datos del perfil al pie de la cotización (vista /cotizacion)
 
-### 4. Nueva pagina: `src/pages/Landing.tsx`
-Landing page completa de una sola pagina con scroll vertical, sin navbar ni footer extenso. Implementada con las 5 secciones especificadas:
+- Se modificará el payload `quoteData` en `Index.tsx` para incluir los datos del perfil: `nombre`, `cargo`, `numero`, `email_contacto`, `foto_url`
+- En `Cotizacion.tsx` se renderizará un pie con estos datos debajo del resumen
 
-**Seccion 1 - Hero** (fondo morado #5B2FBE):
-- 2 columnas: izquierda con headline/subtitulo/parrafo, derecha con formulario de captura
-- Headline con palabras destacadas en naranja (#FF6B00)
-- Formulario con 7 campos (nombre, apellido, email, telefono con selector de pais, razon social, n° empleados como dropdown, sitio web)
-- Boton CTA naranja pill "QUIERO UNA DEMOSTRACION GRATIS"
-- Al enviar el formulario, los datos se guardan en una nueva tabla `leads` en la base de datos
+## 4. Reducir tamaño del banner
 
-**Seccion 2 - Problema + 4 Beneficios** (fondo blanco):
-- Headline de urgencia centrado
-- Grid de 4 tarjetas con fondo morado oscuro (#3D1FA3), iconos, titulo y descripcion
-- CTA naranja que ancla al formulario del hero
+- En `Index.tsx`, se limitará la altura del banner con `max-h-48` o similar y `object-cover` para que no se estire y mantenga calidad
 
-**Seccion 3 - Funcionalidades** (fondo morado oscuro):
-- Grid 2x4 con 8 funcionalidades (Bot, Omnichannel, Archivos, Horario, Filas, Graficos, Tags, CSAT)
-- CTA naranja
+## 5. Menú hamburguesa en Landing Page
 
-**Seccion 4 - Prueba Social** (fondo blanco):
-- 3 tarjetas de estadisticas (+9 segmentos, +396 empresas, +7M conversaciones)
-- 2 testimonios con quotes
-- CTA
+- La Landing Page actualmente no tiene el `AppMenu`. Se agregará en la esquina superior izquierda con posición absoluta, igual que en Index
+- Perfil ya lo tiene
 
-**Seccion 5 - Cierre** (fondo morado):
-- Headline final
-- Placeholder para imagen de dashboard
-- CTA naranja final
-- Logos de credibilidad (Meta Business Partner, IXC Soft)
-- Footer minimo
+## Archivos a modificar
 
-### 5. Migracion de base de datos: tabla `leads`
-Nueva tabla para almacenar los datos del formulario de la landing:
-- `id` (uuid, PK)
-- `nombre` (text)
-- `apellido` (text)
-- `email` (text)
-- `telefono` (text)
-- `empresa` (text)
-- `num_empleados` (text)
-- `sitio_web` (text)
-- `created_at` (timestamptz)
-- RLS: insert publico (cualquiera puede enviar el formulario), select solo para usuarios autenticados
-
-### 6. Modificar `src/App.tsx`
-- Agregar ruta `/landing` con la nueva pagina Landing (publica, sin proteccion de auth)
-- Mantener rutas existentes
-
-### 7. Tipografia
-- Se importara la fuente Poppins desde Google Fonts en `index.html`
-- Se aplicara solo en la Landing Page via clases CSS
-
-## Nota tecnica sobre el archivo .ai
-El archivo `logo_wispro_ixc_soft.ai` subido no es compatible con la web. Se necesita una version PNG o JPG para poder usarlo. Por ahora se usaran los logos existentes como placeholder.
+| Archivo | Cambio |
+|---|---|
+| `src/pages/Index.tsx` | Incluir datos de perfil en quoteData, reducir banner |
+| `src/pages/Cotizacion.tsx` | Agregar pie con perfil del vendedor, botón descargar PDF, estilos print |
+| `src/components/QuoteShare.tsx` | Eliminar webhook y email, dejar solo QR |
+| `src/pages/Landing.tsx` | Agregar AppMenu en esquina superior izquierda |
 
