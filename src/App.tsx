@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Cotizacion from "./pages/Cotizacion";
 import Login from "./pages/Login";
 import Perfil from "./pages/Perfil";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -45,6 +46,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
             <Route path="/cotizacion" element={<Cotizacion />} />
+            <Route path="/landing" element={<Landing />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
