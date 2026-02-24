@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import AppMenu from "@/components/AppMenu";
 import {
   Select,
   SelectContent,
@@ -160,13 +161,9 @@ const Index = () => {
         <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full h-auto object-cover" />
       </header>
 
-      {/* User bar */}
-      <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-end gap-3">
-        <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate("/perfil")}>
-          <UserCircle className="h-4 w-4" />
-          {profile?.nombre || "Mi perfil"}
-        </Button>
-        <Button variant="outline" size="sm" onClick={signOut}>Salir</Button>
+      {/* App menu */}
+      <div className="absolute top-4 left-4 z-10">
+        <AppMenu />
       </div>
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">

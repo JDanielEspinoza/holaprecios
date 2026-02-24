@@ -6,15 +6,13 @@ import { Label } from "@/components/ui/label";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2, Save, ArrowLeft, Upload, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Save, Upload, User } from "lucide-react";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
+import AppMenu from "@/components/AppMenu";
 
 const Perfil = () => {
-  const { signOut } = useAuth();
   const { profile, loading, updateProfile, uploadPhoto } = useProfile();
-  const navigate = useNavigate();
   const [form, setForm] = useState({ nombre: "", cargo: "", email_contacto: "", numero: "" });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -58,11 +56,8 @@ const Perfil = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="mx-auto max-w-lg space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Volver
-          </Button>
-          <Button variant="outline" onClick={signOut}>Cerrar sesión</Button>
+        <div className="flex items-center">
+          <AppMenu />
         </div>
 
         <Card>
