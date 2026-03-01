@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Cotizacion from "./pages/Cotizacion";
+import Cotizaciones from "./pages/Cotizaciones";
 import Login from "./pages/Login";
 import Perfil from "./pages/Perfil";
 import Landing from "./pages/Landing";
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/landing" element={<Landing />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+            <Route path="/cotizaciones" element={<ProtectedRoute><Cotizaciones /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

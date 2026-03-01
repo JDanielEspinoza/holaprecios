@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User, Globe, FileText, LogOut } from "lucide-react";
+import { Menu, User, Globe, FileText, LogOut, History } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +43,13 @@ const AppMenu = () => {
         >
           <FileText className="mr-2 h-4 w-4" />
           Cotizar
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate("/cotizaciones")}
+          className={location.pathname === "/cotizaciones" ? "bg-accent" : ""}
+        >
+          <History className="mr-2 h-4 w-4" />
+          Cotizaciones
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut} className="text-destructive">

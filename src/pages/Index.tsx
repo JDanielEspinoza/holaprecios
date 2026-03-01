@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw, UserCircle } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import holaBanner from "@/assets/holabanner.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
@@ -9,9 +9,13 @@ import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import AppMenu from "@/components/AppMenu";
 import {
   Select,
@@ -27,9 +31,10 @@ const fmt = (n: number) =>
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
 const Index = () => {
-  const { signOut } = useAuth();
+  const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [clientCount, setClientCount] = useState<number | null>(null);
   const [selectedProducts, setSelectedProducts] = useState({
     wispro: false,
@@ -41,6 +46,16 @@ const Index = () => {
     Object.fromEntries(addons.map((a) => [a.name, 0]))
   );
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
+
+  // Client recipient fields (optional)
+  const [clientName, setClientName] = useState("");
+  const [clientCompany, setClientCompany] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+
+  // Quote sharing state
+  const [quoteId, setQuoteId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const tier = useMemo(
     () => (clientCount ? pricingTiers.find((t) => t.clients === clientCount) || pricingTiers[0] : null),
@@ -91,9 +106,14 @@ const Index = () => {
     setAddonQty(Object.fromEntries(addons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
     setDiscount(0);
+    setClientName("");
+    setClientCompany("");
+    setClientPhone("");
+    setClientEmail("");
+    setQuoteId(null);
   };
 
-  const quoteData = useMemo(() => {
+  const buildItems = () => {
     const items: { label: string; value: number; section: string }[] = [];
     if (tier && selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
     if (tier && selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
@@ -104,67 +124,50 @@ const Index = () => {
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
     });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
-    const seller = profile ? {
-      nombre: profile.nombre,
-      cargo: profile.cargo,
-      numero: profile.numero,
-      email_contacto: profile.email_contacto,
-    } : undefined;
-    return { clients: clientCount || 0, items, discount, total: grandTotal, discountedTotal, discountAmount, installationCost, seller };
-  }, [clientCount, selectedProducts, tier, addonQty, selectedCloud, cloudPrice, discount, grandTotal, discountedTotal, discountAmount, profile]);
-
-  const quoteUrl = useMemo(() => {
-    const encoded = btoa(encodeURIComponent(JSON.stringify(quoteData)));
-    return `${window.location.origin}/cotizacion?d=${encoded}`;
-  }, [quoteData]);
-
-  const buildQuoteHtml = () => {
-    const finalTotal = discount > 0 ? discountedTotal : grandTotal;
-    let rows = "";
-    if (tier && selectedProducts.wispro) rows += `<tr><td>Wispro</td><td style="text-align:right">${fmt(tier.wispro)}</td></tr>`;
-    if (tier && selectedProducts.acs) rows += `<tr><td>ACS</td><td style="text-align:right">${fmt(tier.acs)}</td></tr>`;
-    if (tier && selectedProducts.holaBasic) rows += `<tr><td>Hola! Suite</td><td style="text-align:right">${fmt(tier.holaBasic)}</td></tr>`;
-    addons.forEach((a) => {
-      const qty = addonQty[a.name] || 0;
-      if (qty > 0) rows += `<tr><td>${a.name} (x${qty})</td><td style="text-align:right">${fmt(qty * a.unitPrice)}</td></tr>`;
-    });
-    if (selectedCloud) rows += `<tr><td>${selectedCloud}</td><td style="text-align:right">${fmt(cloudPrice)}</td></tr>`;
-    if (discount > 0) rows += `<tr><td>Descuento (${discount}%)</td><td style="text-align:right;color:#16a34a">-${fmt(discountAmount)}</td></tr>`;
-
-    const profileFooter = profile ? `
-        <div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:16px;display:flex;align-items:center;gap:12px">
-          ${profile.foto_url ? `<img src="${profile.foto_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover" />` : ""}
-          <div>
-            ${profile.nombre ? `<p style="font-weight:bold;margin:0">${profile.nombre}</p>` : ""}
-            ${profile.cargo ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.cargo}</p>` : ""}
-            ${profile.email_contacto ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.email_contacto}</p>` : ""}
-            ${profile.numero ? `<p style="color:#6b7280;font-size:12px;margin:0">${profile.numero}</p>` : ""}
-          </div>
-        </div>
-    ` : "";
-
-    return `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <h2 style="color:#6d28d9">Cotización Hola Suite</h2>
-        <p>Para <strong>${fmtClients(clientCount || 0)} clientes</strong></p>
-        <table style="width:100%;border-collapse:collapse;margin:16px 0">
-          <thead><tr style="border-bottom:2px solid #e5e7eb"><th style="text-align:left;padding:8px 0">Servicio</th><th style="text-align:right;padding:8px 0">Precio</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <div style="border-top:2px solid #6d28d9;padding-top:12px;text-align:right">
-          <span style="font-size:24px;font-weight:bold;color:#6d28d9">${fmt(finalTotal)} / mes</span>
-        </div>
-        <p style="color:#6b7280;font-size:12px;margin-top:16px">Instalación (único pago): ${fmt(installationCost)}</p>
-        ${profileFooter}
-      </div>
-    `;
+    return items;
   };
+
+  const handleGenerateQuote = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const items = buildItems();
+      const { data, error } = await supabase.from("quotes" as any).insert({
+        user_id: user.id,
+        client_name: clientName,
+        client_company: clientCompany,
+        client_phone: clientPhone,
+        client_email: clientEmail,
+        clients_count: clientCount || 0,
+        items: items as any,
+        discount,
+        total: grandTotal,
+        discounted_total: discountedTotal,
+        discount_amount: discountAmount,
+        installation_cost: installationCost,
+        seller_name: profile?.nombre || "",
+        seller_cargo: profile?.cargo || "",
+        seller_numero: profile?.numero || "",
+        seller_email: profile?.email_contacto || "",
+      } as any).select("id").single();
+
+      if (error) throw error;
+      setQuoteId((data as any).id);
+      toast({ title: "Cotización generada", description: "El QR está listo para compartir." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const quoteUrl = quoteId ? `${window.location.origin}/cotizacion?id=${quoteId}` : "";
 
   return (
     <div className="min-h-screen bg-background">
       {/* Banner */}
-      <header>
-        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full max-h-48 object-cover" />
+      <header className="relative overflow-hidden max-h-32">
+        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="w-full h-32 object-cover object-center" />
       </header>
 
       {/* App menu */}
@@ -174,19 +177,24 @@ const Index = () => {
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
         {/* Client selector */}
-        <Card className="border-2 border-primary/20">
-          <CardContent className="pt-6">
+        <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5">
+          <CardContent className="pt-6 pb-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex items-center gap-3">
-                <Users className="h-8 w-8 text-primary" />
-                <span className="text-lg font-semibold text-foreground">Cantidad de Clientes</span>
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <span className="text-lg font-semibold text-foreground">Cantidad de Clientes</span>
+                  <p className="text-xs text-muted-foreground">Seleccioná la cantidad para calcular precios</p>
+                </div>
               </div>
               <div className="w-full md:max-w-xs">
                 <Select
                   value={clientCount ? String(clientCount) : ""}
-                  onValueChange={(v) => setClientCount(Number(v))}
+                  onValueChange={(v) => { setClientCount(Number(v)); setQuoteId(null); }}
                 >
-                  <SelectTrigger className="text-xl font-bold h-14">
+                  <SelectTrigger className="text-xl font-bold h-14 border-primary/30">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -213,27 +221,9 @@ const Index = () => {
 
         {/* Ecosystem products with checkboxes */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <ProductCard
-            title="Wispro"
-            value={tier?.wispro ?? 0}
-            logo={logoWispro}
-            checked={selectedProducts.wispro}
-            onToggle={() => toggleProduct("wispro")}
-          />
-          <ProductCard
-            title="ACS"
-            value={tier?.acs ?? 0}
-            logo={logoAcs}
-            checked={selectedProducts.acs}
-            onToggle={() => toggleProduct("acs")}
-          />
-          <ProductCard
-            title="Hola! Suite"
-            value={tier?.holaBasic ?? 0}
-            logo={logoHola}
-            checked={selectedProducts.holaBasic}
-            onToggle={() => toggleProduct("holaBasic")}
-          />
+          <ProductCard title="Wispro" value={tier?.wispro ?? 0} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => toggleProduct("wispro")} />
+          <ProductCard title="ACS" value={tier?.acs ?? 0} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => toggleProduct("acs")} />
+          <ProductCard title="Hola! Suite" value={tier?.holaBasic ?? 0} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => toggleProduct("holaBasic")} />
           <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center">
             <CardContent className="pt-6 pb-4 text-center flex flex-col items-center justify-center">
               <span className="text-sm font-medium text-primary mb-2">Total Ecosistema</span>
@@ -269,7 +259,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Licencia base */}
               <div className="flex justify-between items-center text-sm py-1">
                 <span className="font-medium text-foreground">Licencia base</span>
                 <span className="font-semibold text-foreground w-20 text-right">{fmt(tier?.holaBasic ?? 0)}</span>
@@ -280,45 +269,19 @@ const Index = () => {
                 const subtotal = qty * addon.unitPrice;
                 return (
                   <div key={addon.name} className="flex justify-between items-center text-sm py-1">
-                    <span className="text-foreground">
-                      {addon.name}
-                    </span>
+                    <span className="text-foreground">{addon.name}</span>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() =>
-                            setAddonQty((p) => ({
-                              ...p,
-                              [addon.name]: Math.max(0, (p[addon.name] || 0) - 1),
-                            }))
-                          }
-                        >
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: Math.max(0, (p[addon.name] || 0) - 1) }))}>
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className="w-8 text-center font-mono">{qty}</span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() =>
-                            setAddonQty((p) => ({
-                              ...p,
-                              [addon.name]: (p[addon.name] || 0) + 1,
-                            }))
-                          }
-                        >
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: (p[addon.name] || 0) + 1 }))}>
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
-                      <span className="text-muted-foreground w-14 text-right">
-                        {fmt(addon.unitPrice)}
-                      </span>
-                      <span className="font-semibold w-20 text-right text-foreground">
-                        {fmt(subtotal)}
-                      </span>
+                      <span className="text-muted-foreground w-14 text-right">{fmt(addon.unitPrice)}</span>
+                      <span className="font-semibold w-20 text-right text-foreground">{fmt(subtotal)}</span>
                     </div>
                   </div>
                 );
@@ -338,9 +301,7 @@ const Index = () => {
                 <Cloud className="h-5 w-5" />
                 Hola Cloud
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Seleccioná un plan para sumarlo al ecosistema
-              </p>
+              <p className="text-sm text-muted-foreground">Seleccioná un plan para sumarlo al ecosistema</p>
             </CardHeader>
             <CardContent className="space-y-2">
               {holaCloudPlans.map((plan) => {
@@ -350,22 +311,14 @@ const Index = () => {
                     key={plan.name}
                     onClick={() => setSelectedCloud(isSelected ? null : plan.name)}
                     className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
-                      isSelected
-                        ? "border-primary bg-primary/10 ring-2 ring-primary/30"
-                        : "border-border hover:bg-accent/50"
+                      isSelected ? "border-primary bg-primary/10 ring-2 ring-primary/30" : "border-border hover:bg-accent/50"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          isSelected ? "border-primary bg-primary" : "border-muted-foreground"
-                        }`}
-                      >
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-primary bg-primary" : "border-muted-foreground"}`}>
                         {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                       </div>
-                      <span className={`font-medium ${isSelected ? "text-foreground" : "text-foreground"}`}>
-                        {plan.name}
-                      </span>
+                      <span className="font-medium text-foreground">{plan.name}</span>
                     </div>
                     <span className="font-bold text-foreground">{fmt(plan.price)}</span>
                   </button>
@@ -385,77 +338,43 @@ const Index = () => {
         <Card className="border-2 border-primary/30 bg-primary/5">
           <CardHeader>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Detalle completo para {fmtClients(clientCount || 0)} clientes
-            </p>
+            <p className="text-sm text-muted-foreground">Detalle completo para {fmtClients(clientCount || 0)} clientes</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Ecosistema
-              </h3>
-              <SummaryLine
-                label="Wispro"
-                value={tier?.wispro ?? 0}
-                active={selectedProducts.wispro}
-              />
-              <SummaryLine
-                label="ACS"
-                value={tier?.acs ?? 0}
-                active={selectedProducts.acs}
-              />
-              <SummaryLine
-                label="Hola! Suite"
-                value={tier?.holaBasic ?? 0}
-                active={selectedProducts.holaBasic}
-              />
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Ecosistema</h3>
+              <SummaryLine label="Wispro" value={tier?.wispro ?? 0} active={selectedProducts.wispro} />
+              <SummaryLine label="ACS" value={tier?.acs ?? 0} active={selectedProducts.acs} />
+              <SummaryLine label="Hola! Suite" value={tier?.holaBasic ?? 0} active={selectedProducts.holaBasic} />
             </div>
 
             <div className="border-t border-border pt-3 space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Personalización Hola
-              </h3>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Personalización Hola</h3>
               <SummaryLine label="Licencia base" value={licenseBase} active={selectedProducts.holaBasic} />
               {addons.map((addon) => {
                 const qty = addonQty[addon.name] || 0;
                 if (qty === 0) return null;
-                const subtotal = qty * addon.unitPrice;
-                return (
-                  <SummaryLine
-                    key={addon.name}
-                    label={`${addon.name} (x${qty})`}
-                    value={subtotal}
-                    active
-                  />
-                );
+                return <SummaryLine key={addon.name} label={`${addon.name} (x${qty})`} value={qty * addon.unitPrice} active />;
               })}
             </div>
 
             {selectedCloud && (
               <div className="border-t border-border pt-3 space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Cloud
-                </h3>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Cloud</h3>
                 <SummaryLine label={selectedCloud} value={cloudPrice} active />
               </div>
             )}
 
             <div className="border-t-2 border-primary/30 pt-4 space-y-3">
-              {/* Discount selector */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Descuento</span>
-                <Select
-                  value={String(discount)}
-                  onValueChange={(v) => setDiscount(Number(v))}
-                >
+                <Select value={String(discount)} onValueChange={(v) => { setDiscount(Number(v)); setQuoteId(null); }}>
                   <SelectTrigger className="w-32 h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {[0, 5, 10, 15, 20, 25, 30].map((d) => (
-                      <SelectItem key={d} value={String(d)}>
-                        {d === 0 ? "Sin descuento" : `${d}%`}
-                      </SelectItem>
+                      <SelectItem key={d} value={String(d)}>{d === 0 ? "Sin descuento" : `${d}%`}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -486,46 +405,57 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
-        {/* Share */}
-        <QuoteShare quoteUrl={quoteUrl} />
+
+        {/* Client recipient fields */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Datos del destinatario (opcional)</CardTitle>
+            <p className="text-sm text-muted-foreground">Completá los datos del cliente para personalizar la cotización</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="clientName">Nombre</Label>
+                <Input id="clientName" placeholder="Nombre del cliente" value={clientName} onChange={(e) => { setClientName(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientCompany">Empresa</Label>
+                <Input id="clientCompany" placeholder="Nombre de la empresa" value={clientCompany} onChange={(e) => { setClientCompany(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientPhone">Teléfono</Label>
+                <Input id="clientPhone" placeholder="Teléfono de contacto" value={clientPhone} onChange={(e) => { setClientPhone(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientEmail">Email</Label>
+                <Input id="clientEmail" placeholder="Email de contacto" type="email" value={clientEmail} onChange={(e) => { setClientEmail(e.target.value); setQuoteId(null); }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Generate & Share */}
+        {!quoteId ? (
+          <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg" size="lg">
+            {saving ? "Generando..." : "Generar Cotización"}
+          </Button>
+        ) : (
+          <QuoteShare quoteUrl={quoteUrl} />
+        )}
       </main>
     </div>
   );
 };
 
-function ProductCard({
-  title,
-  value,
-  logo,
-  checked,
-  onToggle,
-}: {
-  title: string;
-  value: number;
-  logo: string;
-  checked: boolean;
-  onToggle: () => void;
-}) {
+function ProductCard({ title, value, logo, checked, onToggle }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void }) {
   return (
-    <Card
-      className={`cursor-pointer transition-all ${
-        checked ? "" : "opacity-40"
-      }`}
-      onClick={onToggle}
-    >
+    <Card className={`cursor-pointer transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
       <CardContent className="pt-5 text-center">
         <div className="flex items-center justify-center mb-2">
           <Checkbox checked={checked} className="pointer-events-none" />
         </div>
         <div className="flex items-center justify-center mb-3">
-          <img
-            src={logo}
-            alt={title}
-            className={`h-16 w-auto object-contain ${
-              title === "Hola! Suite" ? "rounded-xl" : ""
-            } ${title === "ACS" ? "border-0 shadow-none" : ""}`}
-            style={title === "ACS" ? { border: "none", outline: "none" } : undefined}
-          />
+          <img src={logo} alt={title} className={`h-16 w-auto object-contain ${title === "Hola! Suite" ? "rounded-xl" : ""} ${title === "ACS" ? "border-0 shadow-none" : ""}`} style={title === "ACS" ? { border: "none", outline: "none" } : undefined} />
         </div>
         <p className="text-2xl font-bold text-foreground">{fmt(value)}</p>
         <p className="text-xs text-muted-foreground mt-1">/ mes</p>
@@ -534,21 +464,9 @@ function ProductCard({
   );
 }
 
-function SummaryLine({
-  label,
-  value,
-  active,
-}: {
-  label: string;
-  value: number;
-  active: boolean;
-}) {
+function SummaryLine({ label, value, active }: { label: string; value: number; active: boolean }) {
   return (
-    <div
-      className={`flex justify-between items-center text-sm py-1 ${
-        active ? "text-foreground" : "text-muted-foreground line-through opacity-50"
-      }`}
-    >
+    <div className={`flex justify-between items-center text-sm py-1 ${active ? "text-foreground" : "text-muted-foreground line-through opacity-50"}`}>
       <span>{label}</span>
       <span className="font-semibold">{fmt(active ? value : 0)}</span>
     </div>
