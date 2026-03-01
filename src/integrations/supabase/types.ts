@@ -86,6 +86,69 @@ export type Database = {
         }
         Relationships: []
       }
+      quotes: {
+        Row: {
+          client_company: string | null
+          client_email: string | null
+          client_name: string | null
+          client_phone: string | null
+          clients_count: number
+          created_at: string
+          discount: number
+          discount_amount: number
+          discounted_total: number
+          id: string
+          installation_cost: number
+          items: Json
+          seller_cargo: string | null
+          seller_email: string | null
+          seller_name: string | null
+          seller_numero: string | null
+          total: number
+          user_id: string
+        }
+        Insert: {
+          client_company?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          clients_count?: number
+          created_at?: string
+          discount?: number
+          discount_amount?: number
+          discounted_total?: number
+          id?: string
+          installation_cost?: number
+          items?: Json
+          seller_cargo?: string | null
+          seller_email?: string | null
+          seller_name?: string | null
+          seller_numero?: string | null
+          total?: number
+          user_id: string
+        }
+        Update: {
+          client_company?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          clients_count?: number
+          created_at?: string
+          discount?: number
+          discount_amount?: number
+          discounted_total?: number
+          id?: string
+          installation_cost?: number
+          items?: Json
+          seller_cargo?: string | null
+          seller_email?: string | null
+          seller_name?: string | null
+          seller_numero?: string | null
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
