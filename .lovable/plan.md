@@ -1,41 +1,57 @@
 
 
-# Plan: Correcciones QR/PDF, limpieza de compartir, perfil en cotización, banner y menú
+# Plan: QR via DB, formulario destinatario, historial, banner, estilos, validez
 
-## 1. Arreglar QR y generar PDF real
+## 1. Crear tabla `quotes` en la base de datos
 
-El QR actualmente apunta a `/cotizacion?d=...` que muestra una vista HTML. Se cambiará para que:
+Nueva tabla para guardar cotizaciones con URL corta (UUID):
+- `id` (uuid PK), `user_id` (uuid), `client_name`, `client_company`, `client_phone`, `client_email` (todos text, nullable)
+- `clients_count` (int), `items` (jsonb), `discount` (int), `total` (numeric), `discounted_total` (numeric), `discount_amount` (numeric), `installation_cost` (numeric)
+- `seller_name`, `seller_cargo`, `seller_numero`, `seller_email` (text)
+- `created_at` (timestamptz default now())
+- RLS: authenticated users can insert/select their own rows; anonymous can select any row by id (for the shared link)
 
-- **`/cotizacion`** renderice la cotización con los datos del perfil del vendedor incluidos (nombre, cargo, numero, email) pasados en el payload base64
-- Se agregará un botón "Descargar PDF" en la página `/cotizacion` que use la API del navegador `window.print()` con estilos de impresión optimizados (CSS `@media print`) para generar un PDF real
-- El QR seguirá apuntando a `/cotizacion?d=...` pero ahora el payload incluirá los datos del perfil del vendedor
-- Se ajustará el componente `Cotizacion.tsx` para mostrar el pie con datos del vendedor y el botón de descarga
+## 2. Corregir QR: guardar en DB y generar URL corta
 
-## 2. Eliminar webhook Zapier y email de QuoteShare
+En `Index.tsx`:
+- Al generar la cotizacion, insertar en tabla `quotes` y obtener el UUID
+- La URL del QR sera `{origin}/cotizacion?id={uuid}` (corta, funciona con QR)
+- Agregar 4 campos opcionales antes de compartir: nombre cliente, empresa, telefono, email
 
-- Se simplificará `QuoteShare.tsx` eliminando todo el bloque de webhook Zapier y el bloque de envío por email
-- Solo quedará la sección de QR con el botón de descarga
+En `Cotizacion.tsx`:
+- Leer el parametro `id` de la URL y hacer fetch a la tabla `quotes`
+- Renderizar la cotizacion con los datos obtenidos de la DB
+- Mantener boton "Descargar PDF" con `window.print()`
 
-## 3. Datos del perfil al pie de la cotización (vista /cotizacion)
+## 3. Historial de cotizaciones
 
-- Se modificará el payload `quoteData` en `Index.tsx` para incluir los datos del perfil: `nombre`, `cargo`, `numero`, `email_contacto`, `foto_url`
-- En `Cotizacion.tsx` se renderizará un pie con estos datos debajo del resumen
+Nueva pagina `src/pages/Cotizaciones.tsx`:
+- Tabla con todas las cotizaciones del usuario: fecha/hora, destinatario, valor total, plataformas
+- Link para abrir cada cotizacion
 
-## 4. Reducir tamaño del banner
+Agregar "Cotizaciones" al `AppMenu.tsx` y ruta `/cotizaciones` protegida en `App.tsx`.
 
-- En `Index.tsx`, se limitará la altura del banner con `max-h-48` o similar y `object-cover` para que no se estire y mantenga calidad
+## 4. Banner mas compacto
 
-## 5. Menú hamburguesa en Landing Page
+Cambiar `max-h-48` a `max-h-32` con `object-cover object-center` en `Index.tsx`.
 
-- La Landing Page actualmente no tiene el `AppMenu`. Se agregará en la esquina superior izquierda con posición absoluta, igual que en Index
-- Perfil ya lo tiene
+## 5. Estilizar selector de clientes
 
-## Archivos a modificar
+Mejorar visualmente la card de "Cantidad de Clientes" con gradiente y mejor espaciado.
+
+## 6. Texto de validez al pie de la cotizacion
+
+En `Cotizacion.tsx`, agregar al final: "Cotizacion valida hasta el 12 de Marzo, mientras dure el evento Andina Link."
+
+## Archivos a crear/modificar
 
 | Archivo | Cambio |
 |---|---|
-| `src/pages/Index.tsx` | Incluir datos de perfil en quoteData, reducir banner |
-| `src/pages/Cotizacion.tsx` | Agregar pie con perfil del vendedor, botón descargar PDF, estilos print |
-| `src/components/QuoteShare.tsx` | Eliminar webhook y email, dejar solo QR |
-| `src/pages/Landing.tsx` | Agregar AppMenu en esquina superior izquierda |
+| Nueva migracion SQL | Crear tabla `quotes` con RLS |
+| `src/pages/Index.tsx` | Campos destinatario, guardar en DB, URL corta, banner, estilos selector |
+| `src/pages/Cotizacion.tsx` | Fetch por ID, texto validez |
+| `src/components/QuoteShare.tsx` | Recibir UUID, estado de carga |
+| `src/pages/Cotizaciones.tsx` | Nueva pagina historial |
+| `src/components/AppMenu.tsx` | Agregar opcion "Cotizaciones" |
+| `src/App.tsx` | Agregar ruta `/cotizaciones` |
 
