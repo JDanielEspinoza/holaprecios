@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoHola from "@/assets/logo-hola.png";
+import AppMenu from "@/components/AppMenu";
 import { Bot, Link, FolderOpen, Clock, Layers, BarChart3, Tag, Star, MessageCircle, TrendingUp, Target, Building2, Quote } from "lucide-react";
 
 const countryCodes = [
@@ -59,6 +60,11 @@ const Landing = () => {
 
   return (
     <div className="font-['Poppins',sans-serif] overflow-x-hidden">
+      {/* App menu */}
+      <div className="fixed top-4 left-4 z-50">
+        <AppMenu />
+      </div>
+
       {/* SECTION 1 — HERO */}
       <section className="relative bg-gradient-to-br from-[#5B2FBE] via-[#5B2FBE] to-[#3D1FA3] px-6 py-16 lg:py-24">
         <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">

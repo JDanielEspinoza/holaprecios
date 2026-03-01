@@ -104,11 +104,17 @@ const Index = () => {
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
     });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
-    return { clients: clientCount || 0, items, discount, total: grandTotal, discountedTotal, discountAmount, installationCost };
-  }, [clientCount, selectedProducts, tier, addonQty, selectedCloud, cloudPrice, discount, grandTotal, discountedTotal, discountAmount]);
+    const seller = profile ? {
+      nombre: profile.nombre,
+      cargo: profile.cargo,
+      numero: profile.numero,
+      email_contacto: profile.email_contacto,
+    } : undefined;
+    return { clients: clientCount || 0, items, discount, total: grandTotal, discountedTotal, discountAmount, installationCost, seller };
+  }, [clientCount, selectedProducts, tier, addonQty, selectedCloud, cloudPrice, discount, grandTotal, discountedTotal, discountAmount, profile]);
 
   const quoteUrl = useMemo(() => {
-    const encoded = btoa(JSON.stringify(quoteData));
+    const encoded = btoa(encodeURIComponent(JSON.stringify(quoteData)));
     return `${window.location.origin}/cotizacion?d=${encoded}`;
   }, [quoteData]);
 
@@ -158,7 +164,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Banner */}
       <header>
-        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full h-auto object-cover" />
+        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel que conecta personas" className="w-full max-h-48 object-cover" />
       </header>
 
       {/* App menu */}
@@ -481,7 +487,7 @@ const Index = () => {
           </CardContent>
         </Card>
         {/* Share */}
-        <QuoteShare quoteHtml={buildQuoteHtml()} quoteUrl={quoteUrl} />
+        <QuoteShare quoteUrl={quoteUrl} />
       </main>
     </div>
   );
