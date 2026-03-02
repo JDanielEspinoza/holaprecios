@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, User, Briefcase, Phone, Mail, Loader2, Building } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import logoHola from "@/assets/logo-hola.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,6 +30,7 @@ interface QuoteData {
   seller_cargo: string;
   seller_numero: string;
   seller_email: string;
+  seller_foto: string | null;
   client_name: string;
   client_company: string;
   client_phone: string;
@@ -172,33 +174,40 @@ const Cotizacion = () => {
 
             {/* Seller profile footer */}
             {(data.seller_name || data.seller_cargo || data.seller_numero || data.seller_email) && (
-              <div className="border-t border-border pt-4 space-y-2">
+              <div className="border-t border-border pt-4 space-y-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tu asesor</p>
-                <div className="space-y-1">
-                  {data.seller_name && (
-                    <div className="flex items-center gap-2 text-sm text-foreground">
-                      <User className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="font-medium">{data.seller_name}</span>
-                    </div>
-                  )}
-                  {data.seller_cargo && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Briefcase className="h-3.5 w-3.5" />
-                      <span>{data.seller_cargo}</span>
-                    </div>
-                  )}
-                  {data.seller_numero && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span>{data.seller_numero}</span>
-                    </div>
-                  )}
-                  {data.seller_email && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span>{data.seller_email}</span>
-                    </div>
-                  )}
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-14 w-14 border-2 border-primary/20">
+                    {data.seller_foto ? (
+                      <AvatarImage src={data.seller_foto} alt={data.seller_name || "Asesor"} />
+                    ) : null}
+                    <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
+                      {(data.seller_name || "?").charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-0.5">
+                    {data.seller_name && (
+                      <p className="text-sm font-semibold text-foreground">{data.seller_name}</p>
+                    )}
+                    {data.seller_cargo && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Briefcase className="h-3 w-3" />
+                        <span>{data.seller_cargo}</span>
+                      </div>
+                    )}
+                    {data.seller_numero && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <span>{data.seller_numero}</span>
+                      </div>
+                    )}
+                    {data.seller_email && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span>{data.seller_email}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

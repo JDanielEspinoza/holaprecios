@@ -149,6 +149,7 @@ const Index = () => {
         seller_cargo: profile?.cargo || "",
         seller_numero: profile?.numero || "",
         seller_email: profile?.email_contacto || "",
+        seller_foto: profile?.foto_url || null,
       } as any).select("id").single();
 
       if (error) throw error;
@@ -166,8 +167,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Banner */}
-      <header className="relative overflow-hidden max-h-32">
-        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="w-full h-32 object-cover object-center" />
+      <header className="w-full bg-[hsl(var(--primary))] overflow-hidden">
+        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="mx-auto max-w-6xl w-full h-28 object-cover object-center" />
       </header>
 
       {/* App menu */}
@@ -440,7 +441,7 @@ const Index = () => {
             {saving ? "Generando..." : "Generar Cotización"}
           </Button>
         ) : (
-          <QuoteShare quoteUrl={quoteUrl} />
+          <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} />
         )}
       </main>
     </div>

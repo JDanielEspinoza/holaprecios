@@ -1,14 +1,15 @@
 import { useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Download, Share2 } from "lucide-react";
+import { QrCode, Download, Share2, MessageCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 interface QuoteShareProps {
   quoteUrl: string;
+  clientPhone?: string;
 }
 
-export function QuoteShare({ quoteUrl }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone }: QuoteShareProps) {
   const downloadQR = useCallback(() => {
     const svg = document.getElementById("quote-qr");
     if (!svg) return;
@@ -28,6 +29,16 @@ export function QuoteShare({ quoteUrl }: QuoteShareProps) {
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   }, []);
 
+  const handleWhatsApp = useCallback(() => {
+    if (!clientPhone) return;
+    const cleanPhone = clientPhone.replace(/[\s\-\+\(\)]/g, "");
+    const message = `¡Hola! Te comparto tu cotización de Hola Suite:\n${quoteUrl}`;
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, "_blank");
+  }, [clientPhone, quoteUrl]);
+
+  const hasPhone = !!clientPhone?.replace(/[\s\-\+\(\)]/g, "").trim();
+
   return (
     <Card>
       <CardHeader>
@@ -37,6 +48,25 @@ export function QuoteShare({ quoteUrl }: QuoteShareProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* WhatsApp */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleWhatsApp}
+            disabled={!hasPhone}
+            className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
+            size="lg"
+          >
+            <MessageCircle className="h-5 w-5" />
+            Compartir por WhatsApp
+          </Button>
+          {!hasPhone && (
+            <p className="text-xs text-muted-foreground text-center">
+              Completá el teléfono del cliente para habilitar WhatsApp
+            </p>
+          )}
+        </div>
+
+        {/* QR */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <QrCode className="h-4 w-4" />
