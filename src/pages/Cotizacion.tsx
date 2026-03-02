@@ -89,10 +89,24 @@ const Cotizacion = () => {
         }
       `}</style>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 print-container">
-        <div className="w-full max-w-lg mb-4 no-print">
+        <div className="w-full max-w-lg mb-4 no-print space-y-2">
           <Button onClick={() => window.print()} className="w-full gap-2" size="lg">
             <Download className="h-5 w-5" />
             Descargar PDF
+          </Button>
+          <Button
+            onClick={() => {
+              const id = params.get("id") || "";
+              const quoteUrl = `https://holaprecios.lovable.app/cotizacion?id=${id}`;
+              const sellerName = data?.seller_name || "tu asesor";
+              const text = `Hola! Recibí esta cotización de parte de ${sellerName} en Andina Link y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
+              window.open(`https://api.whatsapp.com/send?phone=5492615783684&text=${encodeURIComponent(text)}`, "_blank");
+            }}
+            className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
+            size="lg"
+          >
+            <Phone className="h-5 w-5" />
+            Deseo confirmar mi cotización
           </Button>
         </div>
 
