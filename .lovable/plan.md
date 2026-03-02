@@ -1,57 +1,44 @@
 
 
-# Plan: QR via DB, formulario destinatario, historial, banner, estilos, validez
+# Plan: WhatsApp sharing, firma completa, banner fix
 
-## 1. Crear tabla `quotes` en la base de datos
+## 1. Boton "Compartir por WhatsApp" en QuoteShare
 
-Nueva tabla para guardar cotizaciones con URL corta (UUID):
-- `id` (uuid PK), `user_id` (uuid), `client_name`, `client_company`, `client_phone`, `client_email` (todos text, nullable)
-- `clients_count` (int), `items` (jsonb), `discount` (int), `total` (numeric), `discounted_total` (numeric), `discount_amount` (numeric), `installation_cost` (numeric)
-- `seller_name`, `seller_cargo`, `seller_numero`, `seller_email` (text)
-- `created_at` (timestamptz default now())
-- RLS: authenticated users can insert/select their own rows; anonymous can select any row by id (for the shared link)
+Add a "Compartir por WhatsApp" button in `QuoteShare.tsx` that:
+- Takes the `clientPhone` prop (from the recipient fields already in Index)
+- Strips spaces, dashes, and `+` from the phone number
+- Opens `https://wa.me/{cleanPhone}?text={encodedMessage}` in a new tab
+- The message will include a greeting and the quote URL
+- Button disabled if no client phone provided, with helper text
 
-## 2. Corregir QR: guardar en DB y generar URL corta
+## 2. Firma completa del vendedor en Cotizacion.tsx
 
-En `Index.tsx`:
-- Al generar la cotizacion, insertar en tabla `quotes` y obtener el UUID
-- La URL del QR sera `{origin}/cotizacion?id={uuid}` (corta, funciona con QR)
-- Agregar 4 campos opcionales antes de compartir: nombre cliente, empresa, telefono, email
+Currently the quote stores `seller_name`, `seller_cargo`, `seller_numero`, `seller_email` but NOT `seller_foto`. 
 
-En `Cotizacion.tsx`:
-- Leer el parametro `id` de la URL y hacer fetch a la tabla `quotes`
-- Renderizar la cotizacion con los datos obtenidos de la DB
-- Mantener boton "Descargar PDF" con `window.print()`
+**DB migration**: Add `seller_foto` column (text, nullable) to `quotes` table.
 
-## 3. Historial de cotizaciones
+**Index.tsx**: Include `profile?.foto_url` as `seller_foto` when inserting the quote.
 
-Nueva pagina `src/pages/Cotizaciones.tsx`:
-- Tabla con todas las cotizaciones del usuario: fecha/hora, destinatario, valor total, plataformas
-- Link para abrir cada cotizacion
+**Cotizacion.tsx**: Update the "Tu asesor" footer section to show:
+- Profile photo (circular avatar) if available
+- Name, Cargo, Numero, Email — all with icons (already partially there, just ensure all 4 show)
 
-Agregar "Cotizaciones" al `AppMenu.tsx` y ruta `/cotizaciones` protegida en `App.tsx`.
+## 3. Banner fix for widescreen
 
-## 4. Banner mas compacto
+The current banner uses `max-h-32` and `h-32` which stretches on wide screens. Fix by wrapping in a container with `max-w-screen` and using a fixed aspect ratio or capping width, and centering the image. Use a dark background behind so edges don't look broken.
 
-Cambiar `max-h-48` a `max-h-32` con `object-cover object-center` en `Index.tsx`.
+Change approach: use a full-width div with `h-28 bg-[#5B2FBE]` as background, and render the banner image with `max-w-6xl mx-auto h-28 object-cover object-center` so it stays contained and elegant on any screen size.
 
-## 5. Estilizar selector de clientes
+## 4. QuoteShare receives clientPhone
 
-Mejorar visualmente la card de "Cantidad de Clientes" con gradiente y mejor espaciado.
+Pass `clientPhone` from Index.tsx to `QuoteShare` component.
 
-## 6. Texto de validez al pie de la cotizacion
+## Files to modify
 
-En `Cotizacion.tsx`, agregar al final: "Cotizacion valida hasta el 12 de Marzo, mientras dure el evento Andina Link."
-
-## Archivos a crear/modificar
-
-| Archivo | Cambio |
+| File | Change |
 |---|---|
-| Nueva migracion SQL | Crear tabla `quotes` con RLS |
-| `src/pages/Index.tsx` | Campos destinatario, guardar en DB, URL corta, banner, estilos selector |
-| `src/pages/Cotizacion.tsx` | Fetch por ID, texto validez |
-| `src/components/QuoteShare.tsx` | Recibir UUID, estado de carga |
-| `src/pages/Cotizaciones.tsx` | Nueva pagina historial |
-| `src/components/AppMenu.tsx` | Agregar opcion "Cotizaciones" |
-| `src/App.tsx` | Agregar ruta `/cotizaciones` |
+| New migration SQL | Add `seller_foto` text column to `quotes` |
+| `src/pages/Index.tsx` | Pass `seller_foto` on insert, pass `clientPhone` to QuoteShare, fix banner |
+| `src/pages/Cotizacion.tsx` | Show full seller profile with photo in footer |
+| `src/components/QuoteShare.tsx` | Add WhatsApp button, accept `clientPhone` prop |
 
