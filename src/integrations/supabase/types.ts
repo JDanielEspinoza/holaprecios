@@ -102,6 +102,7 @@ export type Database = {
           items: Json
           seller_cargo: string | null
           seller_email: string | null
+          seller_foto: string | null
           seller_name: string | null
           seller_numero: string | null
           total: number
@@ -122,6 +123,7 @@ export type Database = {
           items?: Json
           seller_cargo?: string | null
           seller_email?: string | null
+          seller_foto?: string | null
           seller_name?: string | null
           seller_numero?: string | null
           total?: number
@@ -142,6 +144,7 @@ export type Database = {
           items?: Json
           seller_cargo?: string | null
           seller_email?: string | null
+          seller_foto?: string | null
           seller_name?: string | null
           seller_numero?: string | null
           total?: number
