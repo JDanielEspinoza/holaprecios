@@ -88,9 +88,9 @@ const Cotizacion = () => {
           .print-card { border: none !important; box-shadow: none !important; }
         }
       `}</style>
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 print-container">
-        <div className="w-full max-w-lg mb-4 no-print space-y-2">
-          <Button onClick={() => window.print()} className="w-full gap-2" size="lg">
+      <div className="min-h-screen bg-premium-gradient flex flex-col items-center justify-center p-4 print-container">
+        <div className="w-full max-w-lg mb-4 no-print space-y-2 animate-fade-slide-up">
+          <Button onClick={() => window.print()} className="w-full gap-2 btn-premium" size="lg">
             <Download className="h-5 w-5" />
             Descargar PDF
           </Button>
@@ -110,7 +110,7 @@ const Cotizacion = () => {
           </Button>
         </div>
 
-        <Card className="w-full max-w-lg border-2 border-primary/30 bg-primary/5 print-card">
+        <Card className="w-full max-w-lg card-premium border-2 border-primary/30 bg-primary/5 print-card animate-fade-slide-up-1">
           <CardHeader className="text-center pb-2">
             <div className="flex justify-center mb-3">
               <img src={logoHola} alt="Hola Suite" className="h-12 rounded-xl" />
@@ -176,7 +176,7 @@ const Cotizacion = () => {
                   {data.discount > 0 && (
                     <p className="text-lg text-muted-foreground line-through">{fmt(data.total)}</p>
                   )}
-                  <p className="text-4xl font-bold text-primary">{fmt(finalTotal)}</p>
+                  <p className="text-4xl font-bold text-primary glow-total">{fmt(finalTotal)}</p>
                 </div>
               </div>
             </div>
@@ -191,7 +191,7 @@ const Cotizacion = () => {
               <div className="border-t border-border pt-4 space-y-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tu asesor</p>
                 <div className="flex items-start gap-3">
-                  <Avatar className="h-14 w-14 border-2 border-primary/20">
+                  <Avatar className="h-14 w-14 border-2 border-primary/20 animate-glow-pulse">
                     {data.seller_foto ? (
                       <AvatarImage src={data.seller_foto} alt={data.seller_name || "Asesor"} />
                     ) : null}

@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -36,23 +32,20 @@ All colors MUST be HSL.
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --shadow-premium: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 10px 30px -5px hsl(0 0% 0% / 0.08);
+    --shadow-premium-hover: 0 8px 16px -4px hsl(0 0% 0% / 0.08), 0 20px 40px -8px hsl(0 0% 0% / 0.12);
+    --gradient-premium-bg: linear-gradient(135deg, hsl(260 60% 50% / 0.03), hsl(220 70% 55% / 0.05), hsl(260 60% 50% / 0.02));
   }
 
   .dark {
@@ -102,4 +95,87 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Premium utility classes */
+@layer components {
+  .card-premium {
+    box-shadow: var(--shadow-premium);
+    transition: box-shadow 300ms ease-out, transform 300ms ease-out;
+  }
+  .card-premium:hover {
+    box-shadow: var(--shadow-premium-hover);
+    transform: translateY(-3px) scale(1.01);
+  }
+
+  .btn-premium {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
+    transition: transform 150ms ease-out, box-shadow 250ms ease-out;
+  }
+  .btn-premium:hover {
+    box-shadow: 0 4px 16px hsl(var(--primary) / 0.25);
+  }
+  .btn-premium:active {
+    transform: scale(0.97);
+  }
+
+  .input-premium {
+    transition: border-color 250ms ease-out, box-shadow 250ms ease-out;
+  }
+  .input-premium:focus {
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  }
+
+  .bg-premium-gradient {
+    background: var(--gradient-premium-bg);
+  }
+
+  .glow-total {
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.15);
+  }
+}
+
+/* Animations */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.2);
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.5s ease-out both;
+}
+
+.animate-fade-slide-up-1 { animation: fade-slide-up 0.5s ease-out 0.1s both; }
+.animate-fade-slide-up-2 { animation: fade-slide-up 0.5s ease-out 0.2s both; }
+.animate-fade-slide-up-3 { animation: fade-slide-up 0.5s ease-out 0.3s both; }
+.animate-fade-slide-up-4 { animation: fade-slide-up 0.5s ease-out 0.4s both; }
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
 }

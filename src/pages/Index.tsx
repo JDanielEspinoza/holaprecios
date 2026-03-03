@@ -165,9 +165,9 @@ const Index = () => {
   const quoteUrl = quoteId ? `${window.location.origin}/cotizacion?id=${quoteId}` : "";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-premium-gradient">
       {/* Banner */}
-      <header className="w-full bg-[hsl(var(--primary))] overflow-hidden">
+      <header className="w-full bg-gradient-to-r from-[hsl(260,50%,30%)] via-[hsl(var(--primary))] to-[hsl(230,50%,25%)] overflow-hidden animate-gradient-shift">
         <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="mx-auto max-w-6xl w-full h-28 object-cover object-center" />
       </header>
 
@@ -176,9 +176,9 @@ const Index = () => {
         <AppMenu />
       </div>
 
-      <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
+      <main className="mx-auto max-w-6xl px-6 py-10 space-y-10">
         {/* Client selector */}
-        <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5">
+        <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5 card-premium animate-fade-slide-up">
           <CardContent className="pt-6 pb-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex items-center gap-3">
@@ -221,14 +221,14 @@ const Index = () => {
         </Card>
 
         {/* Ecosystem products with checkboxes */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-slide-up-1">
           <ProductCard title="Wispro" value={tier?.wispro ?? 0} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => toggleProduct("wispro")} />
           <ProductCard title="ACS" value={tier?.acs ?? 0} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => toggleProduct("acs")} />
           <ProductCard title="Hola! Suite" value={tier?.holaBasic ?? 0} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => toggleProduct("holaBasic")} />
-          <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center">
+          <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center card-premium">
             <CardContent className="pt-6 pb-4 text-center flex flex-col items-center justify-center">
               <span className="text-sm font-medium text-primary mb-2">Total Ecosistema</span>
-              <p className="text-3xl font-bold text-primary">{fmt(grandTotal)}</p>
+              <p className="text-3xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
               <p className="text-xs text-muted-foreground mt-1">/ mes</p>
               {(selectedProducts.wispro || selectedProducts.acs || selectedProducts.holaBasic) && (
                 <div className="flex items-center justify-center gap-2 mt-3">
@@ -241,9 +241,9 @@ const Index = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-slide-up-2">
           {/* Personalización Hola */}
-          <Card>
+          <Card className="card-premium">
             <CardHeader>
               <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -296,7 +296,7 @@ const Index = () => {
           </Card>
 
           {/* Hola Cloud selectable */}
-          <Card>
+          <Card className="card-premium">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Cloud className="h-5 w-5" />
@@ -336,7 +336,7 @@ const Index = () => {
         </div>
 
         {/* Summary */}
-        <Card className="border-2 border-primary/30 bg-primary/5">
+        <Card className="border-2 border-primary/30 bg-primary/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
             <p className="text-sm text-muted-foreground">Detalle completo para {fmtClients(clientCount || 0)} clientes</p>
@@ -390,11 +390,11 @@ const Index = () => {
                   {discount > 0 ? (
                     <>
                       <p className="text-lg text-muted-foreground line-through">{fmt(grandTotal)}</p>
-                      <p className="text-4xl font-bold text-primary">{fmt(discountedTotal)}</p>
+                      <p className="text-4xl font-bold text-primary glow-total">{fmt(discountedTotal)}</p>
                       <p className="text-sm text-emerald-600 font-medium">Ahorro: {fmt(discountAmount)}</p>
                     </>
                   ) : (
-                    <p className="text-4xl font-bold text-primary">{fmt(grandTotal)}</p>
+                    <p className="text-4xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
                   )}
                 </div>
               </div>
@@ -408,7 +408,7 @@ const Index = () => {
         </Card>
 
         {/* Client recipient fields */}
-        <Card>
+        <Card className="card-premium animate-fade-slide-up-4">
           <CardHeader>
             <CardTitle className="text-lg">Datos del destinatario (opcional)</CardTitle>
             <p className="text-sm text-muted-foreground">Completá los datos del cliente para personalizar la cotización</p>
@@ -437,7 +437,7 @@ const Index = () => {
 
         {/* Generate & Share */}
         {!quoteId ? (
-          <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg" size="lg">
+          <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg btn-premium" size="lg">
             {saving ? "Generando..." : "Generar Cotización"}
           </Button>
         ) : (
@@ -450,7 +450,7 @@ const Index = () => {
 
 function ProductCard({ title, value, logo, checked, onToggle }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void }) {
   return (
-    <Card className={`cursor-pointer transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
+    <Card className={`cursor-pointer card-premium transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
       <CardContent className="pt-5 text-center">
         <div className="flex items-center justify-center mb-2">
           <Checkbox checked={checked} className="pointer-events-none" />

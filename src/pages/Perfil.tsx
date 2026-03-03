@@ -54,13 +54,13 @@ const Perfil = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-premium-gradient p-4">
       <div className="mx-auto max-w-lg space-y-6">
-        <div className="flex items-center">
+        <div className="flex items-center animate-fade-slide-up">
           <AppMenu />
         </div>
 
-        <Card>
+        <Card className="card-premium animate-fade-slide-up-1">
           <CardHeader>
             <CardTitle>Mi Perfil</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -75,7 +75,7 @@ const Perfil = () => {
                 Tu foto será usada en la parte superior de la cotización. Si no subís una, se mostrará el logo Wispro + IXC Soft por defecto.
               </p>
               <div className="flex items-center gap-4">
-                <div className="h-20 w-20 rounded-full border-2 border-border overflow-hidden bg-muted flex items-center justify-center">
+                <div className="h-20 w-20 rounded-full border-2 border-primary/20 overflow-hidden bg-muted flex items-center justify-center animate-glow-pulse">
                   {profile?.foto_url ? (
                     <img src={profile.foto_url} alt="Foto" className="h-full w-full object-cover" />
                   ) : (
@@ -100,21 +100,21 @@ const Perfil = () => {
             <form onSubmit={handleSave} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre completo</Label>
-                <Input id="nombre" value={form.nombre} onChange={(e) => setForm(f => ({...f, nombre: e.target.value}))} placeholder="Ej: Jorthy Carvajal" />
+                <Input id="nombre" value={form.nombre} onChange={(e) => setForm(f => ({...f, nombre: e.target.value}))} placeholder="Ej: Jorthy Carvajal" className="input-premium" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cargo">Cargo</Label>
-                <Input id="cargo" value={form.cargo} onChange={(e) => setForm(f => ({...f, cargo: e.target.value}))} placeholder="Ej: SDR Hola! Suite" />
+                <Input id="cargo" value={form.cargo} onChange={(e) => setForm(f => ({...f, cargo: e.target.value}))} placeholder="Ej: SDR Hola! Suite" className="input-premium" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email_contacto">Email de contacto</Label>
-                <Input id="email_contacto" type="email" value={form.email_contacto} onChange={(e) => setForm(f => ({...f, email_contacto: e.target.value}))} placeholder="Ej: jorthy@opasuite.com.br" />
+                <Input id="email_contacto" type="email" value={form.email_contacto} onChange={(e) => setForm(f => ({...f, email_contacto: e.target.value}))} placeholder="Ej: jorthy@opasuite.com.br" className="input-premium" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="numero">Número de teléfono</Label>
-                <Input id="numero" value={form.numero} onChange={(e) => setForm(f => ({...f, numero: e.target.value}))} placeholder="Ej: +55 49 99910-7819" />
+                <Input id="numero" value={form.numero} onChange={(e) => setForm(f => ({...f, numero: e.target.value}))} placeholder="Ej: +55 49 99910-7819" className="input-premium" />
               </div>
-              <Button type="submit" className="w-full" disabled={saving}>
+              <Button type="submit" className="w-full btn-premium" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                 Guardar
               </Button>

@@ -38,8 +38,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[hsl(260,60%,97%)] via-[hsl(230,60%,96%)] to-[hsl(200,60%,97%)] animate-gradient-shift">
+      <Card className="w-full max-w-sm card-premium animate-fade-slide-up border-0 shadow-premium">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img src={logoHola} alt="Hola Suite" className="h-16 rounded-xl" />
@@ -50,13 +50,13 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="input-premium" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="input-premium" />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full btn-premium" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {isRegister ? "Registrarse" : "Ingresar"}
             </Button>

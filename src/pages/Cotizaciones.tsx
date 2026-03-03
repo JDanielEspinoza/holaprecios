@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ExternalLink, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,13 +56,13 @@ const Cotizaciones = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-premium-gradient">
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
 
       <main className="mx-auto max-w-4xl px-6 py-10">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-8 animate-fade-slide-up">
           <FileText className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Historial de Cotizaciones</h1>
         </div>
@@ -72,17 +72,17 @@ const Cotizaciones = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : quotes.length === 0 ? (
-          <Card>
+          <Card className="card-premium">
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">No hay cotizaciones enviadas aún.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => {
+            {quotes.map((q, idx) => {
               const finalTotal = q.discount > 0 ? q.discounted_total : q.total;
               return (
-                <Card key={q.id} className="hover:border-primary/30 transition-colors">
+                <Card key={q.id} className="card-premium hover:border-primary/30 transition-colors" style={{ animationDelay: `${idx * 60}ms` }}>
                   <CardContent className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div className="space-y-1 flex-1">
                       <p className="text-sm text-muted-foreground">{formatDate(q.created_at)}</p>
