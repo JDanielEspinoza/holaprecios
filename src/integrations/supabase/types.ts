@@ -88,6 +88,7 @@ export type Database = {
       }
       quotes: {
         Row: {
+          archived: boolean
           client_company: string | null
           client_email: string | null
           client_name: string | null
@@ -97,9 +98,11 @@ export type Database = {
           discount: number
           discount_amount: number
           discounted_total: number
+          entry_payment_paid: boolean
           id: string
           installation_cost: number
           items: Json
+          quote_number: number
           seller_cargo: string | null
           seller_email: string | null
           seller_foto: string | null
@@ -109,6 +112,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          archived?: boolean
           client_company?: string | null
           client_email?: string | null
           client_name?: string | null
@@ -118,9 +122,11 @@ export type Database = {
           discount?: number
           discount_amount?: number
           discounted_total?: number
+          entry_payment_paid?: boolean
           id?: string
           installation_cost?: number
           items?: Json
+          quote_number?: number
           seller_cargo?: string | null
           seller_email?: string | null
           seller_foto?: string | null
@@ -130,6 +136,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          archived?: boolean
           client_company?: string | null
           client_email?: string | null
           client_name?: string | null
@@ -139,9 +146,11 @@ export type Database = {
           discount?: number
           discount_amount?: number
           discounted_total?: number
+          entry_payment_paid?: boolean
           id?: string
           installation_cost?: number
           items?: Json
+          quote_number?: number
           seller_cargo?: string | null
           seller_email?: string | null
           seller_foto?: string | null
