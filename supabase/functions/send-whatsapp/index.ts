@@ -19,26 +19,23 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { client_name, client_phone, quote_number, total, quote_url } = body;
+    const { phone, agentName, linkPresupuesto } = body;
 
-    if (!client_phone) {
+    if (!phone) {
       return new Response(
-        JSON.stringify({ error: "client_phone is required" }),
+        JSON.stringify({ error: "phone is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // POST to n8n webhook — n8n handles WhatsApp Cloud API call
+    // POST to n8n webhook with the exact payload n8n expects
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        client_name: client_name || "Cliente",
-        client_phone,
-        quote_number,
-        total,
-        quote_url,
-        timestamp: new Date().toISOString(),
+        phone,
+        agentName: agentName || "Tu asesor",
+        linkPresupuesto: linkPresupuesto || "",
       }),
     });
 

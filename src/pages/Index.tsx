@@ -441,7 +441,7 @@ const Index = () => {
             {saving ? "Generando..." : "Generar Cotización"}
           </Button>
         ) : (
-          <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} />
+          <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} agentName={profile?.nombre} />
         )}
       </main>
     </div>
