@@ -1,15 +1,21 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Download, Share2, MessageCircle } from "lucide-react";
+import { QrCode, Download, Share2, MessageCircle, Loader2, CheckCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface QuoteShareProps {
   quoteUrl: string;
   clientPhone?: string;
+  agentName?: string;
 }
 
-export function QuoteShare({ quoteUrl, clientPhone }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
   const downloadQR = useCallback(() => {
     const svg = document.getElementById("quote-qr");
     if (!svg) return;
@@ -29,13 +35,28 @@ export function QuoteShare({ quoteUrl, clientPhone }: QuoteShareProps) {
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   }, []);
 
-  const handleWhatsApp = useCallback(() => {
+  const handleWhatsApp = useCallback(async () => {
     if (!clientPhone) return;
     const cleanPhone = clientPhone.replace(/[\s\-\+\(\)]/g, "");
-    const message = `¡Hola! Te comparto tu cotización de Hola Suite:\n${quoteUrl}`;
-    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, "_blank");
-  }, [clientPhone, quoteUrl]);
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
+        body: {
+          phone: cleanPhone,
+          agentName: agentName || "Tu asesor",
+          linkPresupuesto: quoteUrl,
+        },
+      });
+      if (error) throw error;
+      setSent(true);
+      toast.success("Cotización enviada por WhatsApp al cliente");
+    } catch (err: any) {
+      console.error("WhatsApp send error:", err);
+      toast.error("Error al enviar por WhatsApp. Intentá de nuevo.");
+    } finally {
+      setSending(false);
+    }
+  }, [clientPhone, quoteUrl, agentName]);
 
   const hasPhone = !!clientPhone?.replace(/[\s\-\+\(\)]/g, "").trim();
 
@@ -52,12 +73,17 @@ export function QuoteShare({ quoteUrl, clientPhone }: QuoteShareProps) {
         <div className="space-y-3">
           <Button
             onClick={handleWhatsApp}
-            disabled={!hasPhone}
+            disabled={!hasPhone || sending || sent}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
             size="lg"
           >
-            <MessageCircle className="h-5 w-5" />
-            Compartir por WhatsApp
+            {sending ? (
+              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
+            ) : sent ? (
+              <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
+            ) : (
+              <><MessageCircle className="h-5 w-5" /> Enviar Cotización por WhatsApp</>
+            )}
           </Button>
           {!hasPhone && (
             <p className="text-xs text-muted-foreground text-center">
