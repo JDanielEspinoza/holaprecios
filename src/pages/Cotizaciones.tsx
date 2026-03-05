@@ -15,8 +15,11 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import AppMenu from "@/components/AppMenu";
 import { useToast } from "@/hooks/use-toast";
+
+const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -41,6 +44,7 @@ interface QuoteRow {
 
 const Cotizaciones = () => {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const { toast } = useToast();
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,13 +123,13 @@ const Cotizaciones = () => {
     }
     setSendingWhatsApp(q.id);
     try {
+      const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
+      const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
       const { data, error } = await supabase.functions.invoke("send-whatsapp", {
         body: {
-          client_name: q.client_name || "Cliente",
-          client_phone: q.client_phone,
-          quote_number: q.quote_number,
-          total: q.discount > 0 ? q.discounted_total : q.total,
-          quote_url: `${window.location.origin}/cotizacion?id=${q.id}`,
+          phone: cleanPhone,
+          agentName: q.seller_name || profile?.nombre || "Tu asesor",
+          linkPresupuesto: quoteUrl,
         },
       });
       if (error) throw error;
@@ -249,7 +253,7 @@ const Cotizaciones = () => {
                       <TableRow
                         key={q.id}
                         className="cursor-pointer hover:bg-muted/40 transition-colors"
-                        onClick={() => window.open(`/cotizacion?id=${q.id}`, "_blank")}
+                        onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
                       >
                         <TableCell className="font-mono text-xs text-muted-foreground">
                           #{q.quote_number}
@@ -295,7 +299,7 @@ const Cotizaciones = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => window.open(`/cotizacion?id=${q.id}`, "_blank")}
+                              onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
                               title="Ver cotización"
                             >
                               <ExternalLink className="h-4 w-4" />

@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
+
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -91,7 +93,6 @@ const Index = () => {
     return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
   }, [selectedCloud]);
 
-  const licenseBase = selectedProducts.holaBasic && tier ? tier.holaBasic : 0;
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
   const discountAmount = grandTotal * (discount / 100);
   const discountedTotal = grandTotal - discountAmount;
@@ -118,7 +119,6 @@ const Index = () => {
     if (tier && selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
     if (tier && selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
     if (tier && selectedProducts.holaBasic) items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
-    if (tier && selectedProducts.holaBasic) items.push({ label: "Licencia base", value: tier.holaBasic, section: "hola" });
     addons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
@@ -162,7 +162,7 @@ const Index = () => {
     }
   };
 
-  const quoteUrl = quoteId ? `${window.location.origin}/cotizacion?id=${quoteId}` : "";
+  const quoteUrl = quoteId ? `${PUBLISHED_DOMAIN}/cotizacion?id=${quoteId}` : "";
 
   return (
     <div className="min-h-screen bg-premium-gradient">
@@ -290,7 +290,7 @@ const Index = () => {
 
               <div className="border-t border-border pt-3 flex justify-between items-center">
                 <span className="font-semibold text-foreground">Subtotal Hola</span>
-                <span className="text-xl font-bold text-primary">{fmt(licenseBase + addonTotal)}</span>
+                <span className="text-xl font-bold text-primary">{fmt((selectedProducts.holaBasic && tier ? tier.holaBasic : 0) + addonTotal)}</span>
               </div>
             </CardContent>
           </Card>
@@ -335,7 +335,7 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Summary */}
+        {/* Summary - no discount shown to seller */}
         <Card className="border-2 border-primary/30 bg-primary/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
@@ -349,15 +349,16 @@ const Index = () => {
               <SummaryLine label="Hola! Suite" value={tier?.holaBasic ?? 0} active={selectedProducts.holaBasic} />
             </div>
 
-            <div className="border-t border-border pt-3 space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Personalización Hola</h3>
-              <SummaryLine label="Licencia base" value={licenseBase} active={selectedProducts.holaBasic} />
-              {addons.map((addon) => {
-                const qty = addonQty[addon.name] || 0;
-                if (qty === 0) return null;
-                return <SummaryLine key={addon.name} label={`${addon.name} (x${qty})`} value={qty * addon.unitPrice} active />;
-              })}
-            </div>
+            {addonTotal > 0 && (
+              <div className="border-t border-border pt-3 space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Personalización Hola</h3>
+                {addons.map((addon) => {
+                  const qty = addonQty[addon.name] || 0;
+                  if (qty === 0) return null;
+                  return <SummaryLine key={addon.name} label={`${addon.name} (x${qty})`} value={qty * addon.unitPrice} active />;
+                })}
+              </div>
+            )}
 
             {selectedCloud && (
               <div className="border-t border-border pt-3 space-y-2">
@@ -367,36 +368,12 @@ const Index = () => {
             )}
 
             <div className="border-t-2 border-primary/30 pt-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Descuento</span>
-                <Select value={String(discount)} onValueChange={(v) => { setDiscount(Number(v)); setQuoteId(null); }}>
-                  <SelectTrigger className="w-32 h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[0, 5, 10, 15, 20, 25, 30].map((d) => (
-                      <SelectItem key={d} value={String(d)}>{d === 0 ? "Sin descuento" : `${d}%`}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xl font-bold text-foreground">Total Mensual</p>
                   <p className="text-xs text-muted-foreground">Ecosistema + Personalización + Cloud</p>
                 </div>
-                <div className="text-right">
-                  {discount > 0 ? (
-                    <>
-                      <p className="text-lg text-muted-foreground line-through">{fmt(grandTotal)}</p>
-                      <p className="text-4xl font-bold text-primary glow-total">{fmt(discountedTotal)}</p>
-                      <p className="text-sm text-emerald-600 font-medium">Ahorro: {fmt(discountAmount)}</p>
-                    </>
-                  ) : (
-                    <p className="text-4xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
-                  )}
-                </div>
+                <p className="text-4xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
               </div>
             </div>
 
@@ -435,11 +412,30 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Generate & Share */}
+        {/* Discount buttons + Generate */}
         {!quoteId ? (
-          <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg btn-premium" size="lg">
-            {saving ? "Generando..." : "Generar Cotización"}
-          </Button>
+          <div className="space-y-3">
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-sm text-muted-foreground">Descuento:</span>
+              {[10, 20, 30].map((d) => (
+                <Button
+                  key={d}
+                  variant={discount === d ? "default" : "outline"}
+                  size="sm"
+                  className={`px-4 ${discount === d ? "btn-premium" : ""}`}
+                  onClick={() => { setDiscount(discount === d ? 0 : d); setQuoteId(null); }}
+                >
+                  {d}%
+                </Button>
+              ))}
+              {discount > 0 && (
+                <span className="text-xs text-muted-foreground">(el cliente verá el precio con descuento)</span>
+              )}
+            </div>
+            <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg btn-premium" size="lg">
+              {saving ? "Generando..." : "Generar Cotización"}
+            </Button>
+          </div>
         ) : (
           <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} agentName={profile?.nombre} />
         )}
