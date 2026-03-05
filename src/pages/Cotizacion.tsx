@@ -142,31 +142,34 @@ const Cotizacion = () => {
             {ecosystem.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Ecosistema</h3>
-                {ecosystem.map((item) => <SummaryLine key={item.label} label={item.label} value={item.value} />)}
+                {ecosystem.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
               </div>
             )}
 
             {hola.length > 0 && (
               <div className="border-t border-border pt-3 space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Personalización Hola</h3>
-                {hola.map((item) => <SummaryLine key={item.label} label={item.label} value={item.value} />)}
+                {hola.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
               </div>
             )}
 
             {cloud.length > 0 && (
               <div className="border-t border-border pt-3 space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Cloud</h3>
-                {cloud.map((item) => <SummaryLine key={item.label} label={item.label} value={item.value} />)}
+                {cloud.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
               </div>
             )}
 
             <div className="border-t-2 border-primary/30 pt-4 space-y-3">
+              {/* Discount message for client */}
               {data.discount > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-foreground">Descuento ({data.discount}%)</span>
-                  <span className="font-semibold text-emerald-600">-{fmt(data.discount_amount)}</span>
+                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3 text-center">
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                    🎉 Tu asesor ha otorgado a tu cotización un descuento válido por {data.discount}%
+                  </p>
                 </div>
               )}
+
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xl font-bold text-foreground">Total Mensual</p>
@@ -239,7 +242,7 @@ const Cotizacion = () => {
   );
 };
 
-function SummaryLine({ label, value }: { label: string; value: number }) {
+function CotizacionLine({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between items-center text-sm py-1 text-foreground">
       <span>{label}</span>
