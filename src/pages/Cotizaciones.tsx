@@ -10,6 +10,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   Filter, MessageSquare, CheckCircle2, CircleDot,
 } from "lucide-react";
@@ -35,6 +39,7 @@ interface QuoteRow {
   total: number;
   discounted_total: number;
   discount: number;
+  discount_amount: number;
   items: any[];
   seller_name: string | null;
   created_at: string;
@@ -52,13 +57,15 @@ const Cotizaciones = () => {
   const [agentFilter, setAgentFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
+  const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   const fetchQuotes = async () => {
     if (!user) return;
+    // All authenticated agents can see all quotes
     const { data } = await supabase
       .from("quotes")
       .select("*")
-      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     setQuotes((data as any) || []);
     setLoading(false);
@@ -73,11 +80,9 @@ const Cotizaciones = () => {
 
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
-
     if (agentFilter !== "all") {
       list = list.filter((q) => q.seller_name === agentFilter);
     }
-
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter((q) =>
@@ -102,18 +107,66 @@ const Cotizaciones = () => {
     toast({ title: q.archived ? "Cotización restaurada" : "Cotización archivada" });
   };
 
-  const togglePayment = async (q: QuoteRow) => {
-    const newVal = !q.entry_payment_paid;
-    await supabase
-      .from("quotes")
-      .update({ entry_payment_paid: newVal } as any)
-      .eq("id", q.id);
-    setQuotes((prev) =>
-      prev.map((x) => (x.id === q.id ? { ...x, entry_payment_paid: newVal } : x))
-    );
-    toast({
-      title: newVal ? "Pago de entrada marcado" : "Marca de pago removida",
-    });
+  const handleConfirmPayment = async (q: QuoteRow) => {
+    setProcessingPayment(true);
+    try {
+      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+      const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
+
+      const getPlatforms = (items: any[]) => {
+        const sections = new Set(
+          (items || [])
+            .map((i: any) => {
+              if (i.section === "eco") return i.label;
+              if (i.section === "cloud") return "Cloud";
+              return null;
+            })
+            .filter(Boolean)
+        );
+        return Array.from(sections).join(", ");
+      };
+
+      const formatDate = (iso: string) => {
+        const d = new Date(iso);
+        return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+      };
+
+      // Update DB
+      await supabase
+        .from("quotes")
+        .update({ entry_payment_paid: true } as any)
+        .eq("id", q.id);
+
+      // Fire both webhooks via edge function
+      const { error } = await supabase.functions.invoke("confirm-payment", {
+        body: {
+          company_name: q.client_company || q.client_name || "",
+          cantidad_usuarios: String(q.clients_count),
+          products: getPlatforms(q.items),
+          agent_name: q.seller_name || "",
+          numero_presupuesto: String(q.quote_number),
+          fecha: formatDate(q.created_at),
+          contacto: q.client_phone || q.client_email || "",
+          total: fmt(finalTotal),
+          link_presupuesto: quoteUrl,
+          client_name: q.client_name || "",
+          client_email: q.client_email || "",
+          client_phone: q.client_phone || "",
+        },
+      });
+
+      if (error) throw error;
+
+      setQuotes((prev) =>
+        prev.map((x) => (x.id === q.id ? { ...x, entry_payment_paid: true } : x))
+      );
+      toast({ title: "Pago confirmado", description: "Información enviada a Pipedrive y n8n." });
+    } catch (err: any) {
+      toast({ title: "Error al confirmar pago", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingPayment(false);
+      setConfirmingPayment(null);
+    }
   };
 
   const sendWhatsApp = async (q: QuoteRow) => {
@@ -125,7 +178,7 @@ const Cotizaciones = () => {
     try {
       const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
       const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
+      const { error } = await supabase.functions.invoke("send-whatsapp", {
         body: {
           phone: cleanPhone,
           agentName: q.seller_name || profile?.nombre || "Tu asesor",
@@ -166,14 +219,13 @@ const Cotizaciones = () => {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-fade-slide-up">
           <FileText className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">Historial de Cotizaciones</h1>
           <Badge variant="secondary" className="ml-2">{filtered.length} resultados</Badge>
         </div>
 
-        {/* Filters Bar */}
+        {/* Filters */}
         <Card className="card-premium mb-6 animate-fade-slide-up-1">
           <CardContent className="py-4">
             <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
@@ -186,7 +238,6 @@ const Cotizaciones = () => {
                   className="pl-9 input-premium"
                 />
               </div>
-
               <div className="flex gap-2 items-center">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <Select value={agentFilter} onValueChange={setAgentFilter}>
@@ -200,7 +251,6 @@ const Cotizaciones = () => {
                     ))}
                   </SelectContent>
                 </Select>
-
                 <Button
                   variant={showArchived ? "default" : "outline"}
                   size="sm"
@@ -248,11 +298,15 @@ const Cotizaciones = () => {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((q) => {
-                    const finalTotal = q.discount > 0 ? q.discounted_total : q.total;
+                    const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
                     return (
                       <TableRow
                         key={q.id}
-                        className="cursor-pointer hover:bg-muted/40 transition-colors"
+                        className={`cursor-pointer transition-colors ${
+                          q.entry_payment_paid
+                            ? "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
+                            : "hover:bg-muted/40"
+                        }`}
                         onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
                       >
                         <TableCell className="font-mono text-xs text-muted-foreground">
@@ -284,11 +338,15 @@ const Cotizaciones = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => togglePayment(q)}
-                            title={q.entry_payment_paid ? "Pago recibido" : "Marcar pago"}
+                            onClick={() => {
+                              if (q.entry_payment_paid) return;
+                              setConfirmingPayment(q);
+                            }}
+                            title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
+                            disabled={q.entry_payment_paid}
                           >
                             {q.entry_payment_paid ? (
-                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                             ) : (
                               <CircleDot className="h-5 w-5 text-muted-foreground" />
                             )}
@@ -310,11 +368,7 @@ const Cotizaciones = () => {
                               onClick={() => toggleArchive(q)}
                               title={q.archived ? "Restaurar" : "Archivar"}
                             >
-                              {q.archived ? (
-                                <ArchiveRestore className="h-4 w-4" />
-                              ) : (
-                                <Archive className="h-4 w-4" />
-                              )}
+                              {q.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                             </Button>
                             <Button
                               variant="ghost"
@@ -340,6 +394,38 @@ const Cotizaciones = () => {
           </Card>
         )}
       </main>
+
+      {/* Payment confirmation dialog */}
+      <AlertDialog open={!!confirmingPayment} onOpenChange={(open) => { if (!open) setConfirmingPayment(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar pago de cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Confirmar el pago de la cotización #{confirmingPayment?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingPayment?.client_name || confirmingPayment?.client_company || "cliente"}</span>?
+              <br /><br />
+              Esto enviará la información a Pipedrive y activará la confirmación de pago.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={processingPayment}>No</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={processingPayment}
+              onClick={(e) => {
+                e.preventDefault();
+                if (confirmingPayment) handleConfirmPayment(confirmingPayment);
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {processingPayment ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...</>
+              ) : (
+                "Sí, confirmar pago"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

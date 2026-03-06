@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Download, User, Briefcase, Phone, Mail, Loader2, Building } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import logoHola from "@/assets/logo-hola.png";
+import logoWispro from "@/assets/logo-wispro.png";
+import logoAcs from "@/assets/logo-acs.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number) =>
@@ -16,6 +18,7 @@ interface LineItem {
   label: string;
   value: number;
   section: string;
+  discount_pct?: number;
 }
 
 interface QuoteData {
@@ -76,7 +79,13 @@ const Cotizacion = () => {
   const ecosystem = items.filter((i) => i.section === "eco");
   const hola = items.filter((i) => i.section === "hola");
   const cloud = items.filter((i) => i.section === "cloud");
-  const finalTotal = data.discount > 0 ? data.discounted_total : data.total;
+  const hasDiscount = data.discount_amount > 0;
+  const finalTotal = hasDiscount ? data.discounted_total : data.total;
+
+  // Determine which product logos to show
+  const hasWispro = ecosystem.some((i) => i.label === "Wispro");
+  const hasAcs = ecosystem.some((i) => i.label === "ACS");
+  const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
 
   return (
     <>
@@ -112,8 +121,14 @@ const Cotizacion = () => {
 
         <Card className="w-full max-w-lg card-premium border-2 border-primary/30 bg-primary/5 print-card animate-fade-slide-up-1">
           <CardHeader className="text-center pb-2">
-            <div className="flex justify-center mb-3">
-              <img src={logoHola} alt="Hola Suite" className="h-12 rounded-xl" />
+            {/* Product logos */}
+            <div className="flex justify-center items-center gap-3 mb-3">
+              {hasWispro && <img src={logoWispro} alt="Wispro" className="h-10 w-auto object-contain" />}
+              {hasAcs && <img src={logoAcs} alt="ACS" className="h-10 w-auto object-contain" />}
+              {hasHola && <img src={logoHola} alt="Hola Suite" className="h-10 rounded-xl w-auto object-contain" />}
+              {!hasWispro && !hasAcs && !hasHola && (
+                <img src={logoHola} alt="Hola Suite" className="h-12 rounded-xl" />
+              )}
             </div>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -142,7 +157,17 @@ const Cotizacion = () => {
             {ecosystem.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Ecosistema</h3>
-                {ecosystem.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
+                {ecosystem.map((item) => (
+                  <div key={item.label} className="space-y-0.5">
+                    <CotizacionLine label={item.label} value={item.value} />
+                    {item.discount_pct && item.discount_pct > 0 && (
+                      <div className="flex justify-between items-center text-xs py-0.5 text-emerald-600 dark:text-emerald-400 pl-2">
+                        <span>Descuento {item.discount_pct}%</span>
+                        <span>-{fmt(item.value * (item.discount_pct / 100))}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
@@ -161,11 +186,11 @@ const Cotizacion = () => {
             )}
 
             <div className="border-t-2 border-primary/30 pt-4 space-y-3">
-              {/* Discount message for client */}
-              {data.discount > 0 && (
+              {/* Discount banner */}
+              {hasDiscount && (
                 <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3 text-center">
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                    🎉 Tu asesor ha otorgado a tu cotización un descuento válido por {data.discount}%
+                    🎉 Tu asesor ha otorgado descuentos especiales a tu cotización
                   </p>
                 </div>
               )}
@@ -176,7 +201,7 @@ const Cotizacion = () => {
                   <p className="text-xs text-muted-foreground">Ecosistema + Personalización + Cloud</p>
                 </div>
                 <div className="text-right">
-                  {data.discount > 0 && (
+                  {hasDiscount && (
                     <p className="text-lg text-muted-foreground line-through">{fmt(data.total)}</p>
                   )}
                   <p className="text-4xl font-bold text-primary glow-total">{fmt(finalTotal)}</p>
@@ -184,9 +209,20 @@ const Cotizacion = () => {
               </div>
             </div>
 
-            <div className="border-t border-border pt-3 flex justify-between items-center">
-              <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
-              <p className="text-lg font-bold text-foreground">{fmt(data.installation_cost ?? 100)}</p>
+            {/* Installation with feria discount */}
+            <div className="border-t border-border pt-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    Para clientes que cierren durante la feria, aplicamos una condición especial de 75% de descuento
+                  </p>
+                </div>
+                <div className="text-right flex-shrink-0 ml-4">
+                  <p className="text-sm text-muted-foreground line-through">{fmt(200)}</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(50)}</p>
+                </div>
+              </div>
             </div>
 
             {/* Seller profile footer */}
@@ -203,25 +239,20 @@ const Cotizacion = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
-                    {data.seller_name && (
-                      <p className="text-sm font-semibold text-foreground">{data.seller_name}</p>
-                    )}
+                    {data.seller_name && <p className="text-sm font-semibold text-foreground">{data.seller_name}</p>}
                     {data.seller_cargo && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Briefcase className="h-3 w-3" />
-                        <span>{data.seller_cargo}</span>
+                        <Briefcase className="h-3 w-3" /><span>{data.seller_cargo}</span>
                       </div>
                     )}
                     {data.seller_numero && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        <span>{data.seller_numero}</span>
+                        <Phone className="h-3 w-3" /><span>{data.seller_numero}</span>
                       </div>
                     )}
                     {data.seller_email && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        <span>{data.seller_email}</span>
+                        <Mail className="h-3 w-3" /><span>{data.seller_email}</span>
                       </div>
                     )}
                   </div>
@@ -229,7 +260,6 @@ const Cotizacion = () => {
               </div>
             )}
 
-            {/* Validity text */}
             <div className="border-t border-border pt-4">
               <p className="text-xs text-center text-muted-foreground italic">
                 Cotización válida hasta el 12 de Marzo, mientras dure el evento Andina Link.
