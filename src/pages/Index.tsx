@@ -32,6 +32,13 @@ const fmt = (n: number) =>
 
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
+// Auto-discount per product
+const PRODUCT_DISCOUNTS: Record<string, number> = {
+  wispro: 20,
+  acs: 5,
+  holaBasic: 5,
+};
+
 const Index = () => {
   const { user } = useAuth();
   const { profile } = useProfile();
@@ -43,19 +50,16 @@ const Index = () => {
     acs: false,
     holaBasic: false,
   });
-  const [discount, setDiscount] = useState(0);
   const [addonQty, setAddonQty] = useState<Record<string, number>>(
     Object.fromEntries(addons.map((a) => [a.name, 0]))
   );
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
 
-  // Client recipient fields (optional)
   const [clientName, setClientName] = useState("");
   const [clientCompany, setClientCompany] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
 
-  // Quote sharing state
   const [quoteId, setQuoteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -64,13 +68,8 @@ const Index = () => {
     [clientCount]
   );
 
-  const installationCost = useMemo(() => {
-    let count = 0;
-    if (selectedProducts.wispro) count++;
-    if (selectedProducts.acs) count++;
-    if (selectedProducts.holaBasic) count++;
-    return count * 50;
-  }, [selectedProducts]);
+  // Installation: flat $200 → $50 (75% feria discount)
+  const installationCost = 50;
 
   const ecosystemTotal = useMemo(() => {
     if (!tier) return 0;
@@ -94,8 +93,19 @@ const Index = () => {
   }, [selectedCloud]);
 
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
-  const discountAmount = grandTotal * (discount / 100);
+
+  // Auto-discount calculation per product
+  const discountAmount = useMemo(() => {
+    if (!tier) return 0;
+    let amount = 0;
+    if (selectedProducts.wispro) amount += tier.wispro * (PRODUCT_DISCOUNTS.wispro / 100);
+    if (selectedProducts.acs) amount += tier.acs * (PRODUCT_DISCOUNTS.acs / 100);
+    if (selectedProducts.holaBasic) amount += tier.holaBasic * (PRODUCT_DISCOUNTS.holaBasic / 100);
+    return amount;
+  }, [tier, selectedProducts]);
+
   const discountedTotal = grandTotal - discountAmount;
+  const blendedDiscount = grandTotal > 0 ? Math.round((discountAmount / grandTotal) * 100) : 0;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
@@ -106,7 +116,6 @@ const Index = () => {
     setSelectedProducts({ wispro: false, acs: false, holaBasic: false });
     setAddonQty(Object.fromEntries(addons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
-    setDiscount(0);
     setClientName("");
     setClientCompany("");
     setClientPhone("");
@@ -115,10 +124,13 @@ const Index = () => {
   };
 
   const buildItems = () => {
-    const items: { label: string; value: number; section: string }[] = [];
-    if (tier && selectedProducts.wispro) items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
-    if (tier && selectedProducts.acs) items.push({ label: "ACS", value: tier.acs, section: "eco" });
-    if (tier && selectedProducts.holaBasic) items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
+    const items: { label: string; value: number; section: string; discount_pct?: number }[] = [];
+    if (tier && selectedProducts.wispro)
+      items.push({ label: "Wispro", value: tier.wispro, section: "eco", discount_pct: PRODUCT_DISCOUNTS.wispro });
+    if (tier && selectedProducts.acs)
+      items.push({ label: "ACS", value: tier.acs, section: "eco", discount_pct: PRODUCT_DISCOUNTS.acs });
+    if (tier && selectedProducts.holaBasic)
+      items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco", discount_pct: PRODUCT_DISCOUNTS.holaBasic });
     addons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
@@ -140,7 +152,7 @@ const Index = () => {
         client_email: clientEmail,
         clients_count: clientCount || 0,
         items: items as any,
-        discount,
+        discount: blendedDiscount,
         total: grandTotal,
         discounted_total: discountedTotal,
         discount_amount: discountAmount,
@@ -166,12 +178,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-premium-gradient">
-      {/* Banner */}
       <header className="w-full bg-gradient-to-r from-[hsl(260,50%,30%)] via-[hsl(var(--primary))] to-[hsl(230,50%,25%)] overflow-hidden animate-gradient-shift">
         <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="mx-auto max-w-6xl w-full h-28 object-cover object-center" />
       </header>
 
-      {/* App menu */}
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
@@ -207,24 +217,18 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                onClick={resetAll}
-                title="Reiniciar todo"
-              >
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive" onClick={resetAll} title="Reiniciar todo">
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Ecosystem products with checkboxes */}
+        {/* Ecosystem products */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-slide-up-1">
-          <ProductCard title="Wispro" value={tier?.wispro ?? 0} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => toggleProduct("wispro")} />
-          <ProductCard title="ACS" value={tier?.acs ?? 0} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => toggleProduct("acs")} />
-          <ProductCard title="Hola! Suite" value={tier?.holaBasic ?? 0} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => toggleProduct("holaBasic")} />
+          <ProductCard title="Wispro" value={tier?.wispro ?? 0} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => toggleProduct("wispro")} discountPct={PRODUCT_DISCOUNTS.wispro} />
+          <ProductCard title="ACS" value={tier?.acs ?? 0} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => toggleProduct("acs")} discountPct={PRODUCT_DISCOUNTS.acs} />
+          <ProductCard title="Hola! Suite" value={tier?.holaBasic ?? 0} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => toggleProduct("holaBasic")} discountPct={PRODUCT_DISCOUNTS.holaBasic} />
           <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center card-premium">
             <CardContent className="pt-6 pb-4 text-center flex flex-col items-center justify-center">
               <span className="text-sm font-medium text-primary mb-2">Total Ecosistema</span>
@@ -295,7 +299,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Hola Cloud selectable */}
+          {/* Hola Cloud */}
           <Card className="card-premium">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -335,11 +339,22 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Summary - no discount shown to seller */}
+        {/* Summary */}
         <Card className="border-2 border-primary/30 bg-primary/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
-            <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
-            <p className="text-sm text-muted-foreground">Detalle completo para {fmtClients(clientCount || 0)} clientes</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
+                <p className="text-sm text-muted-foreground">Detalle completo para {fmtClients(clientCount || 0)} clientes</p>
+              </div>
+              {(selectedProducts.wispro || selectedProducts.acs || selectedProducts.holaBasic) && (
+                <div className="flex items-center gap-2">
+                  {selectedProducts.wispro && <img src={logoWispro} alt="Wispro" className="h-8 w-auto object-contain" />}
+                  {selectedProducts.acs && <img src={logoAcs} alt="ACS" className="h-8 w-auto object-contain" />}
+                  {selectedProducts.holaBasic && <img src={logoHola} alt="Hola" className="h-8 w-auto object-contain rounded" />}
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -377,14 +392,21 @@ const Index = () => {
               </div>
             </div>
 
+            {/* Installation with feria discount */}
             <div className="border-t border-border pt-3 flex justify-between items-center">
-              <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
-              <p className="text-lg font-bold text-foreground">{fmt(installationCost)}</p>
+              <div>
+                <p className="text-sm text-muted-foreground">Instalación (único pago)</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">75% dto. para clientes que cierren durante la feria</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground line-through">{fmt(200)}</p>
+                <p className="text-lg font-bold text-foreground">{fmt(50)}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Client recipient fields */}
+        {/* Client fields */}
         <Card className="card-premium animate-fade-slide-up-4">
           <CardHeader>
             <CardTitle className="text-lg">Datos del destinatario (opcional)</CardTitle>
@@ -412,30 +434,11 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Discount buttons + Generate */}
+        {/* Generate */}
         {!quoteId ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-sm text-muted-foreground">Descuento:</span>
-              {[10, 20, 30].map((d) => (
-                <Button
-                  key={d}
-                  variant={discount === d ? "default" : "outline"}
-                  size="sm"
-                  className={`px-4 ${discount === d ? "btn-premium" : ""}`}
-                  onClick={() => { setDiscount(discount === d ? 0 : d); setQuoteId(null); }}
-                >
-                  {d}%
-                </Button>
-              ))}
-              {discount > 0 && (
-                <span className="text-xs text-muted-foreground">(el cliente verá el precio con descuento)</span>
-              )}
-            </div>
-            <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg btn-premium" size="lg">
-              {saving ? "Generando..." : "Generar Cotización"}
-            </Button>
-          </div>
+          <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg btn-premium" size="lg">
+            {saving ? "Generando..." : "Generar Cotización"}
+          </Button>
         ) : (
           <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} agentName={profile?.nombre} />
         )}
@@ -444,7 +447,7 @@ const Index = () => {
   );
 };
 
-function ProductCard({ title, value, logo, checked, onToggle }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void }) {
+function ProductCard({ title, value, logo, checked, onToggle, discountPct }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void; discountPct: number }) {
   return (
     <Card className={`cursor-pointer card-premium transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
       <CardContent className="pt-5 text-center">
