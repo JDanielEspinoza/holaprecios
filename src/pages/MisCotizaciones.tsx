@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -17,6 +18,7 @@ import {
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
+  Download, Trash2,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
@@ -74,6 +76,13 @@ const MisCotizaciones = () => {
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Archive/Delete dialogs
+  const [archiveDialog, setArchiveDialog] = useState<{ mode: "single" | "bulk"; quotes: QuoteRow[] } | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ mode: "single" | "bulk"; quotes: QuoteRow[] } | null>(null);
+  const [archiveReason, setArchiveReason] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [processingBulk, setProcessingBulk] = useState(false);
+
   const fetchQuotes = async () => {
     if (!user) return;
     const { data } = await supabase
@@ -102,7 +111,6 @@ const MisCotizaciones = () => {
     return list;
   }, [quotes, search, showArchived]);
 
-  // Reset page when filters change
   useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -137,21 +145,112 @@ const MisCotizaciones = () => {
     });
   };
 
-  const selectAll = () => {
-    setSelectedIds(new Set(filtered.map((q) => q.id)));
-  };
-
+  const selectAll = () => setSelectedIds(new Set(filtered.map((q) => q.id)));
   const clearSelection = () => setSelectedIds(new Set());
 
-  const toggleArchive = async (q: QuoteRow) => {
+  const getSelectedQuotes = () => quotes.filter((q) => selectedIds.has(q.id));
+
+  // ── Archive with reason ──
+  const handleArchive = async (targetQuotes: QuoteRow[], reason: string) => {
+    setProcessingBulk(true);
+    try {
+      for (const q of targetQuotes) {
+        await supabase
+          .from("quotes")
+          .update({ archived: true, archive_reason: reason } as any)
+          .eq("id", q.id);
+      }
+      setQuotes((prev) =>
+        prev.map((x) =>
+          targetQuotes.some((t) => t.id === x.id) ? { ...x, archived: true } : x
+        )
+      );
+      setSelectedIds(new Set());
+      toast({ title: "Cotizaciones archivadas", description: `${targetQuotes.length} cotización(es) archivada(s).`, duration: 2000 });
+    } catch (err: any) {
+      toast({ title: "Error al archivar", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingBulk(false);
+      setArchiveDialog(null);
+      setArchiveReason("");
+    }
+  };
+
+  // ── Restore ──
+  const handleRestore = async (q: QuoteRow) => {
     await supabase
       .from("quotes")
-      .update({ archived: !q.archived } as any)
+      .update({ archived: false, archive_reason: "" } as any)
       .eq("id", q.id);
     setQuotes((prev) =>
-      prev.map((x) => (x.id === q.id ? { ...x, archived: !x.archived } : x))
+      prev.map((x) => (x.id === q.id ? { ...x, archived: false } : x))
     );
-    toast({ title: q.archived ? "Cotización restaurada" : "Cotización archivada" });
+    toast({ title: "Cotización restaurada", duration: 2000 });
+  };
+
+  // ── Delete with reason ──
+  const handleDelete = async (targetQuotes: QuoteRow[], reason: string) => {
+    setProcessingBulk(true);
+    try {
+      const ids = targetQuotes.map((q) => q.id);
+      // Note: archive_reason stores the delete reason before deletion for audit
+      for (const q of targetQuotes) {
+        await supabase
+          .from("quotes")
+          .update({ archive_reason: `[BORRADO] ${reason}` } as any)
+          .eq("id", q.id);
+      }
+      const { error } = await supabase
+        .from("quotes")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      setQuotes((prev) => prev.filter((x) => !ids.includes(x.id)));
+      setSelectedIds(new Set());
+      toast({ title: "Cotizaciones eliminadas", description: `${targetQuotes.length} cotización(es) eliminada(s). Los números de cotización no se reasignan.`, duration: 3000 });
+    } catch (err: any) {
+      toast({ title: "Error al eliminar", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingBulk(false);
+      setDeleteDialog(null);
+      setDeleteReason("");
+    }
+  };
+
+  // ── Export CSV ──
+  const exportCSV = (targetQuotes: QuoteRow[]) => {
+    const headers = ["N°", "Fecha", "Cliente", "Empresa", "Email", "Teléfono", "Productos", "Total", "Total c/Desc.", "Descuento %", "Pago", "Enlace"];
+    const rows = targetQuotes.map((q) => {
+      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+      return [
+        q.quote_number,
+        new Date(q.created_at).toLocaleDateString("es-AR"),
+        q.client_name || "",
+        q.client_company || "",
+        q.client_email || "",
+        q.client_phone || "",
+        getPlatforms(q.items),
+        q.total,
+        q.discounted_total,
+        q.discount + "%",
+        q.entry_payment_paid ? "Sí" : "No",
+        `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`,
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cotizaciones_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "CSV exportado", description: `${targetQuotes.length} cotización(es) exportada(s).`, duration: 2000 });
   };
 
   const handleConfirmPayment = async (q: QuoteRow) => {
@@ -322,12 +421,13 @@ const MisCotizaciones = () => {
           </CardContent>
         </Card>
 
-        {/* Selection bar */}
+        {/* Selection bar with bulk actions */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-2 py-2 bg-muted/50 rounded-lg animate-fade-in">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-3 mb-4 px-4 py-3 bg-muted/50 rounded-lg border border-border animate-fade-in">
+            <span className="text-sm font-medium text-muted-foreground">
               {selectedIds.size} seleccionada{selectedIds.size > 1 ? "s" : ""}
             </span>
+            <div className="h-4 w-px bg-border" />
             {!allFilteredSelected && (
               <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={selectAll}>
                 Seleccionar todas ({filtered.length})
@@ -335,6 +435,36 @@ const MisCotizaciones = () => {
             )}
             <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={clearSelection}>
               Limpiar selección
+            </Button>
+            <div className="h-4 w-px bg-border" />
+            {!showArchived && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => setArchiveDialog({ mode: "bulk", quotes: getSelectedQuotes() })}
+              >
+                <Archive className="h-3.5 w-3.5" />
+                Archivar ({selectedIds.size})
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => exportCSV(getSelectedQuotes())}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Exportar CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={() => setDeleteDialog({ mode: "bulk", quotes: getSelectedQuotes() })}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Borrar ({selectedIds.size})
             </Button>
           </div>
         )}
@@ -492,13 +622,33 @@ const MisCotizaciones = () => {
                               >
                                 <ExternalLink className="h-4 w-4" />
                               </Button>
+                              {showArchived ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRestore(q)}
+                                  title="Restaurar"
+                                >
+                                  <ArchiveRestore className="h-4 w-4" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setArchiveDialog({ mode: "single", quotes: [q] })}
+                                  title="Archivar"
+                                >
+                                  <Archive className="h-4 w-4" />
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => toggleArchive(q)}
-                                title={q.archived ? "Restaurar" : "Archivar"}
+                                onClick={() => setDeleteDialog({ mode: "single", quotes: [q] })}
+                                title="Borrar cotización"
+                                className="text-destructive hover:text-destructive"
                               >
-                                {q.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -555,6 +705,95 @@ const MisCotizaciones = () => {
           </>
         )}
       </main>
+
+      {/* ── Archive confirmation dialog ── */}
+      <AlertDialog open={!!archiveDialog} onOpenChange={(open) => { if (!open) { setArchiveDialog(null); setArchiveReason(""); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Archive className="h-5 w-5" />
+              Archivar {archiveDialog?.quotes.length === 1 ? "cotización" : `${archiveDialog?.quotes.length} cotizaciones`}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  {archiveDialog?.quotes.length === 1
+                    ? `¿Archivar la cotización #${archiveDialog.quotes[0].quote_number} de ${archiveDialog.quotes[0].client_name || archiveDialog.quotes[0].client_company || "cliente"}?`
+                    : `¿Archivar ${archiveDialog?.quotes.length} cotizaciones seleccionadas?`
+                  }
+                </p>
+                <p className="text-xs">Los números de cotización no se reasignan.</p>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1.5">Motivo de archivo (opcional)</label>
+                  <Textarea
+                    placeholder="Ej: Cliente desistió, cotización vencida..."
+                    value={archiveReason}
+                    onChange={(e) => setArchiveReason(e.target.value)}
+                    className="min-h-[70px]"
+                  />
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={processingBulk}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={processingBulk}
+              onClick={(e) => {
+                e.preventDefault();
+                if (archiveDialog) handleArchive(archiveDialog.quotes, archiveReason);
+              }}
+            >
+              {processingBulk ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Archivando...</> : "Sí, archivar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ── Delete confirmation dialog ── */}
+      <AlertDialog open={!!deleteDialog} onOpenChange={(open) => { if (!open) { setDeleteDialog(null); setDeleteReason(""); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Borrar {deleteDialog?.quotes.length === 1 ? "cotización" : `${deleteDialog?.quotes.length} cotizaciones`}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  {deleteDialog?.quotes.length === 1
+                    ? `¿Borrar permanentemente la cotización #${deleteDialog.quotes[0].quote_number} de ${deleteDialog.quotes[0].client_name || deleteDialog.quotes[0].client_company || "cliente"}?`
+                    : `¿Borrar permanentemente ${deleteDialog?.quotes.length} cotizaciones seleccionadas?`
+                  }
+                </p>
+                <p className="text-xs font-medium text-destructive">Esta acción no se puede deshacer. Los números de cotización no se reasignan.</p>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1.5">Motivo de eliminación (opcional)</label>
+                  <Textarea
+                    placeholder="Ej: Cotización duplicada, error de datos..."
+                    value={deleteReason}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    className="min-h-[70px]"
+                  />
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={processingBulk}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={processingBulk}
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteDialog) handleDelete(deleteDialog.quotes, deleteReason);
+              }}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {processingBulk ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Borrando...</> : "Sí, borrar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Payment confirmation dialog */}
       <AlertDialog open={!!confirmingPayment} onOpenChange={(open) => { if (!open) setConfirmingPayment(null); }}>
