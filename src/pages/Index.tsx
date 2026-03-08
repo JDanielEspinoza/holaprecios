@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2 } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import bannerWI from "@/assets/banner_w_i-2.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
@@ -249,9 +249,12 @@ const Index = () => {
           {/* Personalización Hola */}
           <Card className="card-premium">
             <CardHeader>
-              <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings2 className="h-5 w-5" />
+                Personaliza tu ¡Hola! Suite
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
-                HOLA BASIC: 1 Whatsapp oficial + hospedaje en META + 3 accesos en la plataforma
+                Hola! Suite Basic: 1 WhatsApp Oficial + Hospedaje en Meta + 3 accesos
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -300,7 +303,7 @@ const Index = () => {
           </Card>
 
           {/* Hola Cloud */}
-          <Card className="card-premium">
+          <Card className="card-premium flex flex-col">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Cloud className="h-5 w-5" />
@@ -308,33 +311,35 @@ const Index = () => {
               </CardTitle>
               <p className="text-sm text-muted-foreground">Seleccioná un plan para sumarlo al ecosistema</p>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {holaCloudPlans.map((plan) => {
-                const isSelected = selectedCloud === plan.name;
-                return (
-                  <button
-                    key={plan.name}
-                    onClick={() => setSelectedCloud(isSelected ? null : plan.name)}
-                    className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
-                      isSelected ? "border-primary bg-primary/10 ring-2 ring-primary/30" : "border-border hover:bg-accent/50"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-primary bg-primary" : "border-muted-foreground"}`}>
-                        {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+            <CardContent className="space-y-2 flex flex-col flex-1">
+              <div className="space-y-2">
+                {holaCloudPlans.map((plan) => {
+                  const isSelected = selectedCloud === plan.name;
+                  return (
+                    <button
+                      key={plan.name}
+                      onClick={() => setSelectedCloud(isSelected ? null : plan.name)}
+                      className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
+                        isSelected ? "border-primary bg-primary/10 ring-2 ring-primary/30" : "border-border hover:bg-accent/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+                          {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                        </div>
+                        <span className="font-medium text-foreground">{plan.name}</span>
                       </div>
-                      <span className="font-medium text-foreground">{plan.name}</span>
-                    </div>
-                    <span className="font-bold text-foreground">{fmt(plan.price)}</span>
-                  </button>
-                );
-              })}
-              {selectedCloud && (
+                      <span className="font-bold text-foreground">{fmt(plan.price)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-auto pt-2">
                 <div className="border-t border-border pt-3 flex justify-between items-center">
                   <span className="font-semibold text-foreground">Cloud seleccionado</span>
-                  <span className="text-xl font-bold text-primary">{fmt(cloudPrice)}</span>
+                  <span className="text-xl font-bold text-primary">{fmt(selectedCloud ? cloudPrice : 0)}</span>
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         </div>
