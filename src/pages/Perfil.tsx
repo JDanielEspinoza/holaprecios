@@ -110,8 +110,11 @@ const Perfil = () => {
                 <Input id="email_contacto" type="email" value={form.email_contacto} onChange={(e) => setForm(f => ({...f, email_contacto: e.target.value}))} placeholder="Ej: jorthy@opasuite.com.br" className="input-premium" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="numero">Número de teléfono</Label>
-                <Input id="numero" value={form.numero} onChange={(e) => setForm(f => ({...f, numero: e.target.value}))} placeholder="Ej: +55 49 99910-7819" className="input-premium" />
+                <Label>Número de teléfono</Label>
+                <div className="flex items-center h-10 px-3 rounded-md border border-input bg-muted text-sm text-muted-foreground">
+                  {FIXED_PHONE}
+                </div>
+                <p className="text-xs text-muted-foreground">Este número es fijo para todos los usuarios.</p>
               </div>
               <Button type="submit" className="w-full btn-premium" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}

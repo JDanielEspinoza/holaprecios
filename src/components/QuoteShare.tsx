@@ -120,32 +120,39 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName }: Quo
     setSendingRegistro(true);
     setResultRegistro(null);
     try {
-      const response = await fetch("https://n8n.ixcsoft.com.br/webhook/enlace-registro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("send-registro-wispro", {
+        body: {
           phone: cleanPhone,
           firstName: clientName || "",
           agentName: agentName || "Tu asesor",
-        }),
+        },
       });
 
-      const text = await response.text();
+      if (error) {
+        setResultRegistro({
+          status: "error",
+          title: "Error en el envío",
+          detail: error.message || "No se pudo conectar con el servicio.",
+          raw: JSON.stringify(error, null, 2),
+        });
+        return;
+      }
 
-      if (response.ok) {
+      const isSuccess = data?.success === true;
+      if (isSuccess) {
         setSentRegistro(true);
         setResultRegistro({
           status: "success",
           title: "Enlace enviado",
           detail: `El enlace de registro Wispro fue enviado al ${cleanPhone}.`,
-          raw: text,
+          raw: data?.webhook_response || "",
         });
       } else {
         setResultRegistro({
           status: "error",
-          title: "Error en el envío",
-          detail: `El servidor respondió con status ${response.status}.`,
-          raw: text,
+          title: "Respuesta inesperada",
+          detail: "El servicio respondió pero el enlace podría no haberse enviado.",
+          raw: JSON.stringify(data, null, 2),
         });
       }
     } catch (err: any) {
