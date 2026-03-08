@@ -39,6 +39,14 @@ Deno.serve(async (req) => {
       link_presupuesto: link_presupuesto || "",
     };
 
+    const n8nPayload = {
+      phone: body.client_phone || contacto || "",
+      firstName: (body.client_name || company_name || "").split(" ")[0] || "Cliente",
+      agentName: agent_name || "Tu asesor",
+    };
+
+    console.log("n8n payload:", JSON.stringify(n8nPayload));
+
     const [zapierRes, n8nRes] = await Promise.all([
       fetch(ZAPIER_URL, {
         method: "POST",
@@ -48,7 +56,7 @@ Deno.serve(async (req) => {
       fetch(N8N_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(n8nPayload),
       }),
     ]);
 
