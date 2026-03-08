@@ -432,10 +432,33 @@ const MisCotizaciones = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                // TODO: POST a Zapier para crear trato en Pipedrive
-                toast({ title: "Función en desarrollo", description: "El envío a Pipedrive se configurará próximamente." });
+                if (!confirmingPipedrive) return;
+                const q = confirmingPipedrive;
+                const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+                const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
+                try {
+                  await fetch("https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    mode: "no-cors",
+                    body: JSON.stringify({
+                      company_name: q.client_company || q.client_name || "",
+                      cantidad_usuarios: String(q.clients_count),
+                      products: getPlatforms(q.items),
+                      agent_name: q.seller_name || "",
+                      numero_presupuesto: String(q.quote_number),
+                      fecha: formatDate(q.created_at),
+                      contacto: q.client_phone || q.client_email || "",
+                      total: fmt(finalTotal),
+                      link_presupuesto: quoteUrl,
+                    }),
+                  });
+                  toast({ title: "Enviado a Pipedrive", description: `Trato #${q.quote_number} enviado correctamente.` });
+                } catch (err: any) {
+                  toast({ title: "Error al enviar a Pipedrive", description: err.message, variant: "destructive" });
+                }
                 setConfirmingPipedrive(null);
               }}
               className="bg-[#017737] hover:bg-[#015a2a]"
