@@ -104,7 +104,7 @@ const Index = () => {
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
   // Cumulative package discount
-  const packageDiscountPct = getPackageDiscount(selectedProductCount);
+  const packageDiscountPct = getPackageDiscount(selectedProducts);
   const discountAmount = grandTotal * (packageDiscountPct / 100);
   const discountedTotal = grandTotal - discountAmount;
 
