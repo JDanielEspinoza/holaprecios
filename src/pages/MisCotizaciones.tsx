@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -11,8 +12,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  CheckCircle2, CircleDot, MessageCircle,
+  CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
@@ -61,6 +65,14 @@ const MisCotizaciones = () => {
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [sendingRegistro, setSendingRegistro] = useState<string | null>(null);
+  const [sentRegistros, setSentRegistros] = useState<Set<string>>(new Set());
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  // Selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const fetchQuotes = async () => {
     if (!user) return;
@@ -90,6 +102,47 @@ const MisCotizaciones = () => {
     return list;
   }, [quotes, search, showArchived]);
 
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginatedQuotes = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize]);
+
+  // Selection helpers
+  const pageIds = paginatedQuotes.map((q) => q.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const somePageSelected = pageIds.some((id) => selectedIds.has(id));
+  const allFilteredSelected = filtered.length > 0 && filtered.every((q) => selectedIds.has(q.id));
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectPage = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPageSelected) {
+        pageIds.forEach((id) => next.delete(id));
+      } else {
+        pageIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(filtered.map((q) => q.id)));
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
   const toggleArchive = async (q: QuoteRow) => {
     await supabase
       .from("quotes")
@@ -107,7 +160,7 @@ const MisCotizaciones = () => {
       const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
       const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
 
-      const getPlatforms = (items: any[]) => {
+      const getPlatformsLocal = (items: any[]) => {
         const sections = new Set(
           (items || [])
             .map((i: any) => {
@@ -134,7 +187,7 @@ const MisCotizaciones = () => {
         body: {
           company_name: q.client_company || q.client_name || "",
           cantidad_usuarios: String(q.clients_count),
-          products: getPlatforms(q.items),
+          products: getPlatformsLocal(q.items),
           agent_name: q.seller_name || "",
           numero_presupuesto: String(q.quote_number),
           fecha: formatDateStr(q.created_at),
@@ -203,7 +256,8 @@ const MisCotizaciones = () => {
         },
       });
       if (error) throw error;
-      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}` });
+      setSentRegistros((prev) => new Set(prev).add(q.id));
+      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}`, duration: 3000 });
     } catch (err: any) {
       toast({ title: "Error al enviar enlace", description: err.message, variant: "destructive" });
     } finally {
@@ -268,6 +322,23 @@ const MisCotizaciones = () => {
           </CardContent>
         </Card>
 
+        {/* Selection bar */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-2 py-2 bg-muted/50 rounded-lg animate-fade-in">
+            <span className="text-sm text-muted-foreground">
+              {selectedIds.size} seleccionada{selectedIds.size > 1 ? "s" : ""}
+            </span>
+            {!allFilteredSelected && (
+              <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={selectAll}>
+                Seleccionar todas ({filtered.length})
+              </Button>
+            )}
+            <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={clearSelection}>
+              Limpiar selección
+            </Button>
+          </div>
+        )}
+
         {/* Table */}
         {loading ? (
           <div className="flex justify-center py-20">
@@ -282,140 +353,206 @@ const MisCotizaciones = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card className="card-premium animate-fade-slide-up-2 overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30">
-                    <TableHead className="w-[50px] md:w-[70px]">N°</TableHead>
-                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead className="hidden lg:table-cell">Empresa</TableHead>
-                    <TableHead className="hidden xl:table-cell">Contacto</TableHead>
-                    <TableHead className="hidden xl:table-cell">Productos</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-center">Pago</TableHead>
-                    <TableHead className="text-center">CRM</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((q) => {
-                    const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
-                    return (
-                      <TableRow
-                        key={q.id}
-                        className={`cursor-pointer transition-colors ${
-                          q.entry_payment_paid
-                            ? "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
-                            : "hover:bg-muted/40"
-                        }`}
-                        onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
-                      >
-                        <TableCell className="font-mono text-xs text-muted-foreground">
-                          #{q.quote_number}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
-                          {formatDate(q.created_at)}
-                        </TableCell>
-                        <TableCell className="font-medium text-sm">
-                          <div>{q.client_name || "—"}</div>
-                          <div className="text-xs text-muted-foreground sm:hidden">{formatDate(q.created_at)}</div>
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                          {q.client_company || "—"}
-                        </TableCell>
-                        <TableCell className="hidden xl:table-cell text-xs text-muted-foreground">
-                          <div>{q.client_email || ""}</div>
-                          <div>{q.client_phone || ""}</div>
-                        </TableCell>
-                        <TableCell className="hidden xl:table-cell text-xs">
-                          {getPlatforms(q.items)}
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-primary whitespace-nowrap text-sm">
-                          {fmt(finalTotal)}
-                        </TableCell>
-                        <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-center">
-                            <button
-                              className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-accent transition-colors disabled:pointer-events-none"
-                              onClick={() => {
-                                if (q.entry_payment_paid) return;
-                                setConfirmingPayment(q);
-                              }}
-                              title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                              disabled={q.entry_payment_paid}
-                            >
-                              {q.entry_payment_paid ? (
-                                <CheckCircle2 size={24} className="text-emerald-600" />
-                              ) : (
-                                <CircleDot size={24} className="text-muted-foreground" />
-                              )}
-                            </button>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-9 w-9"
-                              onClick={() => setConfirmingPipedrive(q)}
-                              title="Enviar trato a Pipedrive"
-                            >
-                              <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${q.pipedrive_sent ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-9 w-9"
-                              onClick={() => toast({ title: "CRM no disponible", description: "HubSpot no está conectado a la plataforma actualmente." })}
-                              title="Enviar a HubSpot"
-                            >
-                              <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => sendRegistroWispro(q)}
-                              disabled={sendingRegistro === q.id}
-                              title="Enviar enlace de registro Wispro"
-                            >
-                              {sendingRegistro === q.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <MessageCircle className="h-4 w-4 text-[#25D366]" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
-                              title="Ver cotización"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => toggleArchive(q)}
-                              title={q.archived ? "Restaurar" : "Archivar"}
-                            >
-                              {q.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+          <>
+            <Card className="card-premium animate-fade-slide-up-2 overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/30">
+                      <TableHead className="w-[40px]" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={allPageSelected ? true : somePageSelected ? "indeterminate" : false}
+                            onCheckedChange={toggleSelectPage}
+                          />
+                        </div>
+                      </TableHead>
+                      <TableHead className="w-[50px] md:w-[70px]">N°</TableHead>
+                      <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead className="hidden md:table-cell">Empresa</TableHead>
+                      <TableHead className="hidden xl:table-cell">Contacto</TableHead>
+                      <TableHead className="hidden xl:table-cell">Productos</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-center">Pago</TableHead>
+                      <TableHead className="text-center">CRM</TableHead>
+                      <TableHead className="text-center">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedQuotes.map((q) => {
+                      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+                      const registroSent = sentRegistros.has(q.id);
+                      return (
+                        <TableRow
+                          key={q.id}
+                          className={`cursor-pointer transition-colors ${
+                            selectedIds.has(q.id)
+                              ? "bg-primary/5 hover:bg-primary/10"
+                              : q.entry_payment_paid
+                                ? "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
+                                : "hover:bg-muted/40"
+                          }`}
+                          onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
+                        >
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center">
+                              <Checkbox
+                                checked={selectedIds.has(q.id)}
+                                onCheckedChange={() => toggleSelectOne(q.id)}
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">
+                            #{q.quote_number}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
+                            {formatDate(q.created_at)}
+                          </TableCell>
+                          <TableCell className="font-medium text-sm">
+                            <div>{q.client_name || "—"}</div>
+                            <div className="text-xs text-muted-foreground sm:hidden">{formatDate(q.created_at)}</div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                            {q.client_company || "—"}
+                          </TableCell>
+                          <TableCell className="hidden xl:table-cell text-xs text-muted-foreground">
+                            <div>{q.client_email || ""}</div>
+                            <div>{q.client_phone || ""}</div>
+                          </TableCell>
+                          <TableCell className="hidden xl:table-cell text-xs">
+                            {getPlatforms(q.items)}
+                          </TableCell>
+                          <TableCell className="text-right font-bold text-primary whitespace-nowrap text-sm">
+                            {fmt(finalTotal)}
+                          </TableCell>
+                          <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center">
+                              <button
+                                className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-accent transition-colors disabled:pointer-events-none"
+                                onClick={() => {
+                                  if (q.entry_payment_paid) return;
+                                  setConfirmingPayment(q);
+                                }}
+                                title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
+                                disabled={q.entry_payment_paid}
+                              >
+                                {q.entry_payment_paid ? (
+                                  <CheckCircle2 size={24} className="text-emerald-600" />
+                                ) : (
+                                  <CircleDot size={24} className="text-muted-foreground" />
+                                )}
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9"
+                                onClick={() => setConfirmingPipedrive(q)}
+                                title="Enviar trato a Pipedrive"
+                              >
+                                <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${q.pipedrive_sent ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9"
+                                onClick={() => toast({ title: "CRM no disponible", description: "HubSpot no está conectado a la plataforma actualmente." })}
+                                title="Enviar a HubSpot"
+                              >
+                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => sendRegistroWispro(q)}
+                                disabled={sendingRegistro === q.id}
+                                title="Enviar enlace de registro Wispro"
+                              >
+                                {sendingRegistro === q.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : registroSent ? (
+                                  <MessageCircle className="h-4 w-4 fill-[#25D366] text-[#25D366]" />
+                                ) : (
+                                  <MessageCircle className="h-4 w-4 text-[#25D366]" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
+                                title="Ver cotización"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => toggleArchive(q)}
+                                title={q.archived ? "Restaurar" : "Archivar"}
+                              >
+                                {q.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+
+            {/* Pagination */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Mostrando {((currentPage - 1) * pageSize) + 1}–{Math.min(currentPage * pageSize, filtered.length)} de {filtered.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium min-w-[80px] text-center">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Por página:</span>
+                <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                  <SelectTrigger className="w-[70px] h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </Card>
+          </>
         )}
       </main>
 
