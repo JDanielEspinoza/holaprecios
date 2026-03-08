@@ -122,19 +122,23 @@ const Cotizacion = () => {
 
         <Card className="w-full max-w-lg card-premium border-2 border-primary/30 bg-primary/5 print-card animate-fade-slide-up-1">
           <CardHeader className="text-center pb-2">
-            {/* Product logos */}
-            <div className="flex justify-center items-center gap-3 mb-3">
-              {hasWispro && <img src={logoWispro} alt="Wispro" className="h-10 w-auto object-contain" />}
-              {hasAcs && <img src={logoAcs} alt="ACS" className="h-10 w-auto object-contain" />}
-              {hasHola && <img src={logoHola} alt="Hola Suite" className="h-10 rounded-xl w-auto object-contain" />}
-              {!hasWispro && !hasAcs && !hasHola && (
-                <img src={logoHola} alt="Hola Suite" className="h-12 rounded-xl" />
-              )}
+            {/* Company logo */}
+            <div className="flex justify-center mb-4">
+              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-10 w-auto object-contain" />
             </div>
             <CardTitle className="text-xl">Resumen de Cotización</CardTitle>
             <p className="text-sm text-muted-foreground">
               Detalle para {fmtClients(data.clients_count)} clientes
             </p>
+            {/* Product logos */}
+            {(hasWispro || hasAcs || hasHola) && (
+              <div className="flex justify-center items-center gap-3 mt-3 pt-3 border-t border-border">
+                <span className="text-xs text-muted-foreground mr-1">Productos:</span>
+                {hasWispro && <img src={logoWispro} alt="Wispro" className="h-8 w-auto object-contain" />}
+                {hasAcs && <img src={logoAcs} alt="ACS" className="h-8 w-auto object-contain" />}
+                {hasHola && <img src={logoHola} alt="Hola Suite" className="h-8 rounded-lg w-auto object-contain" />}
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Client info */}
