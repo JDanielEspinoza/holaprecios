@@ -114,6 +114,59 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName }: Quo
     }
   }, [clientPhone, quoteUrl, agentName]);
 
+  const handleRegistroWispro = useCallback(async () => {
+    if (!clientPhone) return;
+    const cleanPhone = clientPhone.replace(/[\s\-\+\(\)]/g, "");
+    setSendingRegistro(true);
+    setResultRegistro(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-registro-wispro", {
+        body: {
+          phone: cleanPhone,
+          firstName: clientName || "",
+          agentName: agentName || "Tu asesor",
+        },
+      });
+
+      if (error) {
+        setResultRegistro({
+          status: "error",
+          title: "Error en el envío",
+          detail: error.message || "No se pudo conectar con el servicio.",
+          raw: JSON.stringify(error, null, 2),
+        });
+        return;
+      }
+
+      const isSuccess = data?.success === true;
+      if (isSuccess) {
+        setSentRegistro(true);
+        setResultRegistro({
+          status: "success",
+          title: "Enlace enviado",
+          detail: `El enlace de registro Wispro fue enviado al ${cleanPhone}.`,
+          raw: data?.webhook_response || "",
+        });
+      } else {
+        setResultRegistro({
+          status: "error",
+          title: "Respuesta inesperada",
+          detail: "El servicio respondió pero el mensaje podría no haberse entregado.",
+          raw: data?.webhook_response || JSON.stringify(data, null, 2),
+        });
+      }
+    } catch (err: any) {
+      setResultRegistro({
+        status: "error",
+        title: "Error de conexión",
+        detail: "No se pudo conectar con el servidor.",
+        raw: err.message,
+      });
+    } finally {
+      setSendingRegistro(false);
+    }
+  }, [clientPhone, clientName, agentName]);
+
   const hasPhone = !!clientPhone?.replace(/[\s\-\+\(\)]/g, "").trim();
 
   return (
