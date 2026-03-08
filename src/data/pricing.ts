@@ -71,6 +71,7 @@ export const addons: Addon[] = [
 export type HolaCloudPlan = {
   name: string;
   price: number;
+  maxClients: number;
 };
 
 export const holaCloudPlans: HolaCloudPlan[] = [
