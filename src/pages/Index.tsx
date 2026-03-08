@@ -482,6 +482,26 @@ const Index = () => {
               <SummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} active={!!selectedCloud} />
             </div>
 
+            {/* Subtotal + Discount */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-semibold text-foreground">{fmt(grandTotal)}</span>
+              </div>
+              {packageDiscountPct > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-emerald-600">
+                    🎉 Descuento paquete integrado ({packageDiscountPct}%)
+                  </span>
+                  <span className="font-semibold text-emerald-600">-{fmt(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-lg font-bold text-foreground">Total mensual</span>
+                <span className="text-2xl font-bold text-primary">{fmt(discountedTotal)}</span>
+              </div>
+            </div>
+
             {/* Implementation */}
             <div className="border-t border-border pt-3 flex justify-between items-center text-sm">
               <div>
