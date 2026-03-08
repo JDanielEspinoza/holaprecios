@@ -146,6 +146,7 @@ const Index = () => {
   const handleGenerateQuote = async () => {
     if (!user) return;
     setSaving(true);
+    setView("loading");
     try {
       const items = buildItems();
       const { data, error } = await supabase.from("quotes" as any).insert({
@@ -170,12 +171,22 @@ const Index = () => {
 
       if (error) throw error;
       setQuoteId((data as any).id);
+      // Wait 2.5s to show loading animation
+      await new Promise((r) => setTimeout(r, 2500));
+      setView("success");
       toast({ title: "Cotización generada", description: "El QR está listo para compartir." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
+      setView("form");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleNewQuote = () => {
+    resetForm();
+    setView("form");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const quoteUrl = quoteId ? `${PUBLISHED_DOMAIN}/cotizacion?id=${quoteId}` : "";
