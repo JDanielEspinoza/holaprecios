@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface QuoteShareProps {
   quoteUrl: string;
   clientPhone?: string;
+  clientName?: string;
   agentName?: string;
 }
 
