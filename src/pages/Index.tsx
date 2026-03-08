@@ -550,7 +550,7 @@ const Index = () => {
   );
 };
 
-function ProductCard({ title, value, logo, checked, onToggle, discountPct }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void; discountPct: number }) {
+function ProductCard({ title, value, logo, checked, onToggle }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void }) {
   return (
     <Card className={`cursor-pointer card-premium transition-all ${checked ? "ring-2 ring-orange-500 border-orange-500" : ""}`} onClick={onToggle}>
       <CardContent className="pt-3 md:pt-5 text-center">
