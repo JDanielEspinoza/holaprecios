@@ -337,7 +337,7 @@ const MisCotizaciones = () => {
                               onClick={() => setConfirmingPipedrive(q)}
                               title="Enviar trato a Pipedrive"
                             >
-                              <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                              <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${sentToPipedrive.has(q.id) ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
                             </Button>
                             <Button
                               variant="ghost"
