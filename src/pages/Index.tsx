@@ -32,12 +32,13 @@ const fmt = (n: number) =>
 
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
-// Cumulative package discount: 1 product = 5%, 2 products = 10%, 3 products = 30%
-function getPackageDiscount(count: number): number {
-  if (count >= 3) return 30;
-  if (count === 2) return 10;
-  if (count === 1) return 5;
-  return 0;
+// Additive discount per product: Wispro 20%, ACS 5%, Hola 5%
+function getPackageDiscount(products: { wispro: boolean; acs: boolean; holaBasic: boolean }): number {
+  let pct = 0;
+  if (products.wispro) pct += 20;
+  if (products.acs) pct += 5;
+  if (products.holaBasic) pct += 5;
+  return pct;
 }
 
 type ViewState = "form" | "loading" | "success";
