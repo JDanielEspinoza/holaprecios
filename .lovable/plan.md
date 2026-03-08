@@ -1,65 +1,76 @@
 
 
-## Plan: Create "Hola! Suite IA" page
+# Plan: Upgrade Visual Premium SaaS
 
-### What
-A new page mirroring the Opa! Suite IA calculator but for LATAM markets — prices in USD, with a country selector that changes per-message rates based on WhatsApp API costs by country.
+Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
 
-### Pricing data (from image)
+## 1. CSS Variables y Gradientes Base (`src/index.css`)
 
-**Per-message costs by country (USD) — used as base multipliers for AI interaction pricing:**
+- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
+- Agregar variables CSS para gradientes y sombras reutilizables
+- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
+- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
 
-| Country | Marketing | Utility |
-|---------|-----------|---------|
-| Argentina | $0.0618 | $0.0260 |
-| Colombia | $0.0125 | $0.0008 |
-| México | $0.0305 | $0.0085 |
-| Perú | $0.0703 | $0.0200 |
-| Resto de LATAM | $0.0740 | $0.0113 |
+## 2. Tailwind Config (`tailwind.config.ts`)
 
-The AI per-interaction rates will be derived similarly to Opa but in USD, scaled by country messaging costs. I'll create comparable USD rates per provider per country (text, voz padrón, voz clonada).
+- Agregar keyframes: `fade-slide-up`, `glow-pulse`
+- Agregar animations correspondientes
+- Ampliar `boxShadow` con sombras premium de dos niveles
 
-### Files to create/modify
+## 3. Página Login (`src/pages/Login.tsx`)
 
-1. **`src/pages/HolaSuiteIA.tsx`** — New page:
-   - Same dark theme, background effects, animated cards as OpaSuiteIA
-   - Banner: `holabanner.jpg` (already exists in assets)
-   - Country dropdown (Select component) with: Argentina, Colombia, México, Perú, Resto de LATAM
-   - Atendimientos input (same as Opa)
-   - 3 provider cards (Gemini, OpenAI, Claude) with USD pricing that changes per country
-   - Format: `$ X.XX` USD
-   - Footer: same Meta Partners badge, Google Play, App Store badges
-   - All text in Spanish (not Portuguese)
+- Fondo con gradiente sutil (purple → indigo → soft blue) animado
+- Card con sombra premium elevada, bordes más suaves
+- Inputs con transición de borde y glow en focus
+- Botón con gradiente y efecto press
 
-2. **`src/components/AppMenu.tsx`** — Add menu item:
-   - New entry: `{ title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot }`
+## 4. Página Principal (`src/pages/Index.tsx`)
 
-3. **`src/App.tsx`** — Add route:
-   - Import HolaSuiteIA, add protected route `/hola-suite-ia`
+- Banner header: gradiente animado en lugar de color sólido
+- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
+- Selector de clientes: glow sutil en el borde
+- Card de resumen: fondo con gradiente más sofisticado
+- Total: tamaño aumentado, glow detrás del número
+- Secciones con `animate-fade-slide-up` escalonado
+- Botones con gradiente y press animation
 
-### Country-based pricing structure
+## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
 
-Each country gets a cost multiplier applied to base USD rates per provider. The rates per provider per interaction type will be structured as:
+- Card principal con sombra premium
+- Botones con transiciones suaves
+- Tipografía del total más impactante
 
-```text
-providers = [
-  { name: "Gemini",  rates: { AR: {text, voz, clonada}, CO: {...}, MX: {...}, PE: {...}, LATAM: {...} } },
-  { name: "OpenAI",  rates: { ... } },
-  { name: "Claude",  rates: { ... } },
-]
-```
+## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
 
-Base USD rates (derived from BRL rates / ~5.5 exchange + country adjustment):
-- Gemini: text ~$0.048, voz ~$0.062, clonada ~$0.102
-- OpenAI: text ~$0.065, voz ~$0.080, clonada ~$0.120
-- Claude: text ~$0.093, voz ~$0.107, clonada ~$0.147
+- Cards con hover elevation
+- Transiciones suaves en hover
 
-Country multipliers based on Meta messaging costs from the image (Argentina highest, Colombia lowest).
+## 7. Página Perfil (`src/pages/Perfil.tsx`)
 
-### UI layout
-- Same glass-card dark aesthetic
-- Input section: row with "Atendimientos / mes" + number input + country Select dropdown
-- Cards: 3 columns on desktop, 1 on mobile
-- No phone mockup (Hola doesn't have the Opa mockup asset)
-- Same animated values with USD formatter
+- Card con sombra premium
+- Inputs con glow en focus
+- Foto de perfil con borde con glow
+
+## 8. AppMenu (`src/components/AppMenu.tsx`)
+
+- Dropdown con sombra premium y bordes más suaves
+
+## Archivos a modificar
+
+| Archivo | Cambio |
+|---|---|
+| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
+| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
+| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
+| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
+| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
+| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
+| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
+
+## Principios
+
+- Todo sutil y refinado, nada exagerado
+- Transiciones 250-400ms con ease-out
+- Sombras de baja opacidad para profundidad realista
+- Gradientes casi imperceptibles para dar vida sin distraer
 
