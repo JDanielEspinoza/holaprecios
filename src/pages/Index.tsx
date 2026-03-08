@@ -412,7 +412,7 @@ const Index = () => {
                     <span className="text-xl font-bold text-primary">{fmt((selectedProducts.holaBasic && tier ? tier.holaBasic : 0) + addonTotal)}</span>
                   </div>
                 </CardContent>
-              </Card>
+              </Card>}
 
               {/* Hola Cloud - only shown when Hola Suite is selected */}
               {selectedProducts.holaBasic && <Card className="card-premium flex flex-col">
