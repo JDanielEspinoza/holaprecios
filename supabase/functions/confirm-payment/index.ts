@@ -42,18 +42,13 @@ Deno.serve(async (req) => {
     const rawPhone = body.client_phone || contacto || "";
     const cleanPhone = rawPhone.replace(/[\s\-\+\(\)]/g, "");
 
-    const firstName = (body.client_name || company_name || "").split(" ")[0] || "Cliente";
+    const userName = (body.client_name || company_name || "").split(" ")[0] || "Cliente";
     const agentName = agent_name || "Tu asesor";
 
     const n8nPayload = {
-      contato: {
-        canalCliente: cleanPhone,
-      },
-      template: {
-        _id: "69a73390fe139248b90a942d",
-        variaveis: [firstName, agentName],
-      },
-      canal: "67cb3542f3823200bddecfd9",
+      phone: cleanPhone,
+      userName,
+      agentName,
     };
 
     console.log("n8n payload:", JSON.stringify(n8nPayload));
