@@ -45,6 +45,7 @@ interface QuoteRow {
   archived: boolean;
   entry_payment_paid: boolean;
   user_id: string;
+  pipedrive_sent: boolean;
 }
 
 const MisCotizaciones = () => {
