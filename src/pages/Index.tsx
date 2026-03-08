@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
 import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
-import holaBanner from "@/assets/holabanner.jpg";
+import bannerWI from "@/assets/banner_w_i-2.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
