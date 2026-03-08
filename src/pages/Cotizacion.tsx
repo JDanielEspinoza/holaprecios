@@ -142,15 +142,7 @@ const Cotizacion = () => {
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ecosistema</h3>
                 {ecosystem.map((item) => (
-                  <div key={item.label} className="space-y-0.5">
-                    <CotizacionLine label={item.label} value={item.value} />
-                    {item.discount_pct && item.discount_pct > 0 && (
-                      <div className="flex justify-between items-center text-xs py-0.5 text-emerald-600 pl-2">
-                        <span>Descuento {item.discount_pct}%</span>
-                        <span>-{fmt(item.value * (item.discount_pct / 100))}</span>
-                      </div>
-                    )}
-                  </div>
+                  <CotizacionLine key={item.label} label={item.label} value={item.value} />
                 ))}
               </div>
             )}
