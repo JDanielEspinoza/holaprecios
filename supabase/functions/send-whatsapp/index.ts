@@ -28,19 +28,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    // POST to n8n webhook with the nested structure n8n expects
+    // POST to n8n webhook - n8n transforms this into the nested structure
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contato: {
-          canalCliente: phone,
-        },
-        template: {
-          _id: "69a73f16fe139248b90aaa8b",
-          variaveis: [agentName || "Tu asesor", linkPresupuesto || ""],
-        },
-        canal: "67cb3542f3823200bddecfd9",
+        phone,
+        agentName: agentName || "Tu asesor",
+        linkPresupuesto: linkPresupuesto || "",
       }),
     });
 
