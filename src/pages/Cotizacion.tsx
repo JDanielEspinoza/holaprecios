@@ -142,15 +142,7 @@ const Cotizacion = () => {
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ecosistema</h3>
                 {ecosystem.map((item) => (
-                  <div key={item.label} className="space-y-0.5">
-                    <CotizacionLine label={item.label} value={item.value} />
-                    {item.discount_pct && item.discount_pct > 0 && (
-                      <div className="flex justify-between items-center text-xs py-0.5 text-emerald-600 pl-2">
-                        <span>Descuento {item.discount_pct}%</span>
-                        <span>-{fmt(item.value * (item.discount_pct / 100))}</span>
-                      </div>
-                    )}
-                  </div>
+                  <CotizacionLine key={item.label} label={item.label} value={item.value} />
                 ))}
               </div>
             )}
@@ -174,10 +166,10 @@ const Cotizacion = () => {
               {hasDiscount && (
                 <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-center space-y-1">
                   <p className="text-sm font-medium text-emerald-700">
-                    🎉 Descuentos especiales por cierre en Andina Link
+                    🎉 Tu Asesor te ha otorgado un <span className="font-bold text-emerald-800">{data.discount}%</span> de descuento
                   </p>
                   <p className="text-xs text-emerald-600">
-                    Wispro 20% · ACS 5% · Hola! Suite 5% — Válido por 1 año
+                    Paquete integrado con {ecosystem.length} {ecosystem.length === 1 ? "producto" : "productos"} — Válido por 1 año
                   </p>
                 </div>
               )}
