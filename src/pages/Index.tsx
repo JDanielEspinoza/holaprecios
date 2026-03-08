@@ -279,6 +279,7 @@ const Index = () => {
   // Form view (default)
   return (
     <div className="min-h-screen bg-premium-gradient">
+      <WelcomeTutorial />
       <AppBanner />
 
       <div className="absolute top-4 left-4 z-10">
