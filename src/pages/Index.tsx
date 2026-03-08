@@ -325,10 +325,29 @@ const Index = () => {
         {tier && (
           <>
             {/* Ecosystem cards + Hola + Cloud - keep existing form content */}
+            {/* Dynamic discount banner */}
+            {selectedProductCount > 0 && (
+              <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 animate-fade-slide-up">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-emerald-700">
+                      🎉 Paquete integrado: <span className="font-bold">{packageDiscountPct}% de descuento</span>
+                    </p>
+                    <p className="text-xs text-emerald-600">
+                      {selectedProductCount === 1 && "Sumá otro producto para alcanzar el 10% de descuento"}
+                      {selectedProductCount === 2 && "¡Sumá el tercer producto y alcanzá el 30% de descuento!"}
+                      {selectedProductCount === 3 && "¡Máximo descuento aplicado sobre el total mensual!"}
+                    </p>
+                  </div>
+                  <span className="text-2xl font-bold text-emerald-600">{packageDiscountPct}%</span>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-3 md:gap-6 animate-fade-slide-up-1">
-              <ProductCard title="Wispro" value={tier.wispro} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => { setSelectedProducts((p) => ({ ...p, wispro: !p.wispro })); setQuoteId(null); }} discountPct={PRODUCT_DISCOUNTS.wispro} />
-              <ProductCard title="ACS" value={tier.acs} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => { setSelectedProducts((p) => ({ ...p, acs: !p.acs })); setQuoteId(null); }} discountPct={PRODUCT_DISCOUNTS.acs} />
-              <ProductCard title="Hola! Suite" value={tier.holaBasic} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => { setSelectedProducts((p) => ({ ...p, holaBasic: !p.holaBasic })); setQuoteId(null); }} discountPct={PRODUCT_DISCOUNTS.holaBasic} />
+              <ProductCard title="Wispro" value={tier.wispro} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => { setSelectedProducts((p) => ({ ...p, wispro: !p.wispro })); setQuoteId(null); }} />
+              <ProductCard title="ACS" value={tier.acs} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => { setSelectedProducts((p) => ({ ...p, acs: !p.acs })); setQuoteId(null); }} />
+              <ProductCard title="Hola! Suite" value={tier.holaBasic} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => { setSelectedProducts((p) => ({ ...p, holaBasic: !p.holaBasic })); setQuoteId(null); }} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-slide-up-2">
