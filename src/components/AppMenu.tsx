@@ -11,6 +11,7 @@ const menuItems = [
   { title: "Cotizaciones Andina", path: "/cotizaciones-andina", icon: Building2 },
   { title: "Usuarios", path: "/usuarios", icon: Users },
   { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
+  { title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot },
 ];
 
 const AppMenu = () => {
