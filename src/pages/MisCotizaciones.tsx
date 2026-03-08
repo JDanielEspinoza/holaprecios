@@ -14,6 +14,7 @@ import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   MessageSquare, CheckCircle2, CircleDot,
 } from "lucide-react";
+import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -305,23 +306,38 @@ const MisCotizaciones = () => {
                           {fmt(finalTotal)}
                         </TableCell>
                         <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => {
-                              if (q.entry_payment_paid) return;
-                              setConfirmingPayment(q);
-                            }}
-                            title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                            disabled={q.entry_payment_paid}
-                          >
-                            {q.entry_payment_paid ? (
-                              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                            ) : (
-                              <CircleDot className="h-5 w-5 text-muted-foreground" />
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                if (q.entry_payment_paid) return;
+                                setConfirmingPayment(q);
+                              }}
+                              title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
+                              disabled={q.entry_payment_paid}
+                            >
+                              {q.entry_payment_paid ? (
+                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                              ) : (
+                                <CircleDot className="h-5 w-5 text-muted-foreground" />
+                              )}
+                            </Button>
+                            {q.entry_payment_paid && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => {
+                                  // TODO: POST a Zapier para crear trato en Pipedrive
+                                }}
+                                title="Enviar trato a Pipedrive"
+                              >
+                                <img src={pipedriveIcon} alt="Pipedrive" className="h-5 w-5 rounded-full" />
+                              </Button>
                             )}
-                          </Button>
+                          </div>
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
