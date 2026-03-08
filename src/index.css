@@ -52,10 +52,33 @@
     --gray-700: 210 9% 26%;
     --gray-800: 210 12% 17%;
 
-    /* Charcoal scale for headings */
-    --charcoal: 228 5% 19%;
-    --charcoal-dark: 230 8% 11%;
+    /* Charcoal/Black scale for headings */
+    --charcoal: 225 5% 18%;
+    --charcoal-dark: 228 8% 11%;
     --charcoal-black: 240 8% 2%;
+    --black-400: 225 5% 18%;
+    --black-500: 228 8% 11%;
+    --black-800: 240 8% 2%;
+
+    /* Brand colors - Orange (Primary) */
+    --orange-300: 35 100% 67%;
+    --orange-400: 30 100% 60%;
+    --orange-500: 29 100% 47%;
+    --orange-600: 29 100% 39%;
+
+    /* Brand colors - Indigo (Secondary) */
+    --indigo-400: 244 79% 63%;
+    --indigo-500: 246 62% 47%;
+    --indigo-600: 247 61% 40%;
+
+    /* Brand colors - Salmon (Support) */
+    --salmon-300: 357 100% 76%;
+    --salmon-500: 357 100% 64%;
+    --salmon-600: 355 75% 62%;
+
+    /* Brand colors - Midnight (Support) */
+    --midnight-400: 237 28% 50%;
+    --midnight-500: 240 65% 7%;
 
     --radius: 0.75rem;
 
