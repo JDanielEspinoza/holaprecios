@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Users } from "lucide-react";
 import AppMenu from "@/components/AppMenu";
+import AppBanner from "@/components/AppBanner";
 
 interface UserProfile {
   id: string;
