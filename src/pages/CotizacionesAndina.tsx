@@ -161,13 +161,13 @@ const CotizacionesAndina = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="w-[70px]">N°</TableHead>
-                    <TableHead>Fecha</TableHead>
+                    <TableHead className="w-[50px] md:w-[70px]">N°</TableHead>
+                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead className="hidden md:table-cell">Empresa</TableHead>
-                    <TableHead className="hidden lg:table-cell">Contacto</TableHead>
-                    <TableHead className="hidden lg:table-cell">Productos</TableHead>
-                    <TableHead>Agente</TableHead>
+                    <TableHead className="hidden lg:table-cell">Empresa</TableHead>
+                    <TableHead className="hidden xl:table-cell">Contacto</TableHead>
+                    <TableHead className="hidden xl:table-cell">Productos</TableHead>
+                    <TableHead className="hidden md:table-cell">Agente</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead className="text-center">Pago</TableHead>
                     <TableHead className="text-right">Ver</TableHead>
@@ -188,23 +188,24 @@ const CotizacionesAndina = () => {
                         <TableCell className="font-mono text-xs text-muted-foreground">
                           #{q.quote_number}
                         </TableCell>
-                        <TableCell className="text-sm whitespace-nowrap">
+                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
                           {formatDate(q.created_at)}
                         </TableCell>
-                        <TableCell className="font-medium">
-                          {q.client_name || "—"}
+                        <TableCell className="font-medium text-sm">
+                          <div>{q.client_name || "—"}</div>
+                          <div className="text-xs text-muted-foreground sm:hidden">{formatDate(q.created_at)}</div>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                        <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                           {q.client_company || "—"}
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell text-xs text-muted-foreground">
                           <div>{q.client_email || ""}</div>
                           <div>{q.client_phone || ""}</div>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-xs">
+                        <TableCell className="hidden xl:table-cell text-xs">
                           {getPlatforms(q.items)}
                         </TableCell>
-                        <TableCell className="text-sm">
+                        <TableCell className="hidden md:table-cell text-sm">
                           {q.seller_name || "—"}
                         </TableCell>
                         <TableCell className="text-right font-bold text-primary whitespace-nowrap">

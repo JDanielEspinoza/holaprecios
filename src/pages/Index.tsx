@@ -225,20 +225,20 @@ const Index = () => {
         </Card>
 
         {/* Ecosystem products */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-slide-up-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 animate-fade-slide-up-1">
           <ProductCard title="Wispro" value={tier?.wispro ?? 0} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => toggleProduct("wispro")} discountPct={PRODUCT_DISCOUNTS.wispro} />
           <ProductCard title="ACS" value={tier?.acs ?? 0} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => toggleProduct("acs")} discountPct={PRODUCT_DISCOUNTS.acs} />
           <ProductCard title="Hola! Suite" value={tier?.holaBasic ?? 0} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => toggleProduct("holaBasic")} discountPct={PRODUCT_DISCOUNTS.holaBasic} />
           <Card className="border-2 border-primary bg-primary/5 flex items-center justify-center card-premium">
-            <CardContent className="pt-6 pb-4 text-center flex flex-col items-center justify-center">
-              <span className="text-sm font-medium text-primary mb-2">Total Ecosistema</span>
-              <p className="text-3xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
+            <CardContent className="pt-4 pb-3 md:pt-6 md:pb-4 text-center flex flex-col items-center justify-center">
+              <span className="text-xs md:text-sm font-medium text-primary mb-1 md:mb-2">Total Ecosistema</span>
+              <p className="text-2xl md:text-3xl font-bold text-primary glow-total">{fmt(grandTotal)}</p>
               <p className="text-xs text-muted-foreground mt-1">/ mes</p>
               {(selectedProducts.wispro || selectedProducts.acs || selectedProducts.holaBasic) && (
-                <div className="flex items-center justify-center gap-2 mt-3">
-                  {selectedProducts.wispro && <img src={logoWispro} alt="Wispro" className="h-6 w-auto object-contain" />}
-                  {selectedProducts.acs && <img src={logoAcs} alt="ACS" className="h-6 w-auto object-contain" />}
-                  {selectedProducts.holaBasic && <img src={logoHola} alt="Hola" className="h-6 w-auto object-contain rounded" />}
+                <div className="flex items-center justify-center gap-1.5 md:gap-2 mt-2 md:mt-3">
+                  {selectedProducts.wispro && <img src={logoWispro} alt="Wispro" className="h-5 md:h-6 w-auto object-contain" />}
+                  {selectedProducts.acs && <img src={logoAcs} alt="ACS" className="h-5 md:h-6 w-auto object-contain" />}
+                  {selectedProducts.holaBasic && <img src={logoHola} alt="Hola" className="h-5 md:h-6 w-auto object-contain rounded" />}
                 </div>
               )}
             </CardContent>
@@ -450,15 +450,15 @@ const Index = () => {
 function ProductCard({ title, value, logo, checked, onToggle, discountPct }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void; discountPct: number }) {
   return (
     <Card className={`cursor-pointer card-premium transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
-      <CardContent className="pt-5 text-center">
-        <div className="flex items-center justify-center mb-2">
-          <Checkbox checked={checked} className="pointer-events-none" />
+      <CardContent className="pt-3 md:pt-5 text-center">
+        <div className="flex items-center justify-center mb-1.5 md:mb-2">
+          <Checkbox checked={checked} className="pointer-events-none h-4 w-4 md:h-5 md:w-5" />
         </div>
-        <div className="flex items-center justify-center mb-3">
-          <img src={logo} alt={title} className={`h-16 w-auto object-contain ${title === "Hola! Suite" ? "rounded-xl" : ""} ${title === "ACS" ? "border-0 shadow-none" : ""}`} style={title === "ACS" ? { border: "none", outline: "none" } : undefined} />
+        <div className="flex items-center justify-center mb-2 md:mb-3">
+          <img src={logo} alt={title} className={`h-10 md:h-16 w-auto object-contain ${title === "Hola! Suite" ? "rounded-xl" : ""} ${title === "ACS" ? "border-0 shadow-none" : ""}`} style={title === "ACS" ? { border: "none", outline: "none" } : undefined} />
         </div>
-        <p className="text-2xl font-bold text-foreground">{fmt(value)}</p>
-        <p className="text-xs text-muted-foreground mt-1">/ mes</p>
+        <p className="text-lg md:text-2xl font-bold text-foreground">{fmt(value)}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 md:mt-1">/ mes</p>
       </CardContent>
     </Card>
   );
