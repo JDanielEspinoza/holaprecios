@@ -328,30 +328,26 @@ const MisCotizaciones = () => {
                           </Button>
                         </TableCell>
                         <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          {q.entry_payment_paid ? (
-                            <div className="flex items-center justify-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9"
-                                onClick={() => setConfirmingPipedrive(q)}
-                                title="Enviar trato a Pipedrive"
-                              >
-                                <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9"
-                                onClick={() => toast({ title: "Conexión a HubSpot no verificada", description: "La integración con HubSpot aún no está disponible.", variant: "destructive" })}
-                                title="Enviar a HubSpot"
-                              >
-                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">—</span>
-                          )}
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9"
+                              onClick={() => setConfirmingPipedrive(q)}
+                              title="Enviar trato a Pipedrive"
+                            >
+                              <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9"
+                              onClick={() => toast({ title: "Conexión a HubSpot no verificada", description: "La integración con HubSpot aún no está disponible.", variant: "destructive" })}
+                              title="Enviar a HubSpot"
+                            >
+                              <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                            </Button>
+                          </div>
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
@@ -424,9 +420,13 @@ const MisCotizaciones = () => {
               Enviar trato a Pipedrive
             </AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Enviar la cotización #{confirmingPipedrive?.quote_number} de{" "}
-              <span className="font-semibold">{confirmingPipedrive?.client_name || confirmingPipedrive?.client_company || "cliente"}</span>{" "}
-              como trato en Pipedrive?
+              {!confirmingPipedrive?.entry_payment_paid && (
+                <span className="block text-amber-600 font-medium mb-2">
+                  ⚠️ Ningún pago ha sido registrado hasta ahora.
+                </span>
+              )}
+              ¿Desea crear el trato en Pipedrive para la cotización #{confirmingPipedrive?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingPipedrive?.client_name || confirmingPipedrive?.client_company || "cliente"}</span>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
