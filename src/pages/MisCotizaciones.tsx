@@ -257,7 +257,7 @@ const MisCotizaciones = () => {
       });
       if (error) throw error;
       setSentRegistros((prev) => new Set(prev).add(q.id));
-      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}`, duration: 3000 });
+      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}`, duration: 2000 });
     } catch (err: any) {
       toast({ title: "Error al enviar enlace", description: err.message, variant: "destructive" });
     } finally {
