@@ -481,23 +481,21 @@ const Index = () => {
               <SummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} active={!!selectedCloud} />
             </div>
 
-            {discountAmount > 0 && (
-              <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                <p className="text-sm font-medium text-emerald-700">
-                  Descuento promedio: {blendedDiscount.toFixed(1)}% (−{fmt(discountAmount)})
-                </p>
-              </div>
-            )}
-
-            {/* Installation */}
+            {/* Implementation */}
             <div className="border-t border-border pt-3 flex justify-between items-center text-sm">
               <div>
-                <span className="text-muted-foreground">Instalación (único pago)</span>
-                <span className="block text-xs text-emerald-600">75% dto. feria</span>
+                <span className="text-muted-foreground">Pago de Implementación (único pago)</span>
+                {selectedProductCount > 0 && (
+                  <span className="block text-xs text-emerald-600">
+                    {selectedProductCount} {selectedProductCount === 1 ? "aplicación" : "aplicaciones"} × $50 (75% dto. feria)
+                  </span>
+                )}
               </div>
               <div className="text-right">
-                <span className="text-muted-foreground line-through text-xs mr-2">{fmt(200)}</span>
-                <span className="font-bold">{fmt(installationCost)}</span>
+                {implementationOriginal > 0 && (
+                  <span className="text-muted-foreground line-through text-xs mr-2">{fmt(implementationOriginal)}</span>
+                )}
+                <span className="font-bold">{fmt(implementationCost)}</span>
               </div>
             </div>
           </CardContent>
