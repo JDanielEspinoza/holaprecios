@@ -1,0 +1,1 @@
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS pipedrive_sent boolean NOT NULL DEFAULT false;

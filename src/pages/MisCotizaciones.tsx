@@ -45,6 +45,7 @@ interface QuoteRow {
   archived: boolean;
   entry_payment_paid: boolean;
   user_id: string;
+  pipedrive_sent: boolean;
 }
 
 const MisCotizaciones = () => {
@@ -59,7 +60,7 @@ const MisCotizaciones = () => {
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [sentToPipedrive, setSentToPipedrive] = useState<Set<string>>(new Set());
+  
 
   const fetchQuotes = async () => {
     if (!user) return;
@@ -337,7 +338,7 @@ const MisCotizaciones = () => {
                               onClick={() => setConfirmingPipedrive(q)}
                               title="Enviar trato a Pipedrive"
                             >
-                              <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${sentToPipedrive.has(q.id) ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
+                              <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${q.pipedrive_sent ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
                             </Button>
                             <Button
                               variant="ghost"
@@ -457,7 +458,8 @@ const MisCotizaciones = () => {
                       link_presupuesto: quoteUrl,
                     }),
                   });
-                  setSentToPipedrive(prev => new Set(prev).add(q.id));
+                  await supabase.from("quotes").update({ pipedrive_sent: true } as any).eq("id", q.id);
+                  setQuotes(prev => prev.map(x => x.id === q.id ? { ...x, pipedrive_sent: true } : x));
                   toast({ title: "Enviado a Pipedrive", description: `Trato #${q.quote_number} enviado correctamente.` });
                 } catch (err: any) {
                   toast({ title: "Error al enviar a Pipedrive", description: err.message, variant: "destructive" });

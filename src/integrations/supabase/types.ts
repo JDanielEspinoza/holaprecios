@@ -102,6 +102,7 @@ export type Database = {
           id: string
           installation_cost: number
           items: Json
+          pipedrive_sent: boolean
           quote_number: number
           seller_cargo: string | null
           seller_email: string | null
@@ -126,6 +127,7 @@ export type Database = {
           id?: string
           installation_cost?: number
           items?: Json
+          pipedrive_sent?: boolean
           quote_number?: number
           seller_cargo?: string | null
           seller_email?: string | null
@@ -150,6 +152,7 @@ export type Database = {
           id?: string
           installation_cost?: number
           items?: Json
+          pipedrive_sent?: boolean
           quote_number?: number
           seller_cargo?: string | null
           seller_email?: string | null
