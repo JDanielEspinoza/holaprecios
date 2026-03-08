@@ -19,10 +19,14 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
+
+  const [sendingRegistro, setSendingRegistro] = useState(false);
+  const [sentRegistro, setSentRegistro] = useState(false);
+  const [resultRegistro, setResultRegistro] = useState<SendResult>(null);
 
   const downloadQR = useCallback(() => {
     const svg = document.getElementById("quote-qr");
