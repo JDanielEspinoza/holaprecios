@@ -30,7 +30,7 @@ const Perfil = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const error = await updateProfile(form);
+    const error = await updateProfile({ ...form, numero: FIXED_PHONE });
     if (error) toast.error("Error al guardar");
     else toast.success("Perfil actualizado");
     setSaving(false);
