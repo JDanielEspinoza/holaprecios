@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  CheckCircle2, CircleDot,
+  CheckCircle2, CircleDot, MessageCircle,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
