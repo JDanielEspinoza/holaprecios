@@ -102,18 +102,10 @@ const Index = () => {
 
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
-  // Auto-discount calculation per product
-  const discountAmount = useMemo(() => {
-    if (!tier) return 0;
-    let amount = 0;
-    if (selectedProducts.wispro) amount += tier.wispro * (PRODUCT_DISCOUNTS.wispro / 100);
-    if (selectedProducts.acs) amount += tier.acs * (PRODUCT_DISCOUNTS.acs / 100);
-    if (selectedProducts.holaBasic) amount += tier.holaBasic * (PRODUCT_DISCOUNTS.holaBasic / 100);
-    return amount;
-  }, [tier, selectedProducts]);
-
+  // Cumulative package discount
+  const packageDiscountPct = getPackageDiscount(selectedProductCount);
+  const discountAmount = grandTotal * (packageDiscountPct / 100);
   const discountedTotal = grandTotal - discountAmount;
-  const blendedDiscount = grandTotal > 0 ? Math.round((discountAmount / grandTotal) * 100) : 0;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
