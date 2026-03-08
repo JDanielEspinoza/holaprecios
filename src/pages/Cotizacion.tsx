@@ -246,7 +246,7 @@ const Cotizacion = () => {
 
             <div className="border-t border-gray-200 pt-4">
               <p className="text-xs text-center text-gray-500 italic">
-                Cotización válida hasta el 12 de Marzo, mientras dure el evento Andina Link.
+                Cotización válida durante todo el mes de Marzo.
               </p>
             </div>
           </CardContent>
