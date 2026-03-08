@@ -184,7 +184,7 @@ const Index = () => {
   };
 
   const handleNewQuote = () => {
-    resetForm();
+    resetAll();
     setView("form");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
