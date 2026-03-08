@@ -18,6 +18,22 @@ export default {
         body: ['"Open Sans"', 'sans-serif'],
       },
       colors: {
+        gray: {
+          50: "hsl(var(--gray-50))",
+          100: "hsl(var(--gray-100))",
+          200: "hsl(var(--gray-200))",
+          300: "hsl(var(--gray-300))",
+          400: "hsl(var(--gray-400))",
+          500: "hsl(var(--gray-500))",
+          600: "hsl(var(--gray-600))",
+          700: "hsl(var(--gray-700))",
+          800: "hsl(var(--gray-800))",
+        },
+        charcoal: {
+          DEFAULT: "hsl(var(--charcoal))",
+          dark: "hsl(var(--charcoal-dark))",
+          black: "hsl(var(--charcoal-black))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
