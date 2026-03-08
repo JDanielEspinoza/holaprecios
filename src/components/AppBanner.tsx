@@ -1,6 +1,4 @@
-import bannerWI from "@/assets/banner_w_i-2.jpg";
-import logoWispro from "@/assets/logo-wispro.png";
-import logoAcs from "@/assets/logo-acs.png";
+import bannerWI from "@/assets/banner_w_i-3.jpg";
 
 const particles = Array.from({ length: 15 }, (_, i) => ({
   size: 3 + (i * 7 % 5),
@@ -30,26 +28,12 @@ const AppBanner = () => (
         50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
       }
     `}</style>
-    <header className="w-full overflow-hidden relative h-20">
-      {/* Background image */}
+    <header className="w-full overflow-hidden relative">
       <img
         src={bannerWI}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover object-center"
-        aria-hidden="true"
+        alt="Gestión completa de tu proveedor de internet — Wispro + IXC Soft"
+        className="w-full h-20 object-cover object-center"
       />
-      {/* Content overlay */}
-      <div className="absolute inset-0 flex items-center justify-between px-4 sm:px-8">
-        <h2 className="text-white font-bold text-sm sm:text-base md:text-lg leading-tight drop-shadow-md" style={{ fontFamily: "'Exo', sans-serif" }}>
-          Gestión completa de tu<br />proveedor de internet
-        </h2>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <img src={logoWispro} alt="Wispro" className="h-8 sm:h-10 md:h-12 w-auto drop-shadow-md" />
-          <span className="text-white font-bold text-base sm:text-lg md:text-xl drop-shadow-md">+</span>
-          <img src={logoAcs} alt="IXC Soft" className="h-8 sm:h-10 md:h-12 w-auto drop-shadow-md" />
-        </div>
-      </div>
-      {/* Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {particles.map((p, i) => (
           <div
