@@ -17,7 +17,7 @@ import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
-import fondoLogin from "@/assets/fondo-login.jpg";
+import bannerLogin from "@/assets/banner-login.jpg";
 
 type Language = "es" | "pt" | "en";
 
