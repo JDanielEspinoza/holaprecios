@@ -267,6 +267,7 @@ const MisCotizaciones = () => {
                     <TableHead className="hidden xl:table-cell">Productos</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead className="text-center">Pago</TableHead>
+                    <TableHead className="text-center">CRM</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
