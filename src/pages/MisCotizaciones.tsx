@@ -342,7 +342,7 @@ const MisCotizaciones = () => {
                               variant="ghost"
                               size="icon"
                               className="h-9 w-9"
-                              onClick={() => toast({ title: "Conexión a HubSpot no verificada", description: "La integración con HubSpot aún no está disponible.", variant: "destructive" })}
+                              onClick={() => toast({ title: "CRM no disponible", description: "HubSpot no está conectado a la plataforma actualmente." })}
                               title="Enviar a HubSpot"
                             >
                               <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
