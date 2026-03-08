@@ -39,11 +39,15 @@ const PRODUCT_DISCOUNTS: Record<string, number> = {
   holaBasic: 5,
 };
 
+type ViewState = "form" | "loading" | "success";
+
 const Index = () => {
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const [view, setView] = useState<ViewState>("form");
   const [clientCount, setClientCount] = useState<number | null>(null);
   const [selectedProducts, setSelectedProducts] = useState({
     wispro: false,
