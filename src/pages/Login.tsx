@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Sun, Moon, Globe } from "lucide-react";
-import logoHola from "@/assets/logo-hola.png";
+import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import fondoLogin from "@/assets/fondo-login.jpg";
 
 type Language = "es" | "pt" | "en";
