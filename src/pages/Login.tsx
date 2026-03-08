@@ -128,14 +128,6 @@ const slides = [
   },
 ];
 
-const particles = Array.from({ length: 20 }, (_, i) => ({
-  size: 3 + (i * 7 % 5),
-  left: (i * 17 + 5) % 100,
-  top: (i * 23 + 10) % 100,
-  duration: 8 + (i % 4) * 3,
-  delay: (i * 0.7) % 5,
-  variant: (i % 3) + 1,
-}));
 
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
