@@ -4,6 +4,7 @@ import { pricingTiers, addons, holaCloudPlans, getMinCloudPlanIndex } from "@/da
 import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import AppBanner from "@/components/AppBanner";
+import WelcomeTutorial from "@/components/WelcomeTutorial";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
