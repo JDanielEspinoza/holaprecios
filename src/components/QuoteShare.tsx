@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface QuoteShareProps {
   quoteUrl: string;
   clientPhone?: string;
+  clientName?: string;
   agentName?: string;
 }
 
@@ -18,10 +19,14 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
+
+  const [sendingRegistro, setSendingRegistro] = useState(false);
+  const [sentRegistro, setSentRegistro] = useState(false);
+  const [resultRegistro, setResultRegistro] = useState<SendResult>(null);
 
   const downloadQR = useCallback(() => {
     const svg = document.getElementById("quote-qr");
@@ -109,6 +114,59 @@ export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps
     }
   }, [clientPhone, quoteUrl, agentName]);
 
+  const handleRegistroWispro = useCallback(async () => {
+    if (!clientPhone) return;
+    const cleanPhone = clientPhone.replace(/[\s\-\+\(\)]/g, "");
+    setSendingRegistro(true);
+    setResultRegistro(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-registro-wispro", {
+        body: {
+          phone: cleanPhone,
+          firstName: clientName || "",
+          agentName: agentName || "Tu asesor",
+        },
+      });
+
+      if (error) {
+        setResultRegistro({
+          status: "error",
+          title: "Error en el envío",
+          detail: error.message || "No se pudo conectar con el servicio.",
+          raw: JSON.stringify(error, null, 2),
+        });
+        return;
+      }
+
+      const isSuccess = data?.success === true;
+      if (isSuccess) {
+        setSentRegistro(true);
+        setResultRegistro({
+          status: "success",
+          title: "Enlace enviado",
+          detail: `El enlace de registro Wispro fue enviado al ${cleanPhone}.`,
+          raw: data?.webhook_response || "",
+        });
+      } else {
+        setResultRegistro({
+          status: "error",
+          title: "Respuesta inesperada",
+          detail: "El servicio respondió pero el mensaje podría no haberse entregado.",
+          raw: data?.webhook_response || JSON.stringify(data, null, 2),
+        });
+      }
+    } catch (err: any) {
+      setResultRegistro({
+        status: "error",
+        title: "Error de conexión",
+        detail: "No se pudo conectar con el servidor.",
+        raw: err.message,
+      });
+    } finally {
+      setSendingRegistro(false);
+    }
+  }, [clientPhone, clientName, agentName]);
+
   const hasPhone = !!clientPhone?.replace(/[\s\-\+\(\)]/g, "").trim();
 
   return (
@@ -183,6 +241,75 @@ export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps
             {result.status === "error" && (
               <Button
                 onClick={() => { setResult(null); setSent(false); }}
+                variant="outline"
+                size="sm"
+                className="mt-2 gap-1.5 text-xs border-red-200 text-red-700 hover:bg-red-100"
+              >
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Reintentar envío
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Registro Wispro */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleRegistroWispro}
+            disabled={!hasPhone || sendingRegistro || sentRegistro}
+            className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
+            size="lg"
+          >
+            {sendingRegistro ? (
+              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
+            ) : sentRegistro ? (
+              <><CheckCircle className="h-5 w-5" /> Enlace Enviado</>
+            ) : (
+              <><MessageCircle className="h-5 w-5" /> Enlace Para Registro Wispro</>
+            )}
+          </Button>
+        </div>
+
+        {/* Registro result */}
+        {resultRegistro && (
+          <div className={`rounded-lg border p-4 space-y-2 animate-fade-slide-up ${
+            resultRegistro.status === "success"
+              ? "bg-emerald-50 border-emerald-200"
+              : "bg-red-50 border-red-200"
+          }`}>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                {resultRegistro.status === "success" ? (
+                  <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                )}
+                <p className={`text-sm font-semibold ${
+                  resultRegistro.status === "success" ? "text-emerald-700" : "text-red-700"
+                }`}>
+                  {resultRegistro.title}
+                </p>
+              </div>
+              <button onClick={() => setResultRegistro(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className={`text-xs ${
+              resultRegistro.status === "success" ? "text-emerald-600" : "text-red-600"
+            }`}>
+              {resultRegistro.detail}
+            </p>
+            {resultRegistro.raw && (
+              <details className="text-[10px] text-gray-500">
+                <summary className="cursor-pointer hover:text-gray-700">Ver respuesta técnica</summary>
+                <pre className="mt-1 p-2 bg-white/60 rounded text-[10px] overflow-x-auto whitespace-pre-wrap break-all">
+                  {resultRegistro.raw}
+                </pre>
+              </details>
+            )}
+            {resultRegistro.status === "error" && (
+              <Button
+                onClick={() => { setResultRegistro(null); setSentRegistro(false); }}
                 variant="outline"
                 size="sm"
                 className="mt-2 gap-1.5 text-xs border-red-200 text-red-700 hover:bg-red-100"
