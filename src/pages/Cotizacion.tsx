@@ -172,9 +172,12 @@ const Cotizacion = () => {
             <div className="border-t-2 border-orange-500/30 pt-4 space-y-3">
               {/* Discount banner */}
               {hasDiscount && (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-center">
+                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-center space-y-1">
                   <p className="text-sm font-medium text-emerald-700">
-                    🎉 Tu asesor ha otorgado descuentos especiales a tu cotización
+                    🎉 Descuentos especiales por cierre en Andina Link
+                  </p>
+                  <p className="text-xs text-emerald-600">
+                    Wispro 20% · ACS 5% · Hola! Suite 5% — Válido por 1 año
                   </p>
                 </div>
               )}
@@ -193,18 +196,18 @@ const Cotizacion = () => {
               </div>
             </div>
 
-            {/* Installation with feria discount */}
+            {/* Implementation with feria discount */}
             <div className="border-t border-gray-200 pt-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600">Instalación (único pago)</p>
+                  <p className="text-sm text-gray-600">Pago de Implementación (único pago)</p>
                   <p className="text-xs text-emerald-600">
                     Para clientes que cierren durante la feria, aplicamos una condición especial de 75% de descuento
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className="text-sm text-gray-400 line-through">{fmt(200)}</p>
-                  <p className="text-lg font-bold text-gray-700">{fmt(50)}</p>
+                  <p className="text-sm text-gray-400 line-through">{fmt(data.installation_cost * 4)}</p>
+                  <p className="text-lg font-bold text-gray-700">{fmt(data.installation_cost)}</p>
                 </div>
               </div>
             </div>
