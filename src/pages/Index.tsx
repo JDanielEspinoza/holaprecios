@@ -414,8 +414,8 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Hola Cloud */}
-              <Card className="card-premium flex flex-col">
+              {/* Hola Cloud - only shown when Hola Suite is selected */}
+              {selectedProducts.holaBasic && <Card className="card-premium flex flex-col">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Cloud className="h-5 w-5" />
