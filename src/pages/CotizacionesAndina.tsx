@@ -161,13 +161,13 @@ const CotizacionesAndina = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="w-[70px]">N°</TableHead>
-                    <TableHead>Fecha</TableHead>
+                    <TableHead className="w-[50px] md:w-[70px]">N°</TableHead>
+                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead className="hidden md:table-cell">Empresa</TableHead>
-                    <TableHead className="hidden lg:table-cell">Contacto</TableHead>
-                    <TableHead className="hidden lg:table-cell">Productos</TableHead>
-                    <TableHead>Agente</TableHead>
+                    <TableHead className="hidden lg:table-cell">Empresa</TableHead>
+                    <TableHead className="hidden xl:table-cell">Contacto</TableHead>
+                    <TableHead className="hidden xl:table-cell">Productos</TableHead>
+                    <TableHead className="hidden md:table-cell">Agente</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead className="text-center">Pago</TableHead>
                     <TableHead className="text-right">Ver</TableHead>
