@@ -213,6 +213,24 @@ const Index = () => {
   // Success screen
   if (view === "success" && quoteId) {
     return (
+      <>
+      <style>{`
+        @keyframes float1 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          25% { transform: translate(15px, -20px) scale(1.2); opacity: 0.3; }
+          50% { transform: translate(-10px, -35px) scale(1); opacity: 0.2; }
+          75% { transform: translate(20px, -15px) scale(0.8); opacity: 0.25; }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.1; }
+          33% { transform: translate(-20px, -25px) scale(1.3); opacity: 0.25; }
+          66% { transform: translate(15px, -40px) scale(0.9); opacity: 0.2; }
+        }
+        @keyframes float3 {
+          0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+          50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
+        }
+      `}</style>
       <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="w-full overflow-hidden relative">
           <img src={bannerWI} alt="Gestión completa de tu proveedor de internet — Wispro + IXC Soft" className="w-full h-20 object-cover object-center" />
