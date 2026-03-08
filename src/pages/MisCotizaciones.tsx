@@ -309,23 +309,23 @@ const MisCotizaciones = () => {
                           {fmt(finalTotal)}
                         </TableCell>
                         <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9"
-                            onClick={() => {
-                              if (q.entry_payment_paid) return;
-                              setConfirmingPayment(q);
-                            }}
-                            title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                            disabled={q.entry_payment_paid}
-                          >
-                            {q.entry_payment_paid ? (
-                              <CheckCircle2 className="h-7 w-7 text-emerald-600" />
-                            ) : (
-                              <CircleDot className="h-7 w-7 text-muted-foreground" />
-                            )}
-                          </Button>
+                          <div className="flex items-center justify-center">
+                            <button
+                              className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-accent transition-colors disabled:pointer-events-none"
+                              onClick={() => {
+                                if (q.entry_payment_paid) return;
+                                setConfirmingPayment(q);
+                              }}
+                              title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
+                              disabled={q.entry_payment_paid}
+                            >
+                              {q.entry_payment_paid ? (
+                                <CheckCircle2 size={24} className="text-emerald-600" />
+                              ) : (
+                                <CircleDot size={24} className="text-muted-foreground" />
+                              )}
+                            </button>
+                          </div>
                         </TableCell>
                         <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-center gap-1">
