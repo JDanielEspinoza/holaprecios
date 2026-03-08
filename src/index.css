@@ -230,24 +230,27 @@
 
 /* Opa Suite IA – Glass & Glow */
 .glass-card {
-  background: hsl(220 20% 12% / 0.6);
+  background: hsl(220 18% 13% / 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid hsl(220 10% 30% / 0.3);
+  border: 1px solid hsl(220 10% 24% / 0.5);
 }
 
 .glow-primary {
-  box-shadow: 0 0 30px hsl(142 70% 45% / 0.15), 0 0 60px hsl(142 70% 45% / 0.05);
+  box-shadow: 0 0 30px hsl(142 70% 45% / 0.12), 0 0 60px hsl(142 70% 45% / 0.04);
 }
 
 .glow-gemini {
-  box-shadow: 0 0 30px hsl(217 90% 60% / 0.12), 0 0 60px hsl(217 90% 60% / 0.04);
+  border-top: 2px solid hsl(217 80% 55% / 0.4);
+  box-shadow: 0 0 25px hsl(217 90% 60% / 0.1), 0 0 50px hsl(217 90% 60% / 0.03);
 }
 
 .glow-openai {
-  box-shadow: 0 0 30px hsl(0 0% 60% / 0.1), 0 0 60px hsl(0 0% 60% / 0.04);
+  border-top: 2px solid hsl(0 0% 55% / 0.3);
+  box-shadow: 0 0 25px hsl(0 0% 60% / 0.08), 0 0 50px hsl(0 0% 60% / 0.03);
 }
 
 .glow-claude {
-  box-shadow: 0 0 30px hsl(25 90% 55% / 0.12), 0 0 60px hsl(25 90% 55% / 0.04);
+  border-top: 2px solid hsl(25 85% 55% / 0.4);
+  box-shadow: 0 0 25px hsl(25 90% 55% / 0.1), 0 0 50px hsl(25 90% 55% / 0.03);
 }
