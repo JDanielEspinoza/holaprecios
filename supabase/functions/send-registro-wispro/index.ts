@@ -22,7 +22,11 @@ Deno.serve(async (req) => {
 
     const response = await fetch("https://n8n.ixcsoft.com.br/webhook/enlace-registro", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Lovable-EdgeFunction/1.0",
+        "Accept": "application/json",
+      },
       body: JSON.stringify({
         phone,
         firstName: firstName || "",
