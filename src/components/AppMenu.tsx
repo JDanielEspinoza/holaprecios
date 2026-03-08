@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User, FileText, LogOut, History, Building2, Users, X } from "lucide-react";
+import { Menu, User, FileText, LogOut, History, Building2, Users, X, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
@@ -10,6 +10,7 @@ const menuItems = [
   { title: "Mis Cotizaciones", path: "/mis-cotizaciones", icon: History },
   { title: "Cotizaciones Andina", path: "/cotizaciones-andina", icon: Building2 },
   { title: "Usuarios", path: "/usuarios", icon: Users },
+  { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
 ];
 
 const AppMenu = () => {

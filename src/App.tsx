@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import Perfil from "./pages/Perfil";
 import Usuarios from "./pages/Usuarios";
+import OpaSuiteIA from "./pages/OpaSuiteIA";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
             <Route path="/cotizaciones-andina" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
+            <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
