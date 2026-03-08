@@ -448,6 +448,7 @@ const MisCotizaciones = () => {
                     body: JSON.stringify({
                       company_name: q.client_company || q.client_name || "",
                       client_name: q.client_name || "",
+                      client_email: q.client_email || "",
                       cantidad_usuarios: String(q.clients_count),
                       products: getPlatforms(q.items),
                       agent_name: q.seller_name || "",
