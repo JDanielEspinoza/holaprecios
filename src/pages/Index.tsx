@@ -109,7 +109,14 @@ const Index = () => {
   const discountedTotal = grandTotal - discountAmount;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
-    setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
+    setSelectedProducts((p) => {
+      const next = { ...p, [key]: !p[key] };
+      // Clear cloud selection when Hola is deselected
+      if (key === "holaBasic" && !next.holaBasic) {
+        setSelectedCloud(null);
+      }
+      return next;
+    });
   };
 
   const resetAll = () => {
