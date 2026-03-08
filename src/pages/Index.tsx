@@ -300,7 +300,13 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex-1 w-full md:w-auto">
-                <Select value={clientCount?.toString() || ""} onValueChange={(v) => { setClientCount(Number(v)); setQuoteId(null); }}>
+                <Select value={clientCount?.toString() || ""} onValueChange={(v) => {
+                  const count = Number(v);
+                  setClientCount(count);
+                  setQuoteId(null);
+                  const minIdx = getMinCloudPlanIndex(count);
+                  setSelectedCloud(holaCloudPlans[minIdx].name);
+                }}>
                   <SelectTrigger className="h-12 text-lg font-semibold">
                     <SelectValue placeholder="Seleccioná..." />
                   </SelectTrigger>
