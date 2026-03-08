@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2 } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import bannerWI from "@/assets/banner_w_i-2.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
