@@ -161,6 +161,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_workspaces: {
+        Row: {
+          auto_assigned: boolean
+          created_at: string
+          id: string
+          user_id: string
+          workspace_name: string
+        }
+        Insert: {
+          auto_assigned?: boolean
+          created_at?: string
+          id?: string
+          user_id: string
+          workspace_name?: string
+        }
+        Update: {
+          auto_assigned?: boolean
+          created_at?: string
+          id?: string
+          user_id?: string
+          workspace_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
