@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User, Globe, FileText, LogOut, History } from "lucide-react";
+import { Menu, User, Globe, FileText, LogOut, History, Building2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
