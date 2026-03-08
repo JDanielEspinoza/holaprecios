@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Users } from "lucide-react";
 import AppMenu from "@/components/AppMenu";
+import AppBanner from "@/components/AppBanner";
 
 interface UserProfile {
   id: string;
@@ -81,6 +82,7 @@ const Usuarios = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppBanner />
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AppMenu from "@/components/AppMenu";
+import AppBanner from "@/components/AppBanner";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 
@@ -102,6 +103,7 @@ const CotizacionesAndina = () => {
 
   return (
     <div className="min-h-screen bg-premium-gradient">
+      <AppBanner />
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
