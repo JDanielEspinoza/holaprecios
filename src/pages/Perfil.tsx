@@ -23,7 +23,6 @@ const Perfil = () => {
         nombre: profile.nombre,
         cargo: profile.cargo,
         email_contacto: profile.email_contacto,
-        numero: profile.numero,
       });
     }
   }, [profile]);
