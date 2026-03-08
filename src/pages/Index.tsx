@@ -97,9 +97,9 @@ const Index = () => {
   }, [addonQty]);
 
   const cloudPrice = useMemo(() => {
-    if (!selectedCloud) return 0;
+    if (!selectedCloud || !selectedProducts.holaBasic) return 0;
     return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
-  }, [selectedCloud]);
+  }, [selectedCloud, selectedProducts.holaBasic]);
 
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
@@ -109,7 +109,14 @@ const Index = () => {
   const discountedTotal = grandTotal - discountAmount;
 
   const toggleProduct = (key: keyof typeof selectedProducts) => {
-    setSelectedProducts((p) => ({ ...p, [key]: !p[key] }));
+    setSelectedProducts((p) => {
+      const next = { ...p, [key]: !p[key] };
+      // Clear cloud selection when Hola is deselected
+      if (key === "holaBasic" && !next.holaBasic) {
+        setSelectedCloud(null);
+      }
+      return next;
+    });
   };
 
   const resetAll = () => {
@@ -407,8 +414,8 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Hola Cloud */}
-              <Card className="card-premium flex flex-col">
+              {/* Hola Cloud - only shown when Hola Suite is selected */}
+              {selectedProducts.holaBasic && <Card className="card-premium flex flex-col">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Cloud className="h-5 w-5" />
@@ -458,7 +465,7 @@ const Index = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card>}
             </div>
           </>
         )}
