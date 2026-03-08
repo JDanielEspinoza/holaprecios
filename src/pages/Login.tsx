@@ -289,14 +289,14 @@ const Login = () => {
         {/* Login card */}
         <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
           <Card className="w-full max-w-sm bg-background/95 backdrop-blur-md rounded-2xl border-0 shadow-2xl animate-fade-slide-up">
-            <CardHeader className="text-center pb-2">
+            <CardHeader className="pb-2">
               <div className="flex justify-center mb-4">
                 <img src={logoWisproIxc} alt="Wispro + IXC" className="h-14 w-auto object-contain" />
               </div>
-              <CardTitle className="text-xl font-semibold">
+              <CardTitle className="text-lg font-semibold text-left">
                 {isRegister ? t.registerTitle : t.title}
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground text-left">
                 {t.subtitle}
               </p>
             </CardHeader>
