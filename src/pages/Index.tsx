@@ -32,12 +32,13 @@ const fmt = (n: number) =>
 
 const fmtClients = (n: number) => n.toLocaleString("es-AR");
 
-// Cumulative package discount: 1 product = 5%, 2 products = 10%, 3 products = 30%
-function getPackageDiscount(count: number): number {
-  if (count >= 3) return 30;
-  if (count === 2) return 10;
-  if (count === 1) return 5;
-  return 0;
+// Additive discount per product: Wispro 20%, ACS 5%, Hola 5%
+function getPackageDiscount(products: { wispro: boolean; acs: boolean; holaBasic: boolean }): number {
+  let pct = 0;
+  if (products.wispro) pct += 20;
+  if (products.acs) pct += 5;
+  if (products.holaBasic) pct += 5;
+  return pct;
 }
 
 type ViewState = "form" | "loading" | "success";
@@ -103,7 +104,7 @@ const Index = () => {
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
   // Cumulative package discount
-  const packageDiscountPct = getPackageDiscount(selectedProductCount);
+  const packageDiscountPct = getPackageDiscount(selectedProducts);
   const discountAmount = grandTotal * (packageDiscountPct / 100);
   const discountedTotal = grandTotal - discountAmount;
 
@@ -334,9 +335,8 @@ const Index = () => {
                       🎉 Paquete integrado: <span className="font-bold">{packageDiscountPct}% de descuento</span>
                     </p>
                     <p className="text-xs text-emerald-600">
-                      {selectedProductCount === 1 && "Sumá otro producto para alcanzar el 10% de descuento"}
-                      {selectedProductCount === 2 && "¡Sumá el tercer producto y alcanzá el 30% de descuento!"}
-                      {selectedProductCount === 3 && "¡Máximo descuento aplicado sobre el total mensual!"}
+                      {packageDiscountPct < 30 && "¡Sumá más productos para aumentar tu descuento!"}
+                      {packageDiscountPct === 30 && "¡Máximo descuento aplicado sobre el total mensual!"}
                     </p>
                   </div>
                   <span className="text-2xl font-bold text-emerald-600">{packageDiscountPct}%</span>
