@@ -229,24 +229,9 @@ const Login = () => {
   return (
     <div 
       className="min-h-screen flex bg-cover bg-center bg-no-repeat relative overflow-hidden"
-      style={{ backgroundImage: `url(${fondoLogin})` }}
+      style={{ backgroundImage: `url(${bannerLogin})` }}
     >
       <style>{`
-        @keyframes float1 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
-          25% { transform: translate(15px, -20px) scale(1.2); opacity: 0.3; }
-          50% { transform: translate(-10px, -35px) scale(1); opacity: 0.2; }
-          75% { transform: translate(20px, -15px) scale(0.8); opacity: 0.25; }
-        }
-        @keyframes float2 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.1; }
-          33% { transform: translate(-20px, -25px) scale(1.3); opacity: 0.25; }
-          66% { transform: translate(15px, -40px) scale(0.9); opacity: 0.2; }
-        }
-        @keyframes float3 {
-          0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
-          50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
-        }
         @keyframes slideContent {
           0% { opacity: 0; transform: translateY(20px); }
           10% { opacity: 1; transform: translateY(0); }
@@ -254,25 +239,6 @@ const Login = () => {
           100% { opacity: 0; transform: translateY(-20px); }
         }
       `}</style>
-
-      <div className="absolute inset-0 bg-black/15" />
-
-      <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
-        {particles.map((p, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-white"
-            style={{
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              animation: `float${p.variant} ${p.duration}s ease-in-out infinite`,
-              animationDelay: `${p.delay}s`,
-            }}
-          />
-        ))}
-      </div>
 
       {/* Left side - Carousel */}
       <div className="hidden lg:flex lg:flex-1 items-center justify-center relative z-10 p-12 xl:p-20">
