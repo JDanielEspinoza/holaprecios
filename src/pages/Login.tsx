@@ -354,18 +354,18 @@ const Login = () => {
 
         <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
           <Card className="w-full max-w-sm bg-background/95 backdrop-blur-md rounded-2xl border-0 shadow-2xl animate-fade-slide-up">
-            <CardHeader className="pb-2">
-              <div className="flex justify-center mb-4">
-                <img src={logoWisproIxc} alt="Wispro + IXC" className="h-14 w-auto object-contain" />
+            <CardHeader className="pb-4">
+              <div className="flex justify-center mb-6">
+                <img src={logoWisproIxc} alt="Wispro + IXC" className="h-18 w-auto object-contain" />
               </div>
               <CardTitle className="text-lg font-semibold text-left">
                 {renderCardTitle()}
               </CardTitle>
-              <p className="text-sm text-muted-foreground text-left">
+              <p className="text-sm text-muted-foreground text-left mt-1">
                 {renderCardSubtitle()}
               </p>
             </CardHeader>
-            <CardContent className="pt-2">
+            <CardContent className="pt-4">
               {isForgot ? (
                 <form onSubmit={handleForgotPassword} className="space-y-4">
                   <Input 
