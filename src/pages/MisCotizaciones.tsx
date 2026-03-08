@@ -186,6 +186,33 @@ const MisCotizaciones = () => {
     }
   };
 
+  const sendRegistroWispro = async (q: QuoteRow) => {
+    if (!q.client_phone) {
+      toast({ title: "Sin número de teléfono", description: "Esta cotización no tiene teléfono del cliente.", variant: "destructive" });
+      return;
+    }
+    setSendingRegistro(q.id);
+    try {
+      const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
+      const firstName = q.client_name?.split(" ")[0] || "";
+      const response = await fetch("https://n8n.ixcsoft.com.br/webhook/enlace-registro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          firstName,
+          agentName: q.seller_name || profile?.nombre || "Tu asesor",
+        }),
+      });
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}` });
+    } catch (err: any) {
+      toast({ title: "Error al enviar enlace", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingRegistro(null);
+    }
+  };
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
