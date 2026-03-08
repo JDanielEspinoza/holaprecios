@@ -193,9 +193,14 @@ const Cotizacion = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-600">Pago de Implementación (único pago)</p>
-                  <p className="text-xs text-emerald-600">
-                    Para clientes que cierren durante la feria, aplicamos una condición especial de 75% de descuento
-                  </p>
+                  {(() => {
+                    const appCount = ecosystem.length;
+                    return appCount > 0 ? (
+                      <p className="text-xs text-emerald-600">
+                        {appCount} {appCount === 1 ? "aplicación" : "aplicaciones"} × $50 (75% dto. sobre $200/app)
+                      </p>
+                    ) : null;
+                  })()}
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className="text-sm text-gray-400 line-through">{fmt(data.installation_cost * 4)}</p>
