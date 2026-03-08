@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  CheckCircle2, CircleDot,
+  CheckCircle2, CircleDot, MessageCircle,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
@@ -60,7 +60,7 @@ const MisCotizaciones = () => {
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
-  
+  const [sendingRegistro, setSendingRegistro] = useState<string | null>(null);
 
   const fetchQuotes = async () => {
     if (!user) return;
@@ -183,6 +183,33 @@ const MisCotizaciones = () => {
       toast({ title: "Error al enviar WhatsApp", description: err.message, variant: "destructive" });
     } finally {
       setSendingWhatsApp(null);
+    }
+  };
+
+  const sendRegistroWispro = async (q: QuoteRow) => {
+    if (!q.client_phone) {
+      toast({ title: "Sin número de teléfono", description: "Esta cotización no tiene teléfono del cliente.", variant: "destructive" });
+      return;
+    }
+    setSendingRegistro(q.id);
+    try {
+      const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
+      const firstName = q.client_name?.split(" ")[0] || "";
+      const response = await fetch("https://n8n.ixcsoft.com.br/webhook/enlace-registro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          firstName,
+          agentName: q.seller_name || profile?.nombre || "Tu asesor",
+        }),
+      });
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      toast({ title: "Enlace enviado", description: `Enlace de registro Wispro enviado a ${q.client_phone}` });
+    } catch (err: any) {
+      toast({ title: "Error al enviar enlace", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingRegistro(null);
     }
   };
 
@@ -353,6 +380,19 @@ const MisCotizaciones = () => {
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => sendRegistroWispro(q)}
+                              disabled={sendingRegistro === q.id}
+                              title="Enviar enlace de registro Wispro"
+                            >
+                              {sendingRegistro === q.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <MessageCircle className="h-4 w-4 text-[#25D366]" />
+                              )}
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
