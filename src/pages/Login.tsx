@@ -111,11 +111,51 @@ const Login = () => {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center lg:justify-end bg-cover bg-center bg-no-repeat relative"
+      className="min-h-screen flex items-center justify-center lg:justify-end bg-cover bg-center bg-no-repeat relative overflow-hidden"
       style={{ backgroundImage: `url(${fondoLogin})` }}
     >
-      {/* Overlay for better contrast */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/20" />
+
+      {/* Animated waves */}
+      <svg
+        className="absolute bottom-0 left-0 w-full pointer-events-none z-[1]"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        style={{ height: "45%" }}
+      >
+        <path
+          className="animate-[wave1_8s_ease-in-out_infinite]"
+          fill="rgba(255,255,255,0.06)"
+          d="M0,224L48,213.3C96,203,192,181,288,186.7C384,192,480,224,576,229.3C672,235,768,213,864,186.7C960,160,1056,128,1152,128C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+        />
+        <path
+          className="animate-[wave2_10s_ease-in-out_infinite]"
+          fill="rgba(255,255,255,0.04)"
+          d="M0,288L48,272C96,256,192,224,288,218.7C384,213,480,235,576,245.3C672,256,768,256,864,234.7C960,213,1056,171,1152,165.3C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+        />
+        <path
+          className="animate-[wave3_12s_ease-in-out_infinite]"
+          fill="rgba(255,255,255,0.03)"
+          d="M0,256L48,261.3C96,267,192,277,288,261.3C384,245,480,203,576,197.3C672,192,768,224,864,240C960,256,1056,256,1152,240C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+        />
+      </svg>
+
+      {/* Top wave (inverted) */}
+      <svg
+        className="absolute top-0 left-0 w-full pointer-events-none z-[1] rotate-180"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        style={{ height: "30%" }}
+      >
+        <path
+          className="animate-[wave2_9s_ease-in-out_infinite]"
+          fill="rgba(255,255,255,0.04)"
+          d="M0,160L60,170.7C120,181,240,203,360,192C480,181,600,139,720,138.7C840,139,960,181,1080,197.3C1200,213,1320,203,1380,197.3L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+        />
+      </svg>
 
       {/* Top bar with language and theme - fixed position */}
       <div className="absolute top-0 right-0 flex items-center gap-3 p-4 z-20">

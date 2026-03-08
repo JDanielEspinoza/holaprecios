@@ -92,6 +92,18 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(222.2 47.4% 11.2% / 0.1)" },
           "50%": { boxShadow: "0 0 30px hsl(222.2 47.4% 11.2% / 0.2)" },
         },
+        wave1: {
+          "0%, 100%": { transform: "translateX(0) translateY(0)" },
+          "50%": { transform: "translateX(-25px) translateY(10px)" },
+        },
+        wave2: {
+          "0%, 100%": { transform: "translateX(0) translateY(0)" },
+          "50%": { transform: "translateX(20px) translateY(-8px)" },
+        },
+        wave3: {
+          "0%, 100%": { transform: "translateX(0) translateY(0)" },
+          "50%": { transform: "translateX(-15px) translateY(5px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
