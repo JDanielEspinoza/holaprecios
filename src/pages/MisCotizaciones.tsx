@@ -59,6 +59,7 @@ const MisCotizaciones = () => {
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [sentToPipedrive, setSentToPipedrive] = useState<Set<string>>(new Set());
 
   const fetchQuotes = async () => {
     if (!user) return;
