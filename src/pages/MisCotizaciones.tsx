@@ -375,7 +375,7 @@ const MisCotizaciones = () => {
               ¿Confirmar el pago de la cotización #{confirmingPayment?.quote_number} de{" "}
               <span className="font-semibold">{confirmingPayment?.client_name || confirmingPayment?.client_company || "cliente"}</span>?
               <br /><br />
-              Esto enviará la información a Pipedrive y activará la confirmación de pago.
+              Esto marcará la cotización como pagada y enviará la confirmación al cliente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
