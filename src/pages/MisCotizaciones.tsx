@@ -308,38 +308,53 @@ const MisCotizaciones = () => {
                           {fmt(finalTotal)}
                         </TableCell>
                         <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                if (q.entry_payment_paid) return;
-                                setConfirmingPayment(q);
-                              }}
-                              title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                              disabled={q.entry_payment_paid}
-                            >
-                              {q.entry_payment_paid ? (
-                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                              ) : (
-                                <CircleDot className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </Button>
-                            {q.entry_payment_paid && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9"
+                            onClick={() => {
+                              if (q.entry_payment_paid) return;
+                              setConfirmingPayment(q);
+                            }}
+                            title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
+                            disabled={q.entry_payment_paid}
+                          >
+                            {q.entry_payment_paid ? (
+                              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                            ) : (
+                              <CircleDot className="h-6 w-6 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </TableCell>
+                        <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                          {q.entry_payment_paid ? (
+                            <div className="flex items-center justify-center gap-1">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-9 w-9"
                                 onClick={() => {
                                   // TODO: POST a Zapier para crear trato en Pipedrive
                                 }}
                                 title="Enviar trato a Pipedrive"
                               >
-                                <img src={pipedriveIcon} alt="Pipedrive" className="h-5 w-5 rounded-full" />
+                                <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full" />
                               </Button>
-                            )}
-                          </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9"
+                                onClick={() => {
+                                  // TODO: POST a HubSpot
+                                }}
+                                title="Enviar a HubSpot"
+                              >
+                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
@@ -358,19 +373,6 @@ const MisCotizaciones = () => {
                               title={q.archived ? "Restaurar" : "Archivar"}
                             >
                               {q.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => sendWhatsApp(q)}
-                              disabled={sendingWhatsApp === q.id}
-                              title="Enviar por WhatsApp"
-                            >
-                              {sendingWhatsApp === q.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <MessageSquare className="h-4 w-4 text-primary" />
-                              )}
                             </Button>
                           </div>
                         </TableCell>
