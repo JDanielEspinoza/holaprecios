@@ -39,8 +39,11 @@ Deno.serve(async (req) => {
       link_presupuesto: link_presupuesto || "",
     };
 
+    const rawPhone = body.client_phone || contacto || "";
+    const cleanPhone = rawPhone.replace(/[\s\-\+\(\)]/g, "");
+
     const n8nPayload = {
-      phone: body.client_phone || contacto || "",
+      phone: cleanPhone,
       firstName: (body.client_name || company_name || "").split(" ")[0] || "Cliente",
       agentName: agent_name || "Tu asesor",
     };
