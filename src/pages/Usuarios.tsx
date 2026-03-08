@@ -165,8 +165,8 @@ const Usuarios = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
-                          <span className="h-2 w-2 rounded-full bg-green-500" />
-                          <span className="text-sm text-green-600 dark:text-green-400">Activo</span>
+                          <span className="h-2 w-2 rounded-full bg-primary" />
+                          <span className="text-sm text-primary">Activo</span>
                         </div>
                       </td>
                     </tr>

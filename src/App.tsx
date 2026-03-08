@@ -9,7 +9,9 @@ import Cotizacion from "./pages/Cotizacion";
 import MisCotizaciones from "./pages/MisCotizaciones";
 import CotizacionesAndina from "./pages/CotizacionesAndina";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import Perfil from "./pages/Perfil";
+import Usuarios from "./pages/Usuarios";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
@@ -47,10 +49,12 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/cotizacion" element={<Cotizacion />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+            <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
             <Route path="/cotizaciones-andina" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
