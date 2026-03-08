@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import logoHola from "@/assets/logo-hola.png";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
+import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number) =>
