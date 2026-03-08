@@ -334,23 +334,19 @@ const MisCotizaciones = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-9 w-9"
-                                onClick={() => {
-                                  // TODO: POST a Zapier para crear trato en Pipedrive
-                                }}
+                                onClick={() => setConfirmingPipedrive(q)}
                                 title="Enviar trato a Pipedrive"
                               >
-                                <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full" />
+                                <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-9 w-9"
-                                onClick={() => {
-                                  // TODO: POST a HubSpot
-                                }}
+                                onClick={() => toast({ title: "Conexión a HubSpot no verificada", description: "La integración con HubSpot aún no está disponible.", variant: "destructive" })}
                                 title="Enviar a HubSpot"
                               >
-                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full" />
+                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
                               </Button>
                             </div>
                           ) : (
