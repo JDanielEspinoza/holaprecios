@@ -383,6 +383,19 @@ const MisCotizaciones = () => {
                             <Button
                               variant="ghost"
                               size="icon"
+                              onClick={() => sendRegistroWispro(q)}
+                              disabled={sendingRegistro === q.id}
+                              title="Enviar enlace de registro Wispro"
+                            >
+                              {sendingRegistro === q.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <MessageCircle className="h-4 w-4 text-[#25D366]" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
                               title="Ver cotización"
                             >
