@@ -333,24 +333,6 @@ const Index = () => {
         {tier && (
           <>
             {/* Ecosystem cards + Hola + Cloud - keep existing form content */}
-            {/* Dynamic discount banner */}
-            {selectedProductCount > 0 && (
-              <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 animate-fade-slide-up">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-emerald-700">
-                      🎉 Paquete integrado: <span className="font-bold">{packageDiscountPct}% de descuento</span>
-                    </p>
-                    <p className="text-xs text-emerald-600">
-                      {packageDiscountPct < 30 && "¡Sumá más productos para aumentar tu descuento!"}
-                      {packageDiscountPct === 30 && "¡Máximo descuento aplicado sobre el total mensual!"}
-                    </p>
-                  </div>
-                  <span className="text-2xl font-bold text-emerald-600">{packageDiscountPct}%</span>
-                </div>
-              </div>
-            )}
-
             <div className="grid grid-cols-3 gap-3 md:gap-6 animate-fade-slide-up-1">
               <ProductCard title="Wispro" value={tier.wispro} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => { setSelectedProducts((p) => ({ ...p, wispro: !p.wispro })); setQuoteId(null); }} />
               <ProductCard title="ACS" value={tier.acs} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => { setSelectedProducts((p) => ({ ...p, acs: !p.acs })); setQuoteId(null); }} />
@@ -480,12 +462,6 @@ const Index = () => {
                   {clientCount ? `Para ${fmtClients(clientCount)} clientes` : "Seleccioná la cantidad de clientes"}
                 </p>
               </div>
-              {clientCount && (
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-primary">{fmt(discountedTotal)}</p>
-                  <p className="text-xs text-muted-foreground">/ mes</p>
-                </div>
-              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -498,6 +474,26 @@ const Index = () => {
                 return <SummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} active={qty > 0} />;
               })}
               <SummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} active={!!selectedCloud} />
+            </div>
+
+            {/* Subtotal + Discount */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-semibold text-foreground">{fmt(grandTotal)}</span>
+              </div>
+              {packageDiscountPct > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-emerald-600">
+                    🎉 Descuento paquete integrado ({packageDiscountPct}%)
+                  </span>
+                  <span className="font-semibold text-emerald-600">-{fmt(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-lg font-bold text-foreground">Total mensual</span>
+                <span className="text-2xl font-bold text-primary">{fmt(discountedTotal)}</span>
+              </div>
             </div>
 
             {/* Implementation */}
