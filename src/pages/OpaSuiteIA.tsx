@@ -4,24 +4,29 @@ import { Input } from "@/components/ui/input";
 import { MessageSquare, Mic, AudioLines, Bot } from "lucide-react";
 import AppMenu from "@/components/AppMenu";
 import holaBanner from "@/assets/holabanner.jpg";
+import metaPartners from "@/assets/meta-partners.png";
+import mobileMockup from "@/assets/mobile-opa-mockup.png";
 
 const providers = [
   {
     name: "Gemini",
     color: "text-blue-400",
     bgGlow: "from-blue-500/10 to-transparent",
+    iconBg: "bg-blue-500",
     rates: { text: 0.26, vozPadrao: 0.34, vozClonada: 0.56 },
   },
   {
     name: "OpenAI",
     color: "text-gray-300",
     bgGlow: "from-gray-400/10 to-transparent",
+    iconBg: "bg-gray-700",
     rates: { text: 0.36, vozPadrao: 0.44, vozClonada: 0.66 },
   },
   {
     name: "Claude",
     color: "text-orange-400",
     bgGlow: "from-orange-500/10 to-transparent",
+    iconBg: "bg-orange-500",
     rates: { text: 0.51, vozPadrao: 0.59, vozClonada: 0.81 },
   },
 ];
@@ -39,26 +44,28 @@ const OpaSuiteIA = () => {
       </div>
 
       {/* Banner */}
-      <div className="w-full max-w-5xl mx-auto px-4 pt-16">
-        <div className="relative rounded-2xl overflow-hidden mb-10">
-          <img src={holaBanner} alt="Opa! Suite" className="w-full h-32 object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-700/80 to-purple-500/60 flex items-center justify-between px-8">
-            <div>
-              <p className="text-lg font-light text-white/90">Atendimento omnichannel</p>
-              <p className="text-xl font-bold text-white">que conecta pessoas.</p>
-              <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-red-500 mt-2 rounded-full" />
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold tracking-tight">
-                opa<span className="text-orange-400">!</span> <span className="font-light">suite</span>
-              </p>
+      <div className="w-full">
+        <div className="max-w-5xl mx-auto px-4 pt-16">
+          <div className="relative rounded-2xl overflow-hidden">
+            <img src={holaBanner} alt="Opa! Suite" className="w-full h-28 md:h-32 object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-700/80 to-purple-500/60 flex items-center justify-between px-6 md:px-10">
+              <div>
+                <p className="text-base md:text-lg font-light text-white/90">Atendimento omnichannel</p>
+                <p className="text-lg md:text-xl font-bold text-white">que conecta pessoas.</p>
+                <div className="w-16 h-1 bg-gradient-to-r from-orange-500 to-red-500 mt-1.5 rounded-full" />
+              </div>
+              <div className="text-right">
+                <p className="text-2xl md:text-3xl font-bold tracking-tight">
+                  opa<span className="text-orange-400">!</span> <span className="font-light">suite</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Title */}
-      <div className="text-center mb-8 px-4">
+      <div className="text-center mt-10 mb-8 px-4">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
           Compare os custos por IA
         </h1>
@@ -83,80 +90,119 @@ const OpaSuiteIA = () => {
         </div>
       </div>
 
-      {/* Cards */}
-      <div className="max-w-5xl mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {providers.map((p) => {
-            const textTotal = p.rates.text * atendimentos;
-            const vozTotal = p.rates.vozPadrao * atendimentos;
-            const clonTotal = p.rates.vozClonada * atendimentos;
-            const lowestCost = textTotal;
+      {/* Cards + Phone mockup */}
+      <div className="max-w-6xl mx-auto px-4 pb-12">
+        <div className="flex flex-col lg:flex-row items-start gap-8">
+          {/* Cards grid */}
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {providers.map((p) => {
+              const textTotal = p.rates.text * atendimentos;
+              const vozTotal = p.rates.vozPadrao * atendimentos;
+              const clonTotal = p.rates.vozClonada * atendimentos;
+              const lowestCost = textTotal;
 
-            return (
-              <Card
-                key={p.name}
-                className={`bg-[#1a1d27] border-gray-700/50 rounded-2xl overflow-hidden relative`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-b ${p.bgGlow} pointer-events-none`} />
-                <CardContent className="p-6 relative z-10">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center">
-                      <Bot className={`h-5 w-5 ${p.color}`} />
-                    </div>
-                    <h3 className={`text-xl font-bold ${p.color}`}>{p.name}</h3>
-                  </div>
-
-                  {/* Rows */}
-                  <div className="space-y-5">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-400">Interação por Texto</p>
-                          <p className="text-xs text-gray-500">R$ {p.rates.text.toFixed(2)} / atend.</p>
-                        </div>
+              return (
+                <Card
+                  key={p.name}
+                  className="bg-[#1a1d27] border-gray-700/50 rounded-2xl overflow-hidden relative"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-b ${p.bgGlow} pointer-events-none`} />
+                  <CardContent className="p-6 relative z-10">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className={`h-10 w-10 rounded-full ${p.iconBg} flex items-center justify-center`}>
+                        <Bot className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-lg font-bold text-white">{fmtBRL(textTotal)}</p>
+                      <h3 className={`text-xl font-bold ${p.color}`}>{p.name}</h3>
                     </div>
 
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Mic className="h-4 w-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-400">Voz Padrão</p>
-                          <p className="text-xs text-gray-500">R$ {p.rates.vozPadrao.toFixed(2)} / atend.</p>
+                    {/* Rows */}
+                    <div className="space-y-5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4 text-gray-500" />
+                          <div>
+                            <p className="text-sm text-gray-400">Interação por Texto</p>
+                            <p className="text-xs text-gray-500">R$ {p.rates.text.toFixed(2)} / atend.</p>
+                          </div>
                         </div>
+                        <p className="text-lg font-bold text-white">{fmtBRL(textTotal)}</p>
                       </div>
-                      <p className="text-lg font-bold text-white">{fmtBRL(vozTotal)}</p>
-                    </div>
 
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <AudioLines className="h-4 w-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-400">Voz Clonada</p>
-                          <p className="text-xs text-gray-500">R$ {p.rates.vozClonada.toFixed(2)} / atend.</p>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <Mic className="h-4 w-4 text-gray-500" />
+                          <div>
+                            <p className="text-sm text-gray-400">Voz Padrão</p>
+                            <p className="text-xs text-gray-500">R$ {p.rates.vozPadrao.toFixed(2)} / atend.</p>
+                          </div>
                         </div>
+                        <p className="text-lg font-bold text-white">{fmtBRL(vozTotal)}</p>
                       </div>
-                      <p className="text-lg font-bold text-white">{fmtBRL(clonTotal)}</p>
-                    </div>
-                  </div>
 
-                  {/* Bottom */}
-                  <div className="mt-6 bg-gray-800/50 rounded-xl p-4">
-                    <p className="text-xs text-gray-400 mb-1">Custo mais baixo</p>
-                    <p className={`text-2xl font-bold ${p.color}`}>
-                      {fmtBRL(lowestCost)}
-                      <span className="text-sm font-normal text-gray-500">/mês</span>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <AudioLines className="h-4 w-4 text-gray-500" />
+                          <div>
+                            <p className="text-sm text-gray-400">Voz Clonada</p>
+                            <p className="text-xs text-gray-500">R$ {p.rates.vozClonada.toFixed(2)} / atend.</p>
+                          </div>
+                        </div>
+                        <p className="text-lg font-bold text-white">{fmtBRL(clonTotal)}</p>
+                      </div>
+                    </div>
+
+                    {/* Bottom */}
+                    <div className="mt-6 bg-gray-800/50 rounded-xl p-4">
+                      <p className="text-xs text-gray-400 mb-1">Custo mais baixo</p>
+                      <p className={`text-2xl font-bold ${p.color}`}>
+                        {fmtBRL(lowestCost)}
+                        <span className="text-sm font-normal text-gray-500">/mês</span>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Phone mockup */}
+          <div className="hidden lg:flex items-center justify-center flex-shrink-0 w-64">
+            <img
+              src={mobileMockup}
+              alt="Opa! Suite mobile"
+              className="w-full max-w-[260px] drop-shadow-2xl"
+            />
+          </div>
         </div>
       </div>
+
+      {/* Footer with Meta + Store badges */}
+      <footer className="max-w-5xl mx-auto px-4 pb-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-gray-800">
+          <img
+            src={metaPartners}
+            alt="Meta Business Partners"
+            className="h-8 md:h-10 w-auto object-contain invert brightness-200"
+          />
+          <div className="flex items-center gap-3">
+            <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/images/google-play-badge.svg"
+                alt="Google Play"
+                className="h-10 w-auto"
+              />
+            </a>
+            <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/images/app-store-badge.svg"
+                alt="App Store"
+                className="h-10 w-auto"
+              />
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
