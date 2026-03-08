@@ -385,6 +385,7 @@ const MisCotizaciones = () => {
 
   return (
     <div className="min-h-screen bg-premium-gradient">
+      <AppBanner />
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>

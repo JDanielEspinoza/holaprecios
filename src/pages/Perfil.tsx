@@ -56,11 +56,12 @@ const Perfil = () => {
   );
 
   return (
-    <div className="min-h-screen bg-premium-gradient p-4">
-      <div className="mx-auto max-w-lg space-y-6">
-        <div className="fixed top-4 left-4 z-50">
-          <AppMenu />
-        </div>
+    <div className="min-h-screen bg-premium-gradient">
+      <AppBanner />
+      <div className="fixed top-4 left-4 z-50">
+        <AppMenu />
+      </div>
+      <div className="mx-auto max-w-lg space-y-6 p-4 pt-6">
 
         <Card className="card-premium animate-fade-slide-up-1">
           <CardHeader>
