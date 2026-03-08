@@ -414,6 +414,37 @@ const MisCotizaciones = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Pipedrive confirmation dialog */}
+      <AlertDialog open={!!confirmingPipedrive} onOpenChange={(open) => { if (!open) setConfirmingPipedrive(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full" />
+              Enviar trato a Pipedrive
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Enviar la cotización #{confirmingPipedrive?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingPipedrive?.client_name || confirmingPipedrive?.client_company || "cliente"}</span>{" "}
+              como trato en Pipedrive?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                // TODO: POST a Zapier para crear trato en Pipedrive
+                toast({ title: "Función en desarrollo", description: "El envío a Pipedrive se configurará próximamente." });
+                setConfirmingPipedrive(null);
+              }}
+              className="bg-[#017737] hover:bg-[#015a2a]"
+            >
+              Sí, enviar trato
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
