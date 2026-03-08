@@ -10,6 +10,7 @@ import { Loader2, Save, Upload, User } from "lucide-react";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import AppMenu from "@/components/AppMenu";
+import AppBanner from "@/components/AppBanner";
 
 const FIXED_PHONE = "+5492615783684";
 
