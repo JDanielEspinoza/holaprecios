@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Cotizacion from "./pages/Cotizacion";
-import Cotizaciones from "./pages/Cotizaciones";
+import MisCotizaciones from "./pages/MisCotizaciones";
+import CotizacionesAndina from "./pages/CotizacionesAndina";
 import Login from "./pages/Login";
 import Perfil from "./pages/Perfil";
 import Landing from "./pages/Landing";
@@ -50,7 +51,8 @@ const App = () => (
             <Route path="/landing" element={<Landing />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-            <Route path="/cotizaciones" element={<ProtectedRoute><Cotizaciones /></ProtectedRoute>} />
+            <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
+            <Route path="/cotizaciones-andina" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

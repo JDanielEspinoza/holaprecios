@@ -7,15 +7,12 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  Filter, MessageSquare, CheckCircle2, CircleDot,
+  MessageSquare, CheckCircle2, CircleDot,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,16 +42,16 @@ interface QuoteRow {
   created_at: string;
   archived: boolean;
   entry_payment_paid: boolean;
+  user_id: string;
 }
 
-const Cotizaciones = () => {
+const MisCotizaciones = () => {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { toast } = useToast();
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [agentFilter, setAgentFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
@@ -62,10 +59,10 @@ const Cotizaciones = () => {
 
   const fetchQuotes = async () => {
     if (!user) return;
-    // All authenticated agents can see all quotes
     const { data } = await supabase
       .from("quotes")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     setQuotes((data as any) || []);
     setLoading(false);
@@ -73,16 +70,8 @@ const Cotizaciones = () => {
 
   useEffect(() => { fetchQuotes(); }, [user]);
 
-  const agents = useMemo(() => {
-    const set = new Set(quotes.map((q) => q.seller_name).filter(Boolean));
-    return Array.from(set) as string[];
-  }, [quotes]);
-
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
-    if (agentFilter !== "all") {
-      list = list.filter((q) => q.seller_name === agentFilter);
-    }
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter((q) =>
@@ -94,7 +83,7 @@ const Cotizaciones = () => {
       );
     }
     return list;
-  }, [quotes, search, agentFilter, showArchived]);
+  }, [quotes, search, showArchived]);
 
   const toggleArchive = async (q: QuoteRow) => {
     await supabase
@@ -126,18 +115,16 @@ const Cotizaciones = () => {
         return Array.from(sections).join(", ");
       };
 
-      const formatDate = (iso: string) => {
+      const formatDateStr = (iso: string) => {
         const d = new Date(iso);
         return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
       };
 
-      // Update DB
       await supabase
         .from("quotes")
         .update({ entry_payment_paid: true } as any)
         .eq("id", q.id);
 
-      // Fire both webhooks via edge function
       const { error } = await supabase.functions.invoke("confirm-payment", {
         body: {
           company_name: q.client_company || q.client_name || "",
@@ -145,7 +132,7 @@ const Cotizaciones = () => {
           products: getPlatforms(q.items),
           agent_name: q.seller_name || "",
           numero_presupuesto: String(q.quote_number),
-          fecha: formatDate(q.created_at),
+          fecha: formatDateStr(q.created_at),
           contacto: q.client_phone || q.client_email || "",
           total: fmt(finalTotal),
           link_presupuesto: quoteUrl,
@@ -221,7 +208,7 @@ const Cotizaciones = () => {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
         <div className="flex items-center gap-3 mb-6 animate-fade-slide-up">
           <FileText className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Historial de Cotizaciones</h1>
+          <h1 className="text-2xl font-bold text-foreground">Mis Cotizaciones</h1>
           <Badge variant="secondary" className="ml-2">{filtered.length} resultados</Badge>
         </div>
 
@@ -238,29 +225,15 @@ const Cotizaciones = () => {
                   className="pl-9 input-premium"
                 />
               </div>
-              <div className="flex gap-2 items-center">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={agentFilter} onValueChange={setAgentFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Agente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los agentes</SelectItem>
-                    {agents.map((a) => (
-                      <SelectItem key={a} value={a}>{a}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant={showArchived ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowArchived(!showArchived)}
-                  className="gap-1.5"
-                >
-                  {showArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                  {showArchived ? "Archivadas" : "Activas"}
-                </Button>
-              </div>
+              <Button
+                variant={showArchived ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowArchived(!showArchived)}
+                className="gap-1.5"
+              >
+                {showArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+                {showArchived ? "Archivadas" : "Activas"}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -274,7 +247,7 @@ const Cotizaciones = () => {
           <Card className="card-premium">
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">
-                {showArchived ? "No hay cotizaciones archivadas." : "No hay cotizaciones que coincidan."}
+                {showArchived ? "No tenés cotizaciones archivadas." : "No tenés cotizaciones que coincidan."}
               </p>
             </CardContent>
           </Card>
@@ -290,7 +263,6 @@ const Cotizaciones = () => {
                     <TableHead className="hidden md:table-cell">Empresa</TableHead>
                     <TableHead className="hidden lg:table-cell">Contacto</TableHead>
                     <TableHead className="hidden lg:table-cell">Productos</TableHead>
-                    <TableHead className="hidden md:table-cell">Agente</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead className="hidden md:table-cell text-center">Pago</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
@@ -327,9 +299,6 @@ const Cotizaciones = () => {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell text-xs">
                           {getPlatforms(q.items)}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm">
-                          {q.seller_name || "—"}
                         </TableCell>
                         <TableCell className="text-right font-bold text-primary whitespace-nowrap">
                           {fmt(finalTotal)}
@@ -430,4 +399,4 @@ const Cotizaciones = () => {
   );
 };
 
-export default Cotizaciones;
+export default MisCotizaciones;

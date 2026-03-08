@@ -1,63 +1,76 @@
 
 
-# Plan: Separar Historial en "Mis Cotizaciones" y "Cotizaciones Andina Link"
+# Plan: Upgrade Visual Premium SaaS
 
-## Problema Actual
+Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
 
-Una sola página `/cotizaciones` mezcla funcionalidad personal con vista global. Las políticas RLS actuales restringen UPDATE solo al propietario, lo cual es correcto para la página personal pero problemático para acciones de equipo.
+## 1. CSS Variables y Gradientes Base (`src/index.css`)
 
-## Solución Propuesta
+- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
+- Agregar variables CSS para gradientes y sombras reutilizables
+- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
+- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
 
-### Dos páginas separadas:
+## 2. Tailwind Config (`tailwind.config.ts`)
 
-| Página | Ruta | Propósito |
-|--------|------|-----------|
-| **Mis Cotizaciones** | `/mis-cotizaciones` | Historial personal - ver, archivar, marcar pagado, enviar WhatsApp (solo propias) |
-| **Cotizaciones Andina Link** | `/cotizaciones-andina` | Vista global de solo lectura - todas las cotizaciones ordenadas por número, sin acciones |
+- Agregar keyframes: `fade-slide-up`, `glow-pulse`
+- Agregar animations correspondientes
+- Ampliar `boxShadow` con sombras premium de dos niveles
 
-### Cambios de código:
+## 3. Página Login (`src/pages/Login.tsx`)
 
-1. **Crear `MisCotizaciones.tsx`**
-   - Reutilizar código actual de `Cotizaciones.tsx`
-   - Filtrar por `user_id === auth.uid()`
-   - Mantener todas las acciones: archivar, marcar pagado, enviar WhatsApp
+- Fondo con gradiente sutil (purple → indigo → soft blue) animado
+- Card con sombra premium elevada, bordes más suaves
+- Inputs con transición de borde y glow en focus
+- Botón con gradiente y efecto press
 
-2. **Crear `CotizacionesAndina.tsx`**
-   - Vista de solo lectura de todas las cotizaciones
-   - Ordenar por `quote_number` descendente (más reciente primero)
-   - Sin botones de acción (solo ver/abrir enlace externo)
-   - Mostrar número, fecha, cliente, empresa, agente, total, estado de pago
+## 4. Página Principal (`src/pages/Index.tsx`)
 
-3. **Actualizar `AppMenu.tsx`**
-   - Agregar dos entradas de menú:
-     - "Mis Cotizaciones" → `/mis-cotizaciones`
-     - "Cotizaciones Andina" → `/cotizaciones-andina`
+- Banner header: gradiente animado en lugar de color sólido
+- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
+- Selector de clientes: glow sutil en el borde
+- Card de resumen: fondo con gradiente más sofisticado
+- Total: tamaño aumentado, glow detrás del número
+- Secciones con `animate-fade-slide-up` escalonado
+- Botones con gradiente y press animation
 
-4. **Actualizar `App.tsx`**
-   - Agregar rutas protegidas para ambas páginas
+## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
 
-### RLS (sin cambios necesarios)
+- Card principal con sombra premium
+- Botones con transiciones suaves
+- Tipografía del total más impactante
 
-- La política actual de SELECT `Anyone can view quotes by id` permite la lectura global
-- La política de UPDATE sigue restringida al propietario (correcto para "Mis Cotizaciones")
-- Agregar política para que agentes vean perfiles de otros (mostrar nombres de agentes)
+## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
 
-### Migración SQL
+- Cards con hover elevation
+- Transiciones suaves en hover
 
-```sql
--- Permitir ver perfiles de todo el equipo
-CREATE POLICY "Authenticated users can view all profiles"
-ON public.profiles FOR SELECT TO authenticated
-USING (true);
-```
+## 7. Página Perfil (`src/pages/Perfil.tsx`)
 
-## Archivos a crear/modificar
+- Card con sombra premium
+- Inputs con glow en focus
+- Foto de perfil con borde con glow
 
-| Archivo | Acción |
-|---------|--------|
-| `src/pages/MisCotizaciones.tsx` | Crear (copia de Cotizaciones con filtro user_id) |
-| `src/pages/CotizacionesAndina.tsx` | Crear (vista global read-only) |
-| `src/components/AppMenu.tsx` | Modificar (agregar 2 links) |
-| `src/App.tsx` | Modificar (agregar 2 rutas) |
-| Migración SQL | Política de SELECT en profiles |
+## 8. AppMenu (`src/components/AppMenu.tsx`)
+
+- Dropdown con sombra premium y bordes más suaves
+
+## Archivos a modificar
+
+| Archivo | Cambio |
+|---|---|
+| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
+| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
+| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
+| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
+| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
+| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
+| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
+
+## Principios
+
+- Todo sutil y refinado, nada exagerado
+- Transiciones 250-400ms con ease-out
+- Sombras de baja opacidad para profundidad realista
+- Gradientes casi imperceptibles para dar vida sin distraer
 
