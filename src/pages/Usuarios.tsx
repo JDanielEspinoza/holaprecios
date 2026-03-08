@@ -40,11 +40,11 @@ const Usuarios = () => {
 
       // Fetch workspace assignments
       const { data: workspaces } = await supabase
-        .from("user_workspaces")
-        .select("user_id, workspace_name");
+        .from("user_workspaces" as any)
+        .select("user_id, workspace_name") as { data: { user_id: string; workspace_name: string }[] | null };
 
       const workspaceMap = new Map<string, string>();
-      workspaces?.forEach((w) => {
+      workspaces?.forEach((w: { user_id: string; workspace_name: string }) => {
         workspaceMap.set(w.user_id, w.workspace_name);
       });
 
