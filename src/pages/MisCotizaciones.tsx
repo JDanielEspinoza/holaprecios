@@ -458,7 +458,8 @@ const MisCotizaciones = () => {
                       link_presupuesto: quoteUrl,
                     }),
                   });
-                  setSentToPipedrive(prev => new Set(prev).add(q.id));
+                  await supabase.from("quotes").update({ pipedrive_sent: true } as any).eq("id", q.id);
+                  setQuotes(prev => prev.map(x => x.id === q.id ? { ...x, pipedrive_sent: true } : x));
                   toast({ title: "Enviado a Pipedrive", description: `Trato #${q.quote_number} enviado correctamente.` });
                 } catch (err: any) {
                   toast({ title: "Error al enviar a Pipedrive", description: err.message, variant: "destructive" });
