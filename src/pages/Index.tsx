@@ -97,9 +97,9 @@ const Index = () => {
   }, [addonQty]);
 
   const cloudPrice = useMemo(() => {
-    if (!selectedCloud) return 0;
+    if (!selectedCloud || !selectedProducts.holaBasic) return 0;
     return holaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
-  }, [selectedCloud]);
+  }, [selectedCloud, selectedProducts.holaBasic]);
 
   const grandTotal = ecosystemTotal + addonTotal + cloudPrice;
 
