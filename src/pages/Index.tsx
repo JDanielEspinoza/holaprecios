@@ -450,15 +450,15 @@ const Index = () => {
 function ProductCard({ title, value, logo, checked, onToggle, discountPct }: { title: string; value: number; logo: string; checked: boolean; onToggle: () => void; discountPct: number }) {
   return (
     <Card className={`cursor-pointer card-premium transition-all ${checked ? "" : "opacity-40"}`} onClick={onToggle}>
-      <CardContent className="pt-5 text-center">
-        <div className="flex items-center justify-center mb-2">
-          <Checkbox checked={checked} className="pointer-events-none" />
+      <CardContent className="pt-3 md:pt-5 text-center">
+        <div className="flex items-center justify-center mb-1.5 md:mb-2">
+          <Checkbox checked={checked} className="pointer-events-none h-4 w-4 md:h-5 md:w-5" />
         </div>
-        <div className="flex items-center justify-center mb-3">
-          <img src={logo} alt={title} className={`h-16 w-auto object-contain ${title === "Hola! Suite" ? "rounded-xl" : ""} ${title === "ACS" ? "border-0 shadow-none" : ""}`} style={title === "ACS" ? { border: "none", outline: "none" } : undefined} />
+        <div className="flex items-center justify-center mb-2 md:mb-3">
+          <img src={logo} alt={title} className={`h-10 md:h-16 w-auto object-contain ${title === "Hola! Suite" ? "rounded-xl" : ""} ${title === "ACS" ? "border-0 shadow-none" : ""}`} style={title === "ACS" ? { border: "none", outline: "none" } : undefined} />
         </div>
-        <p className="text-2xl font-bold text-foreground">{fmt(value)}</p>
-        <p className="text-xs text-muted-foreground mt-1">/ mes</p>
+        <p className="text-lg md:text-2xl font-bold text-foreground">{fmt(value)}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 md:mt-1">/ mes</p>
       </CardContent>
     </Card>
   );
