@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import Perfil from "./pages/Perfil";
 import Usuarios from "./pages/Usuarios";
+import OpaSuiteIA from "./pages/OpaSuiteIA";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
