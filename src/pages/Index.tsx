@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers, addons, holaCloudPlans } from "@/data/pricing";
 import { Users, Cloud, Plus, Minus, Check, RotateCcw } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
-import holaBanner from "@/assets/holabanner.jpg";
+import bannerWI from "@/assets/banner_w_i-2.jpg";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoHola from "@/assets/logo-hola.png";
@@ -178,8 +178,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-premium-gradient">
-      <header className="w-full bg-gradient-to-r from-[hsl(260,50%,30%)] via-[hsl(var(--primary))] to-[hsl(230,50%,25%)] overflow-hidden animate-gradient-shift">
-        <img src={holaBanner} alt="¡Hola! Suite — Servicio de atención omnichannel" className="mx-auto max-w-6xl w-full h-28 object-cover object-center" />
+      <header className="w-full overflow-hidden">
+        <img src={bannerWI} alt="Gestión completa de tu proveedor de internet — Wispro + IXC Soft" className="w-full h-20 object-cover object-center" />
       </header>
 
       <div className="absolute top-4 left-4 z-10">
