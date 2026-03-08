@@ -214,8 +214,31 @@ const Index = () => {
   if (view === "success" && quoteId) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="w-full overflow-hidden">
+      <header className="w-full overflow-hidden relative">
           <img src={bannerWI} alt="Gestión completa de tu proveedor de internet — Wispro + IXC Soft" className="w-full h-20 object-cover object-center" />
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {Array.from({ length: 15 }, (_, i) => ({
+              size: 3 + (i * 7 % 5),
+              left: (i * 17 + 5) % 100,
+              top: (i * 23 + 10) % 100,
+              duration: 8 + (i % 4) * 3,
+              delay: (i * 0.7) % 5,
+              variant: (i % 3) + 1,
+            })).map((p, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  left: `${p.left}%`,
+                  top: `${p.top}%`,
+                  animation: `float${p.variant} ${p.duration}s ease-in-out infinite`,
+                  animationDelay: `${p.delay}s`,
+                }}
+              />
+            ))}
+          </div>
         </header>
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
