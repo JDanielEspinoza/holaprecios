@@ -57,6 +57,7 @@ const MisCotizaciones = () => {
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
+  const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
 
   const fetchQuotes = async () => {
