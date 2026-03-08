@@ -103,7 +103,7 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
             <div className="flex justify-center mb-4">
-              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-10 w-auto object-contain" />
+              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-16 w-auto object-contain mb-2" />
             </div>
             <CardTitle className="text-xl text-black-500">Resumen de Cotización</CardTitle>
             <p className="text-sm text-gray-500">
