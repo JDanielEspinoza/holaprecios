@@ -153,7 +153,7 @@ const OpaSuiteIA = () => {
           <img
             src={metaPartners}
             alt="Meta Business Partners"
-            className="h-8 md:h-10 w-auto object-contain invert brightness-200"
+            className="h-8 md:h-10 w-auto object-contain brightness-0 invert"
           />
           <div className="flex items-center gap-3">
             <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer">
