@@ -420,9 +420,13 @@ const MisCotizaciones = () => {
               Enviar trato a Pipedrive
             </AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Enviar la cotización #{confirmingPipedrive?.quote_number} de{" "}
-              <span className="font-semibold">{confirmingPipedrive?.client_name || confirmingPipedrive?.client_company || "cliente"}</span>{" "}
-              como trato en Pipedrive?
+              {!confirmingPipedrive?.entry_payment_paid && (
+                <span className="block text-amber-600 font-medium mb-2">
+                  ⚠️ Ningún pago ha sido registrado hasta ahora.
+                </span>
+              )}
+              ¿Desea crear el trato en Pipedrive para la cotización #{confirmingPipedrive?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingPipedrive?.client_name || confirmingPipedrive?.client_company || "cliente"}</span>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
