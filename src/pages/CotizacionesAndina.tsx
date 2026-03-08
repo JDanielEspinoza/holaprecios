@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AppMenu from "@/components/AppMenu";
+import AppBanner from "@/components/AppBanner";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 
