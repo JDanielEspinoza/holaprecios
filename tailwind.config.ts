@@ -34,6 +34,31 @@ export default {
           dark: "hsl(var(--charcoal-dark))",
           black: "hsl(var(--charcoal-black))",
         },
+        black: {
+          400: "hsl(var(--black-400))",
+          500: "hsl(var(--black-500))",
+          800: "hsl(var(--black-800))",
+        },
+        orange: {
+          300: "hsl(var(--orange-300))",
+          400: "hsl(var(--orange-400))",
+          500: "hsl(var(--orange-500))",
+          600: "hsl(var(--orange-600))",
+        },
+        indigo: {
+          400: "hsl(var(--indigo-400))",
+          500: "hsl(var(--indigo-500))",
+          600: "hsl(var(--indigo-600))",
+        },
+        salmon: {
+          300: "hsl(var(--salmon-300))",
+          500: "hsl(var(--salmon-500))",
+          600: "hsl(var(--salmon-600))",
+        },
+        midnight: {
+          400: "hsl(var(--midnight-400))",
+          500: "hsl(var(--midnight-500))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
