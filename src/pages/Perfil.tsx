@@ -11,9 +11,11 @@ import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import AppMenu from "@/components/AppMenu";
 
+const FIXED_PHONE = "+5492615783684";
+
 const Perfil = () => {
   const { profile, loading, updateProfile, uploadPhoto } = useProfile();
-  const [form, setForm] = useState({ nombre: "", cargo: "", email_contacto: "", numero: "" });
+  const [form, setForm] = useState({ nombre: "", cargo: "", email_contacto: "" });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
