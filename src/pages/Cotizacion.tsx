@@ -103,7 +103,7 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
             <div className="flex justify-center mb-4">
-              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-16 w-auto object-contain mb-2" />
+              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
             </div>
             <CardTitle className="text-xl text-black-500">Resumen de Cotización</CardTitle>
             <p className="text-sm text-gray-500">
@@ -246,7 +246,7 @@ const Cotizacion = () => {
 
             <div className="border-t border-gray-200 pt-4">
               <p className="text-xs text-center text-gray-500 italic">
-                Cotización válida hasta el 12 de Marzo, mientras dure el evento Andina Link.
+                Cotización válida durante todo el mes de Marzo.
               </p>
             </div>
           </CardContent>

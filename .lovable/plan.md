@@ -1,38 +1,76 @@
 
 
-## Plan: Multiple improvements across the app
+# Plan: Upgrade Visual Premium SaaS
 
-### 1. Phone number locked to +5492615783684
-- In `Perfil.tsx`: Remove the phone input field and replace with a read-only display showing the fixed number `+5492615783684`.
-- In `handleGenerateQuote` (Index.tsx line ~171): Hard-code `seller_numero: "+5492615783684"` instead of reading from profile.
-- In `Cotizacion.tsx`: The seller phone already comes from the saved quote data, so new quotes will have the correct number.
+Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
 
-### 2. Delete user "Larissa Elizabeth" (sucu1985@gmail.com)
-- Run a database query to find and delete this user's profile and auth record. Will use the migration tool to delete from `profiles` where `email_contacto = 'sucu1985@gmail.com'`, and a backend function to delete the auth user.
+## 1. CSS Variables y Gradientes Base (`src/index.css`)
 
-### 3. Fix AppMenu position on Perfil page
-- Currently the hamburger is inside a flex container with no fixed positioning. Will change it to `fixed top-4 left-4 z-50` like other pages (Index.tsx pattern), so it's always accessible.
+- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
+- Agregar variables CSS para gradientes y sombras reutilizables
+- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
+- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
 
-### 4. Add particle effect to the banner/header
-- Apply the same floating particle animation from Login.tsx over the banner image in Index.tsx (both form and success views). Will overlay the particles on the header area with `position: relative` and the same keyframes.
+## 2. Tailwind Config (`tailwind.config.ts`)
 
-### 5. Fix "Enlace de Registro Wispro" in QuoteShare component
-- The `handleRegistroWispro` in `QuoteShare.tsx` calls the n8n webhook directly (CORS issue). Replace with `supabase.functions.invoke("send-registro-wispro", ...)` — same fix that was applied to MisCotizaciones.
+- Agregar keyframes: `fade-slide-up`, `glow-pulse`
+- Agregar animations correspondientes
+- Ampliar `boxShadow` con sombras premium de dos niveles
 
-### 6. Update footer text in Cotizacion.tsx
-- Change line 249 from "Cotización válida hasta el 12 de Marzo, mientras dure el evento Andina Link." to "Cotización válida durante todo el mes de Marzo."
+## 3. Página Login (`src/pages/Login.tsx`)
 
-### 7. Add Wispro + IXC logo above product emblems in Cotizacion.tsx
-- The `logoWisproIxc` is already imported and displayed (line 106). Will make it larger (`h-20` or bigger) and ensure it's centered and prominent on both mobile and desktop. It's already above the product logos section.
+- Fondo con gradiente sutil (purple → indigo → soft blue) animado
+- Card con sombra premium elevada, bordes más suaves
+- Inputs con transición de borde y glow en focus
+- Botón con gradiente y efecto press
 
-### 8. Copy uploaded Wispro + IXC logo
-- Copy `user-uploads://logo_w_i-3.png` to `src/assets/logo-wispro-ixc.png` to use the updated logo the user provided.
+## 4. Página Principal (`src/pages/Index.tsx`)
 
-### Files to modify:
-- `src/pages/Perfil.tsx` — Remove phone field, fix menu position
-- `src/pages/Index.tsx` — Hard-code phone, add particle effect to header
-- `src/pages/Cotizacion.tsx` — Update footer text, enlarge top logo
-- `src/components/QuoteShare.tsx` — Fix registro link to use edge function
-- `src/assets/logo-wispro-ixc.png` — Replace with uploaded logo
-- Database migration to delete "Larissa Elizabeth" user
+- Banner header: gradiente animado en lugar de color sólido
+- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
+- Selector de clientes: glow sutil en el borde
+- Card de resumen: fondo con gradiente más sofisticado
+- Total: tamaño aumentado, glow detrás del número
+- Secciones con `animate-fade-slide-up` escalonado
+- Botones con gradiente y press animation
+
+## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
+
+- Card principal con sombra premium
+- Botones con transiciones suaves
+- Tipografía del total más impactante
+
+## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
+
+- Cards con hover elevation
+- Transiciones suaves en hover
+
+## 7. Página Perfil (`src/pages/Perfil.tsx`)
+
+- Card con sombra premium
+- Inputs con glow en focus
+- Foto de perfil con borde con glow
+
+## 8. AppMenu (`src/components/AppMenu.tsx`)
+
+- Dropdown con sombra premium y bordes más suaves
+
+## Archivos a modificar
+
+| Archivo | Cambio |
+|---|---|
+| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
+| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
+| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
+| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
+| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
+| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
+| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
+
+## Principios
+
+- Todo sutil y refinado, nada exagerado
+- Transiciones 250-400ms con ease-out
+- Sombras de baja opacidad para profundidad realista
+- Gradientes casi imperceptibles para dar vida sin distraer
 
