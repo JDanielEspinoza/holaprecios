@@ -335,9 +335,8 @@ const Index = () => {
                       🎉 Paquete integrado: <span className="font-bold">{packageDiscountPct}% de descuento</span>
                     </p>
                     <p className="text-xs text-emerald-600">
-                      {selectedProductCount === 1 && "Sumá otro producto para alcanzar el 10% de descuento"}
-                      {selectedProductCount === 2 && "¡Sumá el tercer producto y alcanzá el 30% de descuento!"}
-                      {selectedProductCount === 3 && "¡Máximo descuento aplicado sobre el total mensual!"}
+                      {packageDiscountPct < 30 && "¡Sumá más productos para aumentar tu descuento!"}
+                      {packageDiscountPct === 30 && "¡Máximo descuento aplicado sobre el total mensual!"}
                     </p>
                   </div>
                   <span className="text-2xl font-bold text-emerald-600">{packageDiscountPct}%</span>
