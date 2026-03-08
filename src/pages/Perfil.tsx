@@ -55,7 +55,7 @@ const Perfil = () => {
   return (
     <div className="min-h-screen bg-premium-gradient p-4">
       <div className="mx-auto max-w-lg space-y-6">
-        <div className="flex items-center animate-fade-slide-up">
+        <div className="fixed top-4 left-4 z-50">
           <AppMenu />
         </div>
 
