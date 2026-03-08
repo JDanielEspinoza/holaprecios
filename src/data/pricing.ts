@@ -71,17 +71,25 @@ export const addons: Addon[] = [
 export type HolaCloudPlan = {
   name: string;
   price: number;
+  maxClients: number;
 };
 
 export const holaCloudPlans: HolaCloudPlan[] = [
-  { name: "Hola Cloud 2.000", price: 20 },
-  { name: "Hola Cloud 5.000", price: 45 },
-  { name: "Hola Cloud 10.000", price: 90 },
-  { name: "Hola Cloud 20.000", price: 115 },
-  { name: "Hola Cloud 40.000", price: 230 },
-  { name: "Hola Cloud 60.000", price: 355 },
-  { name: "Hola Cloud 100.000", price: 460 },
+  { name: "Hola Cloud 2.000", price: 20, maxClients: 2000 },
+  { name: "Hola Cloud 5.000", price: 45, maxClients: 5000 },
+  { name: "Hola Cloud 10.000", price: 90, maxClients: 10000 },
+  { name: "Hola Cloud 20.000", price: 115, maxClients: 20000 },
+  { name: "Hola Cloud 40.000", price: 230, maxClients: 40000 },
+  { name: "Hola Cloud 60.000", price: 355, maxClients: 60000 },
+  { name: "Hola Cloud 100.000", price: 460, maxClients: 100000 },
 ];
+
+export function getMinCloudPlanIndex(clientCount: number): number {
+  for (let i = 0; i < holaCloudPlans.length; i++) {
+    if (clientCount <= holaCloudPlans[i].maxClients) return i;
+  }
+  return holaCloudPlans.length - 1;
+}
 
 export function findTier(clientCount: number): PricingTier | null {
   // Find the tier that matches or the next one up
