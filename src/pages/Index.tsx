@@ -260,7 +260,7 @@ const Index = () => {
             )}
 
             {/* Share component */}
-            <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} agentName={profile?.nombre} />
+            <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} clientName={clientName} agentName={profile?.nombre} />
 
             {/* Back button */}
             <Button
