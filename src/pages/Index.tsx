@@ -124,13 +124,13 @@ const Index = () => {
   };
 
   const buildItems = () => {
-    const items: { label: string; value: number; section: string; discount_pct?: number }[] = [];
+    const items: { label: string; value: number; section: string }[] = [];
     if (tier && selectedProducts.wispro)
-      items.push({ label: "Wispro", value: tier.wispro, section: "eco", discount_pct: PRODUCT_DISCOUNTS.wispro });
+      items.push({ label: "Wispro", value: tier.wispro, section: "eco" });
     if (tier && selectedProducts.acs)
-      items.push({ label: "ACS", value: tier.acs, section: "eco", discount_pct: PRODUCT_DISCOUNTS.acs });
+      items.push({ label: "ACS", value: tier.acs, section: "eco" });
     if (tier && selectedProducts.holaBasic)
-      items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco", discount_pct: PRODUCT_DISCOUNTS.holaBasic });
+      items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
     addons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
