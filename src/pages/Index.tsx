@@ -153,7 +153,7 @@ const Index = () => {
         client_email: clientEmail,
         clients_count: clientCount || 0,
         items: items as any,
-        discount: blendedDiscount,
+        discount: packageDiscountPct,
         total: grandTotal,
         discounted_total: discountedTotal,
         discount_amount: discountAmount,
