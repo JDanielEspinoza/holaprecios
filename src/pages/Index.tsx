@@ -227,7 +227,7 @@ const Index = () => {
             <div className="text-center space-y-2">
               <CheckCircle className="h-14 w-14 text-emerald-500 mx-auto" />
               <h2 className="text-2xl font-bold text-gray-700">¡Cotización generada!</h2>
-              <p className="text-gray-500 text-sm">Compartila con tu cliente por WhatsApp o escaneando el QR</p>
+              <p className="text-gray-500 text-sm">Comparte con tu cliente por WhatsApp o escaneando el QR</p>
             </div>
 
             {/* Client data summary */}
