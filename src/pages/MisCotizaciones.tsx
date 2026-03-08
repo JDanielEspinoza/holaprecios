@@ -59,6 +59,7 @@ const MisCotizaciones = () => {
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [sentToPipedrive, setSentToPipedrive] = useState<Set<string>>(new Set());
 
   const fetchQuotes = async () => {
     if (!user) return;
@@ -336,7 +337,7 @@ const MisCotizaciones = () => {
                               onClick={() => setConfirmingPipedrive(q)}
                               title="Enviar trato a Pipedrive"
                             >
-                              <img src={pipedriveIcon} alt="Pipedrive" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                              <img src={pipedriveIcon} alt="Pipedrive" className={`h-6 w-6 rounded-full transition-all ${sentToPipedrive.has(q.id) ? '' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`} />
                             </Button>
                             <Button
                               variant="ghost"
@@ -456,6 +457,7 @@ const MisCotizaciones = () => {
                       link_presupuesto: quoteUrl,
                     }),
                   });
+                  setSentToPipedrive(prev => new Set(prev).add(q.id));
                   toast({ title: "Enviado a Pipedrive", description: `Trato #${q.quote_number} enviado correctamente.` });
                 } catch (err: any) {
                   toast({ title: "Error al enviar a Pipedrive", description: err.message, variant: "destructive" });
