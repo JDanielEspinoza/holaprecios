@@ -58,6 +58,7 @@ const App = () => (
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
             <Route path="/cotizaciones-andina" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
+            <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
