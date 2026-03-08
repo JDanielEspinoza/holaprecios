@@ -72,8 +72,11 @@ const Index = () => {
     [clientCount]
   );
 
-  // Installation: flat $200 → $50 (75% feria discount)
-  const installationCost = 50;
+  // Implementation: $200 per app → $50 per app (75% feria discount)
+  const selectedProductCount = [selectedProducts.wispro, selectedProducts.acs, selectedProducts.holaBasic].filter(Boolean).length;
+  const implementationOriginal = selectedProductCount * 200;
+  const implementationCost = selectedProductCount * 50;
+  const installationCost = implementationCost;
 
   const ecosystemTotal = useMemo(() => {
     if (!tier) return 0;
