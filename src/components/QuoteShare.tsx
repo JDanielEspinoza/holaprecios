@@ -194,23 +194,24 @@ export function QuoteShare({ quoteUrl, clientPhone, agentName }: QuoteShareProps
           </div>
         )}
 
-        {/* QR */}
+        {/* Download + QR */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <QrCode className="h-4 w-4" />
-            Código QR
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Escaneá el QR para ver la cotización en el celular y descargarla como PDF.
-          </p>
+          <Button
+            variant="outline"
+            onClick={() => window.open(quoteUrl, "_blank")}
+            className="w-full gap-2"
+            size="lg"
+          >
+            <Download className="h-5 w-5" />
+            Descargar Cotización
+          </Button>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
-              <QRCodeSVG id="quote-qr" value={quoteUrl} size={120} level="L" />
+              <QRCodeSVG id="quote-qr" value={quoteUrl} size={100} level="L" />
             </div>
-            <Button variant="outline" onClick={downloadQR} className="gap-2">
-              <Download className="h-4 w-4" />
-              Descargar QR
-            </Button>
+            <p className="text-xs text-muted-foreground">
+              Escaneá el QR para ver la cotización en el celular.
+            </p>
           </div>
         </div>
       </CardContent>
