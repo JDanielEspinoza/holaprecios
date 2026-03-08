@@ -14,6 +14,7 @@ import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   MessageSquare, CheckCircle2, CircleDot,
 } from "lucide-react";
+import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
