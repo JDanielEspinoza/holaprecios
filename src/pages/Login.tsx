@@ -110,100 +110,95 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Background image (hidden on mobile) */}
-      <div 
-        className="hidden lg:flex lg:w-3/5 xl:w-2/3 bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: `url(${fondoLogin})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/20" />
+    <div 
+      className="min-h-screen flex items-center justify-center lg:justify-end bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: `url(${fondoLogin})` }}
+    >
+      {/* Overlay for better contrast */}
+      <div className="absolute inset-0 bg-black/20" />
+
+      {/* Top bar with language and theme - fixed position */}
+      <div className="absolute top-0 right-0 flex items-center gap-3 p-4 z-20">
+        <div className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+            <SelectTrigger className="w-[120px] h-8 border-0 bg-transparent">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="es">
+                <span className="flex items-center gap-2">🇪🇸 Español</span>
+              </SelectItem>
+              <SelectItem value="pt">
+                <span className="flex items-center gap-2">🇧🇷 Português</span>
+              </SelectItem>
+              <SelectItem value="en">
+                <span className="flex items-center gap-2">🇺🇸 English</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setDarkMode(!darkMode)}
+          className="h-9 w-9 bg-background/90 backdrop-blur-sm hover:bg-background"
+          title={darkMode ? "Modo claro" : "Modo oscuro"}
+        >
+          {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
       </div>
 
-      {/* Right side - Login form */}
-      <div className="w-full lg:w-2/5 xl:w-1/3 flex flex-col min-h-screen bg-background">
-        {/* Top bar with language and theme */}
-        <div className="flex items-center justify-end gap-3 p-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-muted-foreground" />
-            <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-              <SelectTrigger className="w-[130px] h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="es">
-                  <span className="flex items-center gap-2">🇪🇸 Español</span>
-                </SelectItem>
-                <SelectItem value="pt">
-                  <span className="flex items-center gap-2">🇧🇷 Português</span>
-                </SelectItem>
-                <SelectItem value="en">
-                  <span className="flex items-center gap-2">🇺🇸 English</span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setDarkMode(!darkMode)}
-            className="h-9 w-9"
-            title={darkMode ? "Modo claro" : "Modo oscuro"}
-          >
-            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-        </div>
-
-        {/* Login form centered */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
-          <Card className="w-full max-w-sm card-premium animate-fade-slide-up border-0 shadow-premium">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <img src={logoHola} alt="Hola Suite" className="h-16 rounded-xl" />
+      {/* Login card - floating */}
+      <div className="relative z-10 w-full max-w-sm mx-4 lg:mr-16 xl:mr-24">
+        <Card className="bg-background/95 backdrop-blur-md rounded-2xl border-0 shadow-2xl animate-fade-slide-up">
+          <CardHeader className="text-center pb-2">
+            <div className="flex justify-center mb-3">
+              <img src={logoHola} alt="Hola Suite" className="h-14 rounded-xl" />
+            </div>
+            <CardTitle className="text-xl font-semibold">
+              {isRegister ? t.registerTitle : t.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-sm">{t.email}</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  className="h-11 rounded-lg border-border/50 bg-background" 
+                />
               </div>
-              <CardTitle className="text-xl">
-                {isRegister ? t.registerTitle : t.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t.email}</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required 
-                    className="input-premium h-11" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t.password}</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
-                    minLength={6} 
-                    className="input-premium h-11" 
-                  />
-                </div>
-                <Button type="submit" className="w-full btn-premium h-11" disabled={loading}>
-                  {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  {isRegister ? t.register : t.login}
-                </Button>
-              </form>
-              <Button 
-                variant="link" 
-                className="w-full mt-2" 
-                onClick={() => setIsRegister(!isRegister)}
-              >
-                {isRegister ? t.hasAccount : t.createAccount}
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="text-sm">{t.password}</Label>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
+                  minLength={6} 
+                  className="h-11 rounded-lg border-border/50 bg-background" 
+                />
+              </div>
+              <Button type="submit" className="w-full h-11 rounded-lg btn-premium" disabled={loading}>
+                {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {isRegister ? t.register : t.login}
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </form>
+            <Button 
+              variant="link" 
+              className="w-full mt-1 text-sm" 
+              onClick={() => setIsRegister(!isRegister)}
+            >
+              {isRegister ? t.hasAccount : t.createAccount}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
