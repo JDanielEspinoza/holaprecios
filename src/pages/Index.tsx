@@ -249,9 +249,12 @@ const Index = () => {
           {/* Personalización Hola */}
           <Card className="card-premium">
             <CardHeader>
-              <CardTitle className="text-lg">Personaliza tu ¡Hola! Suite</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings2 className="h-5 w-5" />
+                Personaliza tu ¡Hola! Suite
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
-                HOLA BASIC: 1 Whatsapp oficial + hospedaje en META + 3 accesos en la plataforma
+                Hola! Suite Basic: 1 WhatsApp Oficial + Hospedaje en Meta + 3 accesos
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
