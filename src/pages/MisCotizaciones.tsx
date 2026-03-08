@@ -321,9 +321,9 @@ const MisCotizaciones = () => {
                             disabled={q.entry_payment_paid}
                           >
                             {q.entry_payment_paid ? (
-                              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                              <CheckCircle2 className="h-7 w-7 text-emerald-600" />
                             ) : (
-                              <CircleDot className="h-6 w-6 text-muted-foreground" />
+                              <CircleDot className="h-7 w-7 text-muted-foreground" />
                             )}
                           </Button>
                         </TableCell>
