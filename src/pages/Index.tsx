@@ -462,12 +462,6 @@ const Index = () => {
                   {clientCount ? `Para ${fmtClients(clientCount)} clientes` : "Seleccioná la cantidad de clientes"}
                 </p>
               </div>
-              {clientCount && (
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-primary">{fmt(discountedTotal)}</p>
-                  <p className="text-xs text-muted-foreground">/ mes</p>
-                </div>
-              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
