@@ -189,7 +189,7 @@ const Login = () => {
     }
   };
 
-  const slide = slides[currentSlide];
+  
 
   const renderCardTitle = () => {
     if (isForgot) return t.forgotTitle;
