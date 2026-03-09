@@ -364,28 +364,28 @@ const Index = () => {
                     <span className="font-semibold text-foreground w-20 text-right">{fmt(tier?.holaBasic ?? 0)}</span>
                   </div>
 
-                  {addons.map((addon) => {
-                    const qty = addonQty[addon.name] || 0;
-                    const subtotal = qty * addon.unitPrice;
-                    return (
-                      <div key={addon.name} className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-2 gap-1 sm:gap-0">
-                        <span className="text-foreground font-medium sm:font-normal">{addon.name}</span>
-                        <div className="flex items-center gap-3 justify-between sm:justify-end">
+                  <div className="grid grid-cols-[1fr_auto_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 gap-y-2 text-sm">
+                    {addons.map((addon) => {
+                      const qty = addonQty[addon.name] || 0;
+                      const subtotal = qty * addon.unitPrice;
+                      return (
+                        <React.Fragment key={addon.name}>
+                          <span className="text-foreground font-medium sm:font-normal py-1">{addon.name}</span>
                           <div className="flex items-center gap-1">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: Math.max(0, (p[addon.name] || 0) - 1) }))}>
                               <Minus className="h-3 w-3" />
                             </Button>
-                            <span className="w-8 text-center font-mono">{qty}</span>
+                            <span className="w-6 text-center font-mono">{qty}</span>
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: (p[addon.name] || 0) + 1 }))}>
                               <Plus className="h-3 w-3" />
                             </Button>
                           </div>
-                          <span className="text-muted-foreground w-14 text-right hidden sm:inline">{fmt(addon.unitPrice)}</span>
-                          <span className="font-semibold w-20 text-right text-foreground">{fmt(subtotal)}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                          <span className="text-muted-foreground text-right">{fmt(addon.unitPrice)}</span>
+                          <span className="font-semibold text-right text-foreground w-16">{fmt(subtotal)}</span>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
 
                   <div className="border-t border-border pt-3 flex justify-between items-center">
                     <span className="font-semibold text-foreground">Subtotal Hola</span>
