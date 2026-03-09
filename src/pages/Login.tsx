@@ -16,6 +16,7 @@ import { Loader2, Sun, Moon, Globe } from "lucide-react";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import fondoLogin from "@/assets/fondo-login.jpg";
 import loginWoman from "@/assets/login-woman.png";
+import FloatingLogos from "@/components/FloatingLogos";
 
 type Language = "es" | "pt" | "en";
 
@@ -244,12 +245,13 @@ const Login = () => {
         ))}
       </div>
 
-      {/* Left side - Image */}
+      {/* Left side - Image with floating logos */}
       <div className="hidden lg:flex lg:flex-1 items-end justify-center relative z-10">
+        <FloatingLogos />
         <img 
           src={loginWoman} 
           alt="Mujer usando celular" 
-          className="max-h-[85vh] w-auto object-contain drop-shadow-2xl"
+          className="max-h-[85vh] w-auto object-contain drop-shadow-2xl relative z-10"
         />
       </div>
 
