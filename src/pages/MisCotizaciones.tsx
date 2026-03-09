@@ -30,6 +30,7 @@ import AppBanner from "@/components/AppBanner";
 import { useToast } from "@/hooks/use-toast";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
+const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
 
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
