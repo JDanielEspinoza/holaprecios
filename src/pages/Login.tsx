@@ -14,10 +14,8 @@ import {
 import { toast } from "sonner";
 import { Loader2, Sun, Moon, Globe } from "lucide-react";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
-import logoWispro from "@/assets/logo-wispro.png";
-import logoAcs from "@/assets/logo-acs.png";
-import logoHola from "@/assets/logo-hola.png";
 import fondoLogin from "@/assets/fondo-login.jpg";
+import loginWoman from "@/assets/login-woman.png";
 
 type Language = "es" | "pt" | "en";
 
@@ -103,30 +101,6 @@ const translations: Record<Language, {
   },
 };
 
-const slides = [
-  {
-    logo: logoWispro,
-    name: "Wispro",
-    headline: "Gestión integral para ISPs",
-    description: "Facturación, CRM, soporte técnico y control de red en una sola plataforma.",
-    color: "from-cyan-500/20 to-teal-500/20",
-  },
-  {
-    logo: logoHola,
-    name: "Hola! Suite",
-    headline: "Atención omnichannel inteligente",
-    description: "WhatsApp oficial, chatbots con IA y múltiples canales unificados para tu equipo.",
-    color: "from-purple-500/20 to-indigo-500/20",
-    rounded: true,
-  },
-  {
-    logo: logoAcs,
-    name: "ACS",
-    headline: "Automatización y control de servicios",
-    description: "Activa, suspende y gestiona servicios de forma automática desde cualquier lugar.",
-    color: "from-blue-500/20 to-sky-500/20",
-  },
-];
 
 const particles = Array.from({ length: 20 }, (_, i) => ({
   size: 3 + (i * 7 % 5),
@@ -146,7 +120,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState<Language>("es");
   const [darkMode, setDarkMode] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  
 
   const t = translations[language];
 
@@ -167,12 +141,6 @@ const Login = () => {
     }
   }, [darkMode]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,7 +189,7 @@ const Login = () => {
     }
   };
 
-  const slide = slides[currentSlide];
+  
 
   const renderCardTitle = () => {
     if (isForgot) return t.forgotTitle;
@@ -255,12 +223,6 @@ const Login = () => {
           0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
           50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
         }
-        @keyframes slideContent {
-          0% { opacity: 0; transform: translateY(20px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-20px); }
-        }
       `}</style>
 
       <div className="absolute inset-0 bg-black/15" />
@@ -282,41 +244,13 @@ const Login = () => {
         ))}
       </div>
 
-      {/* Left side - Carousel */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center relative z-10 p-12 xl:p-20">
-        <div className="max-w-lg w-full">
-          <div 
-            key={currentSlide}
-            className="text-center"
-            style={{ animation: "slideContent 5s ease-in-out" }}
-          >
-            <div className={`bg-gradient-to-br ${slide.color} backdrop-blur-md border border-white/20 rounded-2xl p-10 mb-8 shadow-2xl`}>
-              <div className="flex justify-center mb-6">
-                <img 
-                  src={slide.logo} 
-                  alt={slide.name} 
-                  className={`h-20 w-auto object-contain ${slide.rounded ? "rounded-2xl" : ""}`}
-                />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-3">{slide.headline}</h2>
-              <p className="text-white/80 text-base leading-relaxed">{slide.description}</p>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-2.5">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  idx === currentSlide 
-                    ? "w-8 bg-white" 
-                    : "w-2 bg-white/40 hover:bg-white/60"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+      {/* Left side - Image */}
+      <div className="hidden lg:flex lg:flex-1 items-end justify-center relative z-10">
+        <img 
+          src={loginWoman} 
+          alt="Mujer usando celular" 
+          className="max-h-[85vh] w-auto object-contain drop-shadow-2xl"
+        />
       </div>
 
       {/* Right side - Login */}
