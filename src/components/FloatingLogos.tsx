@@ -1,4 +1,4 @@
-import logoIxc from "@/assets/logo-ixc-text.png";
+import logoIxc from "@/assets/logo-ixc-sphere.png";
 import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
 import logoWispro from "@/assets/logo-wispro-circle.png";
