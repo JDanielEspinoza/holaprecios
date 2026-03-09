@@ -74,7 +74,7 @@ const FloatingLogos = () => {
                   height: `${logo.imgScale * 100}%`,
                   maxWidth: "none",
                   maxHeight: "none",
-                  transform: "translate(-50%, -50%)",
+                  transform: `translate(calc(-50% + ${logo.offsetX}), calc(-50% + ${logo.offsetY}))`,
                   objectFit: "contain",
                 }}
               />
