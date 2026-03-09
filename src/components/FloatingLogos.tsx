@@ -54,7 +54,7 @@ const FloatingLogos = () => {
             <div
               className="w-full h-full rounded-full overflow-hidden relative"
               style={{
-                background: "#ffffff",
+                background: logo.bg || "#ffffff",
                 boxShadow: `
                   0 6px 20px hsl(0 0% 0% / 0.3),
                   0 0 20px 4px hsl(var(--primary) / 0.12),
