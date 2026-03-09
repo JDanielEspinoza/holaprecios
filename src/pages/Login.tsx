@@ -162,9 +162,9 @@ const Login = () => {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success(t.successRegister);
-        setIsRegister(false);
-        setPassword("");
+        // Auto-confirm is enabled, so sign in immediately after signup
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        if (loginError) throw loginError;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
