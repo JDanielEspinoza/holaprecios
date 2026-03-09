@@ -5,11 +5,11 @@ import logoWispro from "@/assets/logo-wispro-square.png";
 import logoHola from "@/assets/logo-hola-2.jpeg";
 
 const logos = [
-  { src: logoWispro, alt: "Wispro", size: 70, top: "12%", left: "30%", delay: 0, duration: 6, bg: "#fff" },
-  { src: logoIxcAcs, alt: "IXC ACS", size: 62, top: "8%", left: "58%", delay: 1.2, duration: 7, bg: "#fff" },
-  { src: logoHola, alt: "Hola Suite", size: 66, top: "38%", left: "18%", delay: 0.5, duration: 5.5, bg: "#fff" },
-  { src: logoOpasuite, alt: "Opa Suite", size: 60, top: "50%", left: "68%", delay: 2, duration: 6.5, bg: "#fff" },
-  { src: logoOlli, alt: "Olli", size: 58, top: "68%", left: "25%", delay: 1.5, duration: 7.5, bg: "#fff" },
+  { src: logoWispro, alt: "Wispro", size: 70, top: "12%", left: "30%", delay: 0, duration: 6, imgScale: "55%" },
+  { src: logoIxcAcs, alt: "IXC ACS", size: 62, top: "8%", left: "58%", delay: 1.2, duration: 7, imgScale: "50%" },
+  { src: logoHola, alt: "Hola Suite", size: 66, top: "38%", left: "18%", delay: 0.5, duration: 5.5, imgScale: "55%" },
+  { src: logoOpasuite, alt: "Opa Suite", size: 60, top: "50%", left: "68%", delay: 2, duration: 6.5, imgScale: "55%" },
+  { src: logoOlli, alt: "Olli", size: 58, top: "68%", left: "25%", delay: 1.5, duration: 7.5, imgScale: "70%" },
 ];
 
 const FloatingLogos = () => {
@@ -52,17 +52,18 @@ const FloatingLogos = () => {
             }}
           >
             <div
-              className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
+              className="w-full h-full rounded-full flex items-center justify-center"
               style={{
-                background: logo.bg,
-                boxShadow: "0 0 20px 4px hsl(var(--primary) / 0.12), 0 4px 12px hsl(0 0% 0% / 0.25)",
-                border: "2px solid hsl(0 0% 100% / 0.3)",
+                background: "radial-gradient(circle, #ffffff 60%, #f0f4f8 100%)",
+                boxShadow: "0 0 20px 4px hsl(var(--primary) / 0.12), 0 4px 12px hsl(0 0% 0% / 0.25), inset 0 -4px 8px hsl(0 0% 0% / 0.06)",
+                border: "2px solid hsl(0 0% 100% / 0.4)",
               }}
             >
               <img
                 src={logo.src}
                 alt={logo.alt}
-                className="w-[70%] h-[70%] object-contain"
+                style={{ width: logo.imgScale, height: logo.imgScale }}
+                className="object-contain rounded-none"
               />
             </div>
           </div>
