@@ -14,10 +14,8 @@ import {
 import { toast } from "sonner";
 import { Loader2, Sun, Moon, Globe } from "lucide-react";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
-import logoWispro from "@/assets/logo-wispro.png";
-import logoAcs from "@/assets/logo-acs.png";
-import logoHola from "@/assets/logo-hola.png";
 import fondoLogin from "@/assets/fondo-login.jpg";
+import loginWoman from "@/assets/login-woman.png";
 
 type Language = "es" | "pt" | "en";
 
