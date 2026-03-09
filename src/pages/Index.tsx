@@ -430,9 +430,11 @@ const Index = () => {
                                 {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                               </div>
                               <span className="font-medium text-foreground">{plan.name}</span>
-                              {idx === minIdx && <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-medium">Recomendado</span>}
                             </div>
-                            <span className="font-bold text-foreground">{fmt(plan.price)}</span>
+                            <div className="flex items-center gap-2">
+                              {idx === minIdx && <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">Recomendado</span>}
+                              <span className="font-bold text-foreground">{fmt(plan.price)}</span>
+                            </div>
                           </button>
                         );
                       });
