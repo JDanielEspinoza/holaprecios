@@ -7,7 +7,7 @@ import logoHola from "@/assets/logo-hola-clean.png";
 const logos = [
   { src: logoWispro, alt: "Wispro", size: 70, top: "12%", left: "30%", delay: 0, duration: 6, imgScale: "55%" },
   { src: logoIxcAcs, alt: "IXC ACS", size: 62, top: "8%", left: "58%", delay: 1.2, duration: 7, imgScale: "50%" },
-  { src: logoHola, alt: "Hola Suite", size: 66, top: "38%", left: "18%", delay: 0.5, duration: 5.5, imgScale: "55%" },
+  { src: logoHola, alt: "Hola Suite", size: 66, top: "38%", left: "18%", delay: 0.5, duration: 5.5, imgScale: "75%" },
   { src: logoOpasuite, alt: "Opa Suite", size: 60, top: "50%", left: "68%", delay: 2, duration: 6.5, imgScale: "55%" },
   { src: logoOlli, alt: "Olli", size: 58, top: "68%", left: "25%", delay: 1.5, duration: 7.5, imgScale: "70%" },
 ];
