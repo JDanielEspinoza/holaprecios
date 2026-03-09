@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     const n8nPayload = {
       phone: cleanPhone,
-      userName,
+      firstName: userName,
       agentName,
     };
 
