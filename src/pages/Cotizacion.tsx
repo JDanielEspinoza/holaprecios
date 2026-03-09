@@ -259,7 +259,7 @@ const Cotizacion = () => {
 
             <div className="border-t border-gray-200 pt-4">
               <p className="text-xs text-center text-gray-500 italic">
-                * Cotización válida solo durante el mes de Marzo.
+                * Cotización válida hasta el jueves 12 de marzo a las 18:00 h.
               </p>
             </div>
           </CardContent>
