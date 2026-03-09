@@ -5,11 +5,11 @@ import logoWispro from "@/assets/logo-wispro-clean.png";
 import logoHola from "@/assets/logo-hola-clean.png";
 
 const logos = [
-  { src: logoWispro, alt: "Wispro", size: 80, top: "12%", left: "30%", delay: 0, duration: 6, imgScale: "80%" },
-  { src: logoIxcAcs, alt: "IXC ACS", size: 72, top: "8%", left: "58%", delay: 1.2, duration: 7, imgScale: "75%" },
-  { src: logoHola, alt: "Hola Suite", size: 76, top: "38%", left: "18%", delay: 0.5, duration: 5.5, imgScale: "85%" },
-  { src: logoOpasuite, alt: "Opa Suite", size: 72, top: "50%", left: "68%", delay: 2, duration: 6.5, imgScale: "80%" },
-  { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 7.5, imgScale: "75%" },
+  { src: logoWispro, alt: "Wispro", size: 80, top: "12%", left: "30%", delay: 0, duration: 6 },
+  { src: logoIxcAcs, alt: "IXC ACS", size: 72, top: "8%", left: "58%", delay: 1.2, duration: 7 },
+  { src: logoHola, alt: "Hola Suite", size: 76, top: "38%", left: "18%", delay: 0.5, duration: 5.5 },
+  { src: logoOpasuite, alt: "Opa Suite", size: 72, top: "50%", left: "68%", delay: 2, duration: 6.5 },
+  { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 7.5 },
 ];
 
 const FloatingLogos = () => {
@@ -51,36 +51,34 @@ const FloatingLogos = () => {
               animationDelay: `${logo.delay}s`,
             }}
           >
+            {/* White circle base with 3D shadow */}
             <div
-              className="w-full h-full rounded-full flex items-center justify-center relative overflow-hidden"
+              className="w-full h-full rounded-full overflow-hidden relative"
               style={{
-                background: "radial-gradient(circle at 35% 30%, #ffffff 0%, #f0f4f8 50%, #d8dfe6 85%, #bcc5cf 100%)",
+                background: "#ffffff",
                 boxShadow: `
+                  0 6px 20px hsl(0 0% 0% / 0.3),
                   0 0 20px 4px hsl(var(--primary) / 0.12),
-                  0 6px 16px hsl(0 0% 0% / 0.3),
-                  inset -8px -8px 16px hsl(0 0% 0% / 0.12),
-                  inset 6px 6px 12px hsl(0 0% 100% / 0.7)
+                  inset -6px -6px 14px hsl(0 0% 0% / 0.1),
+                  inset 4px 4px 10px hsl(0 0% 100% / 0.8)
                 `,
-                border: "1px solid hsl(0 0% 100% / 0.5)",
               }}
             >
-              {/* 3D highlight shine */}
-              <div
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  width: "40%",
-                  height: "40%",
-                  top: "10%",
-                  left: "15%",
-                  background: "radial-gradient(circle, hsl(0 0% 100% / 0.6) 0%, transparent 70%)",
-                  filter: "blur(4px)",
-                }}
-              />
+              {/* Logo image fills the circle */}
               <img
                 src={logo.src}
                 alt={logo.alt}
-                style={{ width: logo.imgScale, height: logo.imgScale }}
-                className="object-contain rounded-none relative z-10"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* 3D shine overlay on top */}
+              <div
+                className="absolute inset-0 rounded-full pointer-events-none"
+                style={{
+                  background: `
+                    radial-gradient(circle at 35% 25%, hsl(0 0% 100% / 0.5) 0%, transparent 45%),
+                    radial-gradient(circle at 70% 80%, hsl(0 0% 0% / 0.08) 0%, transparent 40%)
+                  `,
+                }}
               />
             </div>
           </div>
