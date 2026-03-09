@@ -223,12 +223,6 @@ const Login = () => {
           0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
           50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
         }
-        @keyframes slideContent {
-          0% { opacity: 0; transform: translateY(20px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-20px); }
-        }
       `}</style>
 
       <div className="absolute inset-0 bg-black/15" />
