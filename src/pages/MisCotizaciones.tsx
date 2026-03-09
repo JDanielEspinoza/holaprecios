@@ -305,7 +305,7 @@ const MisCotizaciones = () => {
       setQuotes((prev) =>
         prev.map((x) => (x.id === q.id ? { ...x, entry_payment_paid: true } : x))
       );
-      toast({ title: "Pago confirmado", description: "Información enviada a Pipedrive y n8n." });
+      toast({ title: "Pago confirmado", description: "Confirmación de pago procesada exitosamente." });
     } catch (err: any) {
       toast({ title: "Error al confirmar pago", description: err.message, variant: "destructive" });
     } finally {
