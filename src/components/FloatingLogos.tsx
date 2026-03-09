@@ -1,14 +1,14 @@
-import logoIxcAcs from "@/assets/logo-ixc-acs-clean.png";
+import logoIxc from "@/assets/logo-ixc-circle.png";
 import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
-import logoWispro from "@/assets/logo-wispro-clean.png";
-import logoHola from "@/assets/logo-hola-clean.png";
+import logoWispro from "@/assets/logo-wispro-circle.png";
+import logoHola from "@/assets/logo-hola-circle.png";
 
 const logos = [
-  { src: logoWispro, alt: "Wispro", size: 80, top: "12%", left: "30%", delay: 0, duration: 6 },
-  { src: logoIxcAcs, alt: "IXC ACS", size: 72, top: "8%", left: "58%", delay: 1.2, duration: 7 },
-  { src: logoHola, alt: "Hola Suite", size: 76, top: "38%", left: "18%", delay: 0.5, duration: 5.5 },
-  { src: logoOpasuite, alt: "Opa Suite", size: 72, top: "50%", left: "68%", delay: 2, duration: 6.5 },
+  { src: logoWispro, alt: "Wispro", size: 76, top: "12%", left: "30%", delay: 0, duration: 6 },
+  { src: logoIxc, alt: "IXC", size: 70, top: "8%", left: "58%", delay: 1.2, duration: 7 },
+  { src: logoHola, alt: "Hola Suite", size: 74, top: "38%", left: "18%", delay: 0.5, duration: 5.5 },
+  { src: logoOpasuite, alt: "Opa Suite", size: 70, top: "50%", left: "68%", delay: 2, duration: 6.5 },
   { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 7.5 },
 ];
 
@@ -51,7 +51,6 @@ const FloatingLogos = () => {
               animationDelay: `${logo.delay}s`,
             }}
           >
-            {/* White circle base with 3D shadow */}
             <div
               className="w-full h-full rounded-full overflow-hidden relative"
               style={{
@@ -64,19 +63,18 @@ const FloatingLogos = () => {
                 `,
               }}
             >
-              {/* Logo image fills the circle */}
               <img
                 src={logo.src}
                 alt={logo.alt}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-[10%] w-[80%] h-[80%] object-contain"
               />
-              {/* 3D shine overlay on top */}
+              {/* 3D shine overlay */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
                   background: `
-                    radial-gradient(circle at 35% 25%, hsl(0 0% 100% / 0.5) 0%, transparent 45%),
-                    radial-gradient(circle at 70% 80%, hsl(0 0% 0% / 0.08) 0%, transparent 40%)
+                    radial-gradient(circle at 35% 25%, hsl(0 0% 100% / 0.45) 0%, transparent 45%),
+                    radial-gradient(circle at 70% 80%, hsl(0 0% 0% / 0.06) 0%, transparent 40%)
                   `,
                 }}
               />
