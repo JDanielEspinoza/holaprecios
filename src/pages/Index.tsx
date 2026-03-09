@@ -350,7 +350,7 @@ const Index = () => {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between text-sm font-medium text-muted-foreground border-b border-border pb-2">
+                  <div className="hidden md:flex justify-between text-sm font-medium text-muted-foreground border-b border-border pb-2">
                     <span>Servicio</span>
                     <div className="flex gap-8">
                       <span>Cant.</span>
