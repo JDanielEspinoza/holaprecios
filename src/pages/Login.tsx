@@ -120,7 +120,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState<Language>("es");
   const [darkMode, setDarkMode] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  
 
   const t = translations[language];
 
