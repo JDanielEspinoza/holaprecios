@@ -1,4 +1,4 @@
-import logoIxc from "@/assets/logo-ixc-circle.png";
+import logoIxc from "@/assets/logo-ixc-text.png";
 import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
 import logoWispro from "@/assets/logo-wispro-circle.png";
@@ -6,7 +6,7 @@ import logoHola from "@/assets/logo-hola-circle.png";
 
 const logos = [
   { src: logoWispro, alt: "Wispro", size: 82, top: "12%", left: "30%", delay: 0, duration: 12, imgScale: 1.6, offsetX: "-3%", offsetY: "5%" },
-  { src: logoIxc, alt: "IXC", size: 76, top: "8%", left: "58%", delay: 1.2, duration: 14, imgScale: 1.5, offsetX: "0%", offsetY: "0%" },
+  { src: logoIxc, alt: "IXC", size: 76, top: "8%", left: "58%", delay: 1.2, duration: 14, imgScale: 1.0, offsetX: "0%", offsetY: "0%", bg: "#1a4a5e" },
   { src: logoHola, alt: "Hola Suite", size: 80, top: "38%", left: "18%", delay: 0.5, duration: 11, imgScale: 1.6, offsetX: "0%", offsetY: "0%" },
   { src: logoOpasuite, alt: "Opa Suite", size: 70, top: "50%", left: "68%", delay: 2, duration: 13, imgScale: 0.8, offsetX: "0%", offsetY: "0%" },
   { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 15, imgScale: 0.8, offsetX: "0%", offsetY: "0%" },
@@ -54,7 +54,7 @@ const FloatingLogos = () => {
             <div
               className="w-full h-full rounded-full overflow-hidden relative"
               style={{
-                background: "#ffffff",
+                background: logo.bg || "#ffffff",
                 boxShadow: `
                   0 6px 20px hsl(0 0% 0% / 0.3),
                   0 0 20px 4px hsl(var(--primary) / 0.12),
