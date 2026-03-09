@@ -250,41 +250,13 @@ const Login = () => {
         ))}
       </div>
 
-      {/* Left side - Carousel */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center relative z-10 p-12 xl:p-20">
-        <div className="max-w-lg w-full">
-          <div 
-            key={currentSlide}
-            className="text-center"
-            style={{ animation: "slideContent 5s ease-in-out" }}
-          >
-            <div className={`bg-gradient-to-br ${slide.color} backdrop-blur-md border border-white/20 rounded-2xl p-10 mb-8 shadow-2xl`}>
-              <div className="flex justify-center mb-6">
-                <img 
-                  src={slide.logo} 
-                  alt={slide.name} 
-                  className={`h-20 w-auto object-contain ${slide.rounded ? "rounded-2xl" : ""}`}
-                />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-3">{slide.headline}</h2>
-              <p className="text-white/80 text-base leading-relaxed">{slide.description}</p>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-2.5">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  idx === currentSlide 
-                    ? "w-8 bg-white" 
-                    : "w-2 bg-white/40 hover:bg-white/60"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+      {/* Left side - Image */}
+      <div className="hidden lg:flex lg:flex-1 items-end justify-center relative z-10">
+        <img 
+          src={loginWoman} 
+          alt="Mujer usando celular" 
+          className="max-h-[85vh] w-auto object-contain drop-shadow-2xl"
+        />
       </div>
 
       {/* Right side - Login */}
