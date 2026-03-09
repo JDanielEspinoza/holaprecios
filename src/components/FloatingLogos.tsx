@@ -8,8 +8,8 @@ const logos = [
   { src: logoWispro, alt: "Wispro", size: 82, top: "12%", left: "30%", delay: 0, duration: 6, imgScale: 1.45 },
   { src: logoIxc, alt: "IXC", size: 76, top: "8%", left: "58%", delay: 1.2, duration: 7, imgScale: 1.5 },
   { src: logoHola, alt: "Hola Suite", size: 80, top: "38%", left: "18%", delay: 0.5, duration: 5.5, imgScale: 1.45 },
-  { src: logoOpasuite, alt: "Opa Suite", size: 70, top: "50%", left: "68%", delay: 2, duration: 6.5, imgInset: "10%" },
-  { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 7.5, imgInset: "10%" },
+  { src: logoOpasuite, alt: "Opa Suite", size: 70, top: "50%", left: "68%", delay: 2, duration: 6.5, imgScale: 1.0 },
+  { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 7.5, imgScale: 1.0 },
 ];
 
 const FloatingLogos = () => {
