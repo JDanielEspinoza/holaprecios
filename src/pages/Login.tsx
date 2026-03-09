@@ -16,6 +16,7 @@ import { Loader2, Sun, Moon, Globe } from "lucide-react";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import fondoLogin from "@/assets/fondo-login.jpg";
 import loginWoman from "@/assets/login-woman.png";
+import FloatingLogos from "@/components/FloatingLogos";
 
 type Language = "es" | "pt" | "en";
 
