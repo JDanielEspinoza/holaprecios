@@ -41,7 +41,7 @@ const FloatingLogos = () => {
         return (
           <div
             key={logo.alt}
-            className="absolute z-20 pointer-events-none"
+            className="absolute z-20 pointer-events-none rounded-full"
             style={{
               top: logo.top,
               left: logo.left,
