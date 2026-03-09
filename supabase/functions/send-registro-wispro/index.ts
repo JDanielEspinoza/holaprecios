@@ -4,6 +4,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const N8N_WEBHOOK_URL = "https://n8n.ixcsoft.com.br/webhook/enlace-registro";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +22,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const response = await fetch("https://n8n.ixcsoft.com.br/webhook/enlace-registro", {
+    const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

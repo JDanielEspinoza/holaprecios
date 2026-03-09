@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, FileText, Users, User, Menu, Bot, BarChart3, Rocket } from "lucide-react";
-import logoWispro from "@/assets/logo-wispro.png";
-import logoAcs from "@/assets/logo-acs.png";
 
 const TUTORIAL_KEY = "wispro_tutorial_seen";
 
@@ -80,14 +77,16 @@ const WelcomeTutorial = () => {
     if (current > 0) setCurrent(current - 1);
   };
 
+  if (!open) return null;
+
   const slide = slides[current];
   const isLast = current === slides.length - 1;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden border-0 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
+      <div className="w-full max-w-md mx-4 space-y-6">
         {/* Progress bar */}
-        <div className="flex gap-1 px-6 pt-5">
+        <div className="flex gap-1 px-2">
           {slides.map((_, i) => (
             <div
               key={i}
@@ -102,23 +101,23 @@ const WelcomeTutorial = () => {
         </div>
 
         {/* Content */}
-        <div className="px-6 pt-6 pb-2 text-center space-y-4">
+        <div className="text-center space-y-6 px-4">
           <div className="flex justify-center">{slide.icon}</div>
-          <h3 className="text-xl font-bold" style={{ fontFamily: "'Exo', sans-serif" }}>
+          <h3 className="text-2xl font-bold" style={{ fontFamily: "'Exo', sans-serif" }}>
             {slide.title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-base text-muted-foreground leading-relaxed">
             {slide.description}
           </p>
           {slide.tip && (
-            <div className="bg-muted/50 rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
+            <div className="bg-muted/50 rounded-lg px-5 py-3 text-sm text-muted-foreground">
               💡 {slide.tip}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 pb-5 pt-3">
+        <div className="flex items-center justify-between px-4">
           <Button
             variant="ghost"
             size="sm"
@@ -129,7 +128,7 @@ const WelcomeTutorial = () => {
             <ChevronLeft className="h-4 w-4" /> Anterior
           </Button>
 
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {current + 1} / {slides.length}
           </span>
 
@@ -144,7 +143,7 @@ const WelcomeTutorial = () => {
 
         {/* Skip */}
         {!isLast && (
-          <div className="text-center pb-4">
+          <div className="text-center">
             <button
               onClick={handleClose}
               className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
@@ -153,8 +152,8 @@ const WelcomeTutorial = () => {
             </button>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 

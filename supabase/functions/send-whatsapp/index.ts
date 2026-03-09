@@ -4,20 +4,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const N8N_WEBHOOK_URL = "https://n8n.ixcsoft.com.br/webhook/cotizacion-andinalink";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const N8N_WEBHOOK_URL = Deno.env.get("N8N_WEBHOOK_URL");
-    if (!N8N_WEBHOOK_URL) {
-      return new Response(
-        JSON.stringify({ error: "N8N_WEBHOOK_URL not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const body = await req.json();
     const { phone, agentName, linkPresupuesto } = body;
 
@@ -28,7 +22,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // POST to n8n webhook - n8n transforms this into the nested structure
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

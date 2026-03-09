@@ -186,6 +186,19 @@ const Cotizacion = () => {
                   <p className="text-4xl font-bold text-orange-500">{fmt(finalTotal)}</p>
                 </div>
               </div>
+
+              {/* Summary of selected items */}
+              {items.length > 0 && (
+                <div className="mt-3 space-y-1">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="h-1 w-1 rounded-full bg-orange-400 flex-shrink-0" />
+                      <span>{item.label}</span>
+                      <span className="ml-auto font-medium text-gray-600">{fmt(item.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Implementation with feria discount */}
