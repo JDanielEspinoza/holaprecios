@@ -163,6 +163,8 @@ const Login = () => {
         });
         if (error) throw error;
         toast.success(t.successRegister);
+        setIsRegister(false);
+        setPassword("");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
