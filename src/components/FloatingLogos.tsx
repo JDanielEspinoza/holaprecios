@@ -5,11 +5,11 @@ import logoWispro from "@/assets/logo-wispro-square.png";
 import logoHola from "@/assets/logo-hola-2.jpeg";
 
 const logos = [
-  { src: logoWispro, alt: "Wispro", size: 72, top: "8%", left: "15%", delay: 0, duration: 6 },
-  { src: logoIxcAcs, alt: "IXC ACS", size: 64, top: "5%", left: "65%", delay: 1.2, duration: 7 },
-  { src: logoHola, alt: "Hola Suite", size: 68, top: "35%", left: "2%", delay: 0.5, duration: 5.5 },
-  { src: logoOpasuite, alt: "Opa Suite", size: 60, top: "55%", left: "75%", delay: 2, duration: 6.5 },
-  { src: logoOlli, alt: "Olli", size: 56, top: "70%", left: "12%", delay: 1.5, duration: 7.5 },
+  { src: logoWispro, alt: "Wispro", size: 70, top: "12%", left: "30%", delay: 0, duration: 6, bg: "#fff" },
+  { src: logoIxcAcs, alt: "IXC ACS", size: 62, top: "8%", left: "58%", delay: 1.2, duration: 7, bg: "#fff" },
+  { src: logoHola, alt: "Hola Suite", size: 66, top: "38%", left: "18%", delay: 0.5, duration: 5.5, bg: "#fff" },
+  { src: logoOpasuite, alt: "Opa Suite", size: 60, top: "50%", left: "68%", delay: 2, duration: 6.5, bg: "#fff" },
+  { src: logoOlli, alt: "Olli", size: 58, top: "68%", left: "25%", delay: 1.5, duration: 7.5, bg: "#fff" },
 ];
 
 const FloatingLogos = () => {
@@ -18,22 +18,22 @@ const FloatingLogos = () => {
       <style>{`
         @keyframes orbit1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(12px, -18px) scale(1.05); }
-          50% { transform: translate(-8px, -10px) scale(0.97); }
-          75% { transform: translate(10px, 8px) scale(1.03); }
+          25% { transform: translate(10px, -14px) scale(1.04); }
+          50% { transform: translate(-6px, -8px) scale(0.97); }
+          75% { transform: translate(8px, 6px) scale(1.02); }
         }
         @keyframes orbit2 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-15px, 12px) scale(1.06); }
-          66% { transform: translate(10px, -14px) scale(0.95); }
+          33% { transform: translate(-12px, 10px) scale(1.05); }
+          66% { transform: translate(8px, -12px) scale(0.96); }
         }
         @keyframes orbit3 {
           0%, 100% { transform: translate(0, 0) scale(0.98); }
-          50% { transform: translate(18px, -8px) scale(1.04); }
+          50% { transform: translate(14px, -6px) scale(1.04); }
         }
         @keyframes aura-glow {
-          0%, 100% { box-shadow: 0 0 20px 6px hsl(var(--primary) / 0.15), 0 0 40px 12px hsl(var(--primary) / 0.08); }
-          50% { box-shadow: 0 0 30px 10px hsl(var(--primary) / 0.25), 0 0 60px 20px hsl(var(--primary) / 0.12); }
+          0%, 100% { box-shadow: 0 0 18px 5px hsl(var(--primary) / 0.12), 0 0 36px 10px hsl(var(--primary) / 0.06); }
+          50% { box-shadow: 0 0 28px 8px hsl(var(--primary) / 0.22), 0 0 56px 18px hsl(var(--primary) / 0.1); }
         }
       `}</style>
       {logos.map((logo, i) => {
@@ -52,15 +52,17 @@ const FloatingLogos = () => {
             }}
           >
             <div
-              className="w-full h-full rounded-full overflow-hidden bg-background/90 backdrop-blur-sm border-2 border-border/30"
+              className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
               style={{
-                boxShadow: "0 0 20px 4px hsl(var(--primary) / 0.12), 0 4px 12px hsl(0 0% 0% / 0.2)",
+                background: logo.bg,
+                boxShadow: "0 0 20px 4px hsl(var(--primary) / 0.12), 0 4px 12px hsl(0 0% 0% / 0.25)",
+                border: "2px solid hsl(0 0% 100% / 0.3)",
               }}
             >
               <img
                 src={logo.src}
                 alt={logo.alt}
-                className="w-full h-full object-cover rounded-full"
+                className="w-[70%] h-[70%] object-contain"
               />
             </div>
           </div>
