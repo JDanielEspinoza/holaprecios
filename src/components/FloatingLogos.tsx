@@ -66,11 +66,11 @@ const FloatingLogos = () => {
               <img
                 src={logo.src}
                 alt={logo.alt}
-                className="absolute object-contain"
+                className="absolute object-contain left-1/2 top-1/2"
                 style={{
-                  inset: logo.imgInset,
-                  width: `calc(100% - ${logo.imgInset} - ${logo.imgInset})`,
-                  height: `calc(100% - ${logo.imgInset} - ${logo.imgInset})`,
+                  width: `${logo.imgScale * 100}%`,
+                  height: `${logo.imgScale * 100}%`,
+                  transform: `translate(-50%, -50%) scale(1)`,
                 }}
               />
               {/* 3D shine overlay */}
