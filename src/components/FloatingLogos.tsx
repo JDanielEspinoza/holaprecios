@@ -2,7 +2,7 @@ import logoIxcAcs from "@/assets/logo-ixc-acs.jpeg";
 import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
 import logoWispro from "@/assets/logo-wispro-square.png";
-import logoHola from "@/assets/logo-hola-2.jpeg";
+import logoHola from "@/assets/logo-hola-clean.png";
 
 const logos = [
   { src: logoWispro, alt: "Wispro", size: 70, top: "12%", left: "30%", delay: 0, duration: 6, imgScale: "55%" },
