@@ -65,7 +65,6 @@ const FloatingLogos = () => {
             >
               <img
                 src={logo.src}
-                src={logo.src}
                 alt={logo.alt}
                 className="absolute object-contain"
                 style={{
