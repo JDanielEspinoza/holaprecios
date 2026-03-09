@@ -101,30 +101,6 @@ const translations: Record<Language, {
   },
 };
 
-const slides = [
-  {
-    logo: logoWispro,
-    name: "Wispro",
-    headline: "Gestión integral para ISPs",
-    description: "Facturación, CRM, soporte técnico y control de red en una sola plataforma.",
-    color: "from-cyan-500/20 to-teal-500/20",
-  },
-  {
-    logo: logoHola,
-    name: "Hola! Suite",
-    headline: "Atención omnichannel inteligente",
-    description: "WhatsApp oficial, chatbots con IA y múltiples canales unificados para tu equipo.",
-    color: "from-purple-500/20 to-indigo-500/20",
-    rounded: true,
-  },
-  {
-    logo: logoAcs,
-    name: "ACS",
-    headline: "Automatización y control de servicios",
-    description: "Activa, suspende y gestiona servicios de forma automática desde cualquier lugar.",
-    color: "from-blue-500/20 to-sky-500/20",
-  },
-];
 
 const particles = Array.from({ length: 20 }, (_, i) => ({
   size: 3 + (i * 7 % 5),
