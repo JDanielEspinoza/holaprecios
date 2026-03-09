@@ -3,6 +3,8 @@ import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
 import logoWispro from "@/assets/logo-wispro-circle.png";
 import logoHola from "@/assets/logo-hola-circle.png";
+import logoInmap from "@/assets/logo-inmap-sphere.png";
+import logoAcs from "@/assets/logo-acs-sphere.png";
 
 const logos = [
   { src: logoWispro, alt: "Wispro", size: 82, top: "12%", left: "30%", delay: 0, duration: 12, imgScale: 1.6, offsetX: "-3%", offsetY: "5%" },
@@ -10,6 +12,8 @@ const logos = [
   { src: logoHola, alt: "Hola Suite", size: 80, top: "38%", left: "18%", delay: 0.5, duration: 11, imgScale: 1.6, offsetX: "0%", offsetY: "0%" },
   { src: logoOpasuite, alt: "Opa Suite", size: 70, top: "50%", left: "68%", delay: 2, duration: 13, imgScale: 0.8, offsetX: "0%", offsetY: "0%" },
   { src: logoOlli, alt: "Olli", size: 66, top: "68%", left: "25%", delay: 1.5, duration: 15, imgScale: 0.8, offsetX: "0%", offsetY: "0%" },
+  { src: logoInmap, alt: "InMap", size: 68, top: "22%", left: "8%", delay: 0.8, duration: 13, imgScale: 1.5, offsetX: "0%", offsetY: "0%" },
+  { src: logoAcs, alt: "ACS", size: 64, top: "62%", left: "65%", delay: 1.8, duration: 14, imgScale: 1.5, offsetX: "0%", offsetY: "0%" },
 ];
 
 const FloatingLogos = () => {
