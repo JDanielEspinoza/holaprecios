@@ -368,9 +368,9 @@ const Index = () => {
                     const qty = addonQty[addon.name] || 0;
                     const subtotal = qty * addon.unitPrice;
                     return (
-                      <div key={addon.name} className="flex justify-between items-center text-sm py-1">
-                        <span className="text-foreground">{addon.name}</span>
-                        <div className="flex items-center gap-3">
+                      <div key={addon.name} className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-2 gap-1 sm:gap-0">
+                        <span className="text-foreground font-medium sm:font-normal">{addon.name}</span>
+                        <div className="flex items-center gap-3 justify-between sm:justify-end">
                           <div className="flex items-center gap-1">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: Math.max(0, (p[addon.name] || 0) - 1) }))}>
                               <Minus className="h-3 w-3" />
@@ -380,7 +380,7 @@ const Index = () => {
                               <Plus className="h-3 w-3" />
                             </Button>
                           </div>
-                          <span className="text-muted-foreground w-14 text-right">{fmt(addon.unitPrice)}</span>
+                          <span className="text-muted-foreground w-14 text-right hidden sm:inline">{fmt(addon.unitPrice)}</span>
                           <span className="font-semibold w-20 text-right text-foreground">{fmt(subtotal)}</span>
                         </div>
                       </div>

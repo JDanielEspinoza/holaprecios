@@ -858,7 +858,7 @@ const MisCotizaciones = () => {
                 const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
                 const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
                 try {
-                  await fetch("https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/", {
+                  await fetch(ZAPIER_WEBHOOK_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     mode: "no-cors",

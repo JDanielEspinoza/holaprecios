@@ -4,8 +4,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const ZAPIER_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
-const N8N_URL = "https://n8n.ixcsoft.com.br/webhook/pago-andinalink-confirmado";
+const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
+const N8N_WEBHOOK_URL = "https://n8n.ixcsoft.com.br/webhook/pago-andinalink-confirmado";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -26,7 +26,6 @@ Deno.serve(async (req) => {
       link_presupuesto,
     } = body;
 
-    // Send to both webhooks simultaneously
     const zapierPayload = {
       company_name: company_name || "",
       cantidad_usuarios: String(cantidad_usuarios || "0"),
@@ -54,12 +53,12 @@ Deno.serve(async (req) => {
     console.log("n8n payload:", JSON.stringify(n8nPayload));
 
     const [zapierRes, n8nRes] = await Promise.all([
-      fetch(ZAPIER_URL, {
+      fetch(ZAPIER_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(zapierPayload),
       }),
-      fetch(N8N_URL, {
+      fetch(N8N_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(n8nPayload),

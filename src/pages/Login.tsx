@@ -254,6 +254,7 @@ const Login = () => {
           src={loginWoman} 
           alt="Mujer usando celular" 
           className="max-h-[85vh] w-auto object-contain drop-shadow-2xl relative z-10"
+          style={{ transform: "scaleX(-1)" }}
         />
       </div>
 

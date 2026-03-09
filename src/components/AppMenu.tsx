@@ -55,7 +55,7 @@ const AppMenu = () => {
 
   return (
     <>
-      <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => setIsOpen(true)}>
+      <Button variant="ghost" size="icon" className="h-10 w-10 text-white hover:text-white/80" onClick={() => setIsOpen(true)}>
         <Menu className="h-5 w-5" />
       </Button>
 
