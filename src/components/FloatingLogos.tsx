@@ -1,7 +1,7 @@
-import logoIxcAcs from "@/assets/logo-ixc-acs.jpeg";
+import logoIxcAcs from "@/assets/logo-ixc-acs-clean.png";
 import logoOlli from "@/assets/logo-olli.png";
 import logoOpasuite from "@/assets/logo-opasuite-clean.png";
-import logoWispro from "@/assets/logo-wispro-square.png";
+import logoWispro from "@/assets/logo-wispro-clean.png";
 import logoHola from "@/assets/logo-hola-clean.png";
 
 const logos = [
