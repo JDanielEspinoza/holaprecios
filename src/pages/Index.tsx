@@ -140,11 +140,14 @@ const Index = () => {
       items.push({ label: "ACS", value: tier.acs, section: "eco" });
     if (tier && selectedProducts.holaBasic)
       items.push({ label: "Hola! Suite", value: tier.holaBasic, section: "eco" });
-    addons.forEach((a) => {
-      const qty = addonQty[a.name] || 0;
-      if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
-    });
-    if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
+    // Only include addons and cloud if Hola! Suite is selected
+    if (selectedProducts.holaBasic) {
+      addons.forEach((a) => {
+        const qty = addonQty[a.name] || 0;
+        if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "hola" });
+      });
+      if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
+    }
     return items;
   };
 
@@ -306,8 +309,11 @@ const Index = () => {
                   const count = Number(v);
                   setClientCount(count);
                   setQuoteId(null);
-                  const minIdx = getMinCloudPlanIndex(count);
-                  setSelectedCloud(holaCloudPlans[minIdx].name);
+                  // Only auto-select cloud if Hola! Suite is already selected
+                  if (selectedProducts.holaBasic) {
+                    const minIdx = getMinCloudPlanIndex(count);
+                    setSelectedCloud(holaCloudPlans[minIdx].name);
+                  }
                 }}>
                   <SelectTrigger className="h-12 text-lg font-semibold">
                     <SelectValue placeholder="Seleccioná..." />
