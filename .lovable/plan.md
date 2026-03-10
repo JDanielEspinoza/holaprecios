@@ -1,76 +1,24 @@
 
 
-# Plan: Upgrade Visual Premium SaaS
+## Plan: Static seller phone + dark mode login glow
 
-Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
+### 1. Revert seller_numero to static company number (`src/pages/Index.tsx`)
 
-## 1. CSS Variables y Gradientes Base (`src/index.css`)
+The WhatsApp "confirm" button in Cotizacion.tsx already uses the hardcoded company number `5492615783684` — that's correct. However, `seller_numero` stored in the quote (line 172) should also be the static company number so the seller contact card in the quote shows the company number, not the individual's personal number.
 
-- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
-- Agregar variables CSS para gradientes y sombras reutilizables
-- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
-- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
+**Change line 172**: `seller_numero: "+5492615783684"` (static company number).
 
-## 2. Tailwind Config (`tailwind.config.ts`)
+The seller NAME (`seller_name: profile?.nombre`) is already dynamic and correct. The screenshot showing "Jorthy Carvajal" was from quotes created before the profile-based name was implemented. New quotes will correctly show each seller's name.
 
-- Agregar keyframes: `fade-slide-up`, `glow-pulse`
-- Agregar animations correspondientes
-- Ampliar `boxShadow` con sombras premium de dos niveles
+### 2. Dark mode login woman — phone glow on face (`src/pages/Login.tsx`)
 
-## 3. Página Login (`src/pages/Login.tsx`)
+Enhance the existing dark mode effect:
+- Reposition the glow overlay to be closer to the woman's face area (upper body, where the phone would illuminate)
+- Use a warmer, more screen-like color (cool white-blue) with stronger opacity
+- Add a second smaller, brighter glow spot near the phone position for realism
+- Add a subtle CSS filter on the woman image in dark mode: slightly increased brightness on the face side
 
-- Fondo con gradiente sutil (purple → indigo → soft blue) animado
-- Card con sombra premium elevada, bordes más suaves
-- Inputs con transición de borde y glow en focus
-- Botón con gradiente y efecto press
-
-## 4. Página Principal (`src/pages/Index.tsx`)
-
-- Banner header: gradiente animado en lugar de color sólido
-- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
-- Selector de clientes: glow sutil en el borde
-- Card de resumen: fondo con gradiente más sofisticado
-- Total: tamaño aumentado, glow detrás del número
-- Secciones con `animate-fade-slide-up` escalonado
-- Botones con gradiente y press animation
-
-## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
-
-- Card principal con sombra premium
-- Botones con transiciones suaves
-- Tipografía del total más impactante
-
-## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
-
-- Cards con hover elevation
-- Transiciones suaves en hover
-
-## 7. Página Perfil (`src/pages/Perfil.tsx`)
-
-- Card con sombra premium
-- Inputs con glow en focus
-- Foto de perfil con borde con glow
-
-## 8. AppMenu (`src/components/AppMenu.tsx`)
-
-- Dropdown con sombra premium y bordes más suaves
-
-## Archivos a modificar
-
-| Archivo | Cambio |
-|---|---|
-| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
-| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
-| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
-| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
-| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
-| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
-| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
-
-## Principios
-
-- Todo sutil y refinado, nada exagerado
-- Transiciones 250-400ms con ease-out
-- Sombras de baja opacidad para profundidad realista
-- Gradientes casi imperceptibles para dar vida sin distraer
+### Files to modify:
+1. `src/pages/Index.tsx` — line 172: static seller_numero
+2. `src/pages/Login.tsx` — enhanced dark mode glow near woman's face
 
