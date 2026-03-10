@@ -226,13 +226,22 @@ const Login = () => {
       {/* Background overlay - darker in dark mode */}
       <div className={`absolute inset-0 transition-colors duration-700 ${darkMode ? "bg-black/55" : "bg-black/15"}`} />
 
-      {/* Phone glow effect in dark mode */}
+      {/* Phone glow effect in dark mode — face illumination */}
       {darkMode && (
-        <div className="absolute z-[2] pointer-events-none" style={{ left: "22%", bottom: "18%", width: "320px", height: "380px" }}>
-          <div className="w-full h-full rounded-full" style={{
-            background: "radial-gradient(ellipse at center, hsla(210, 80%, 75%, 0.18) 0%, hsla(210, 60%, 60%, 0.08) 40%, transparent 70%)",
-          }} />
-        </div>
+        <>
+          {/* Main face glow - cool white-blue from phone screen */}
+          <div className="absolute z-[2] pointer-events-none" style={{ left: "18%", bottom: "35%", width: "280px", height: "340px" }}>
+            <div className="w-full h-full rounded-full" style={{
+              background: "radial-gradient(ellipse at 60% 50%, hsla(210, 90%, 82%, 0.22) 0%, hsla(210, 70%, 70%, 0.10) 35%, transparent 65%)",
+            }} />
+          </div>
+          {/* Smaller bright spot near phone position */}
+          <div className="absolute z-[2] pointer-events-none" style={{ left: "20%", bottom: "25%", width: "140px", height: "160px" }}>
+            <div className="w-full h-full rounded-full" style={{
+              background: "radial-gradient(ellipse at center, hsla(200, 100%, 90%, 0.28) 0%, hsla(210, 80%, 75%, 0.08) 50%, transparent 80%)",
+            }} />
+          </div>
+        </>
       )}
 
       {/* Particles - brighter in dark mode */}
@@ -260,7 +269,11 @@ const Login = () => {
         <img
           src={loginWoman}
           alt="Mujer usando celular"
-          className="max-h-[85vh] w-auto object-contain drop-shadow-2xl relative z-10"
+          className={`max-h-[85vh] w-auto object-contain relative z-10 transition-all duration-700 ${
+            darkMode
+              ? "drop-shadow-[0_0_40px_hsla(210,80%,75%,0.25)] brightness-110 contrast-105"
+              : "drop-shadow-2xl"
+          }`}
           style={{ transform: "scaleX(-1)" }}
         />
       </div>

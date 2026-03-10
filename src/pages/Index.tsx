@@ -169,7 +169,7 @@ const Index = () => {
         installation_cost: installationCost,
         seller_name: profile?.nombre || "",
         seller_cargo: profile?.cargo || "",
-        seller_numero: profile?.numero || "",
+        seller_numero: "+5492615783684",
         seller_email: profile?.email_contacto || "",
         seller_foto: profile?.foto_url || null,
       } as any).select("id").single();
