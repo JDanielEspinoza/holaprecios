@@ -306,8 +306,11 @@ const Index = () => {
                   const count = Number(v);
                   setClientCount(count);
                   setQuoteId(null);
-                  const minIdx = getMinCloudPlanIndex(count);
-                  setSelectedCloud(holaCloudPlans[minIdx].name);
+                  // Only auto-select cloud if Hola! Suite is already selected
+                  if (selectedProducts.holaBasic) {
+                    const minIdx = getMinCloudPlanIndex(count);
+                    setSelectedCloud(holaCloudPlans[minIdx].name);
+                  }
                 }}>
                   <SelectTrigger className="h-12 text-lg font-semibold">
                     <SelectValue placeholder="Seleccioná..." />
