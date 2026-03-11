@@ -340,7 +340,7 @@ const Index = () => {
             <div className="grid grid-cols-3 gap-3 md:gap-6 animate-fade-slide-up-1">
               <ProductCard title="Wispro" value={tier.wispro} logo={logoWispro} checked={selectedProducts.wispro} onToggle={() => { setSelectedProducts((p) => ({ ...p, wispro: !p.wispro })); setQuoteId(null); }} />
               <ProductCard title="ACS" value={tier.acs} logo={logoAcs} checked={selectedProducts.acs} onToggle={() => { setSelectedProducts((p) => ({ ...p, acs: !p.acs })); setQuoteId(null); }} />
-              <ProductCard title="Hola! Suite" value={tier.holaBasic} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => { setSelectedProducts((p) => ({ ...p, holaBasic: !p.holaBasic })); setQuoteId(null); }} />
+              <ProductCard title="Hola! Suite" value={tier.holaBasic} logo={logoHola} checked={selectedProducts.holaBasic} onToggle={() => { setSelectedProducts((p) => { const next = !p.holaBasic; if (next && clientCount) { const minIdx = getMinCloudPlanIndex(clientCount); setSelectedCloud(holaCloudPlans[minIdx].name); } if (!next) { setSelectedCloud(null); } return { ...p, holaBasic: next }; }); setQuoteId(null); }} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-slide-up-2">
