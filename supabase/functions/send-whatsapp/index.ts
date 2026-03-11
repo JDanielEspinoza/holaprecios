@@ -6,23 +6,31 @@ const corsHeaders = {
 
 const N8N_WEBHOOK_URL = "https://n8n.ixcsoft.com.br/webhook/cotizacion-andinalink";
 
+// ✅ NUEVO: función de reintento automático
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (i < retries - 1) await new Promise((r) => setTimeout(r, delay));
+  }
+  return await fetch(url, options);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
-
   try {
     const body = await req.json();
     const { phone, agentName, linkPresupuesto } = body;
-
     if (!phone) {
-      return new Response(
-        JSON.stringify({ error: "phone is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "phone is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
-
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    // ✅ CAMBIO: usamos fetchWithRetry en lugar de fetch
+    const response = await fetchWithRetry(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -31,17 +39,14 @@ Deno.serve(async (req) => {
         linkPresupuesto: linkPresupuesto || "",
       }),
     });
-
     const text = await response.text();
-
-    return new Response(
-      JSON.stringify({ success: true, webhook_response: text }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true, webhook_response: text }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
