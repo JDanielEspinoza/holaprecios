@@ -7,6 +7,16 @@ const corsHeaders = {
 const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
 const N8N_WEBHOOK_URL = "https://n8n.ixcsoft.com.br/webhook/pago-andinalink-confirmado";
 
+// ✅ NUEVO: función de reintento automático
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (i < retries - 1) await new Promise(r => setTimeout(r, delay));
+  }
+  return await fetch(url, options);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -52,13 +62,14 @@ Deno.serve(async (req) => {
 
     console.log("n8n payload:", JSON.stringify(n8nPayload));
 
+    // ✅ CAMBIO: usamos fetchWithRetry en lugar de fetch
     const [zapierRes, n8nRes] = await Promise.all([
-      fetch(ZAPIER_WEBHOOK_URL, {
+      fetchWithRetry(ZAPIER_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(zapierPayload),
       }),
-      fetch(N8N_WEBHOOK_URL, {
+      fetchWithRetry(N8N_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(n8nPayload),
