@@ -93,7 +93,7 @@ const CotizacionesAndina = () => {
       (items || [])
         .map((i: any) => {
           if (i.section === "eco") return i.label;
-          if (i.section === "cloud") return "Cloud";
+          if (i.section === "cloud") return null;
           return null;
         })
         .filter(Boolean)
