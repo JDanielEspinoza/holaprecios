@@ -417,16 +417,12 @@ const Index = () => {
                       const minIdx = clientCount ? getMinCloudPlanIndex(clientCount) : 0;
                       return holaCloudPlans.map((plan, idx) => {
                         const isSelected = selectedCloud === plan.name;
-                        const isDisabled = idx < minIdx;
                         return (
                           <button
                             key={plan.name}
-                            disabled={isDisabled}
-                            onClick={() => !isDisabled && setSelectedCloud(plan.name)}
+                            onClick={() => setSelectedCloud(plan.name)}
                             className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
-                              isDisabled
-                                ? "opacity-40 cursor-not-allowed border-border bg-gray-50"
-                                : isSelected
+                              isSelected
                                   ? "border-primary bg-primary/10 ring-2 ring-primary/30"
                                   : "border-border hover:bg-accent/50"
                             }`}
