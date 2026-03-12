@@ -346,7 +346,19 @@ const MisCotizaciones = () => {
       if (error) throw error;
       toast({ title: "WhatsApp enviado", description: `Mensaje enviado a ${q.client_phone}` });
     } catch (err: any) {
-      toast({ title: "Error al enviar WhatsApp", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al enviar WhatsApp",
+        description: err.message,
+        variant: "destructive",
+        action: (
+          <button
+            className="shrink-0 rounded-md bg-destructive-foreground/10 px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive-foreground/20 transition-colors"
+            onClick={() => sendWhatsApp(q)}
+          >
+            Reintentar
+          </button>
+        ),
+      });
     } finally {
       setSendingWhatsApp(null);
     }
