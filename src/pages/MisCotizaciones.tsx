@@ -88,6 +88,20 @@ const MisCotizaciones = () => {
   const [deleteReason, setDeleteReason] = useState("");
   const [processingBulk, setProcessingBulk] = useState(false);
 
+  // Contact drawer
+  const [drawerQuote, setDrawerQuote] = useState<QuoteRow | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopyField = useCallback(async (field: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      toast({ title: "Error al copiar", variant: "destructive" });
+    }
+  }, [toast]);
+
   const fetchQuotes = async () => {
     if (!user) return;
     const { data } = await supabase
