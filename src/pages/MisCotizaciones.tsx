@@ -21,7 +21,7 @@ import {
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
-  Download, Trash2,
+  Download, Trash2, Copy, Check, Linkedin,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
