@@ -308,7 +308,19 @@ const MisCotizaciones = () => {
       );
       toast({ title: "Pago confirmado", description: "Confirmación de pago procesada exitosamente." });
     } catch (err: any) {
-      toast({ title: "Error al confirmar pago", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al confirmar pago",
+        description: err.message,
+        variant: "destructive",
+        action: (
+          <button
+            className="shrink-0 rounded-md bg-destructive-foreground/10 px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive-foreground/20 transition-colors"
+            onClick={() => handleConfirmPayment(q)}
+          >
+            Reintentar
+          </button>
+        ),
+      });
     } finally {
       setProcessingPayment(false);
       setConfirmingPayment(null);
