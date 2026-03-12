@@ -567,7 +567,7 @@ const MisCotizaciones = () => {
                                 ? "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
                                 : "hover:bg-muted/40"
                           }`}
-                          onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
+                          onClick={() => setDrawerQuote(q)}
                         >
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center">
