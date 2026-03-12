@@ -1,46 +1,76 @@
 
 
-## Plan: Contact Detail Drawer on Row Click (Mis Cotizaciones)
+# Plan: Upgrade Visual Premium SaaS
 
-### Summary
+Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
 
-Replace the current row-click behavior (opens quote in new tab) with a slide-in drawer from the right showing contact details. The "open quote" action moves to the existing ExternalLink button in the actions column.
+## 1. CSS Variables y Gradientes Base (`src/index.css`)
 
-### Important Finding
+- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
+- Agregar variables CSS para gradientes y sombras reutilizables
+- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
+- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
 
-There is **no `client_linkedin` field** in the database or codebase. Two options:
+## 2. Tailwind Config (`tailwind.config.ts`)
 
-1. Add a `client_linkedin` column to the `quotes` table (requires migration + updating the quote creation form)
-2. Show the LinkedIn field in the drawer as a placeholder with "—" for now
+- Agregar keyframes: `fade-slide-up`, `glow-pulse`
+- Agregar animations correspondientes
+- Ampliar `boxShadow` con sombras premium de dos niveles
 
-I'll go with option 2 (placeholder) since the request says "do not modify the quote creation logic." We can add the DB field later.
+## 3. Página Login (`src/pages/Login.tsx`)
 
-### Changes — Single file: `src/pages/MisCotizaciones.tsx`
+- Fondo con gradiente sutil (purple → indigo → soft blue) animado
+- Card con sombra premium elevada, bordes más suaves
+- Inputs con transición de borde y glow en focus
+- Botón con gradiente y efecto press
 
-**1. Add state for the drawer**
-- `drawerQuote: QuoteRow | null` — controls which quote's contact panel is open
-- `copiedField: string | null` — tracks which field just got copied (for "✓ Copiado" feedback)
+## 4. Página Principal (`src/pages/Index.tsx`)
 
-**2. Change row click behavior (line 553)**
-- Current: `onClick={() => window.open(...)}`
-- New: `onClick={() => setDrawerQuote(q)}`
+- Banner header: gradiente animado en lugar de color sólido
+- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
+- Selector de clientes: glow sutil en el borde
+- Card de resumen: fondo con gradiente más sofisticado
+- Total: tamaño aumentado, glow detrás del número
+- Secciones con `animate-fade-slide-up` escalonado
+- Botones con gradiente y press animation
 
-**3. Add the contact drawer panel**
-- Use the existing `Sheet` component (from `@/components/ui/sheet`) with `side="right"`
-- Dark semi-transparent overlay (already built into Sheet)
-- X close button (already built into Sheet)
-- Header: client name + company
-- 6 fields, each with label + value + "Copiar" button:
-  - Nombre → `client_name`
-  - Empresa → `client_company`
-  - Número → `client_phone`
-  - Correo → `client_email`
-  - LinkedIn → shows "—" (no data yet)
-  - Cotización → `quote_number`
-- Copy button uses `navigator.clipboard.writeText()`, shows "✓ Copiado" in green for 2s
-- LinkedIn rendered as clickable link opening in new tab when data exists
-- Slide-in animation from right (built into Sheet component)
+## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
 
-**4. No other files modified**
-- No DB changes, no API changes, no other views touched
+- Card principal con sombra premium
+- Botones con transiciones suaves
+- Tipografía del total más impactante
+
+## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
+
+- Cards con hover elevation
+- Transiciones suaves en hover
+
+## 7. Página Perfil (`src/pages/Perfil.tsx`)
+
+- Card con sombra premium
+- Inputs con glow en focus
+- Foto de perfil con borde con glow
+
+## 8. AppMenu (`src/components/AppMenu.tsx`)
+
+- Dropdown con sombra premium y bordes más suaves
+
+## Archivos a modificar
+
+| Archivo | Cambio |
+|---|---|
+| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
+| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
+| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
+| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
+| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
+| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
+| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
+
+## Principios
+
+- Todo sutil y refinado, nada exagerado
+- Transiciones 250-400ms con ease-out
+- Sombras de baja opacidad para profundidad realista
+- Gradientes casi imperceptibles para dar vida sin distraer
 

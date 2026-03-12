@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
+  Sheet, SheetContent, SheetHeader, SheetTitle,
+} from "@/components/ui/sheet";
+import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -18,7 +21,7 @@ import {
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
   CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
-  Download, Trash2,
+  Download, Trash2, Copy, Check, Linkedin,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
 import hubspotIcon from "@/assets/hubspot-icon.png";
@@ -84,6 +87,20 @@ const MisCotizaciones = () => {
   const [archiveReason, setArchiveReason] = useState("");
   const [deleteReason, setDeleteReason] = useState("");
   const [processingBulk, setProcessingBulk] = useState(false);
+
+  // Contact drawer
+  const [drawerQuote, setDrawerQuote] = useState<QuoteRow | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopyField = useCallback(async (field: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      toast({ title: "Error al copiar", variant: "destructive" });
+    }
+  }, [toast]);
 
   const fetchQuotes = async () => {
     if (!user) return;
@@ -550,7 +567,7 @@ const MisCotizaciones = () => {
                                 ? "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
                                 : "hover:bg-muted/40"
                           }`}
-                          onClick={() => window.open(`${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`, "_blank")}
+                          onClick={() => setDrawerQuote(q)}
                         >
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center">
@@ -915,6 +932,68 @@ const MisCotizaciones = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ── Contact detail drawer ── */}
+      <Sheet open={!!drawerQuote} onOpenChange={(open) => { if (!open) { setDrawerQuote(null); setCopiedField(null); } }}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-lg">
+              {drawerQuote?.client_name || "Sin nombre"}
+            </SheetTitle>
+            {drawerQuote?.client_company && (
+              <p className="text-sm text-muted-foreground">{drawerQuote.client_company}</p>
+            )}
+          </SheetHeader>
+
+          <div className="space-y-4">
+            {[
+              { key: "nombre", label: "Nombre", value: drawerQuote?.client_name || "—" },
+              { key: "empresa", label: "Empresa", value: drawerQuote?.client_company || "—" },
+              { key: "numero", label: "Número", value: drawerQuote?.client_phone || "—" },
+              { key: "correo", label: "Correo", value: drawerQuote?.client_email || "—" },
+              { key: "linkedin", label: "LinkedIn", value: "—" },
+              { key: "cotizacion", label: "Cotización", value: drawerQuote ? `#${drawerQuote.quote_number}` : "—" },
+            ].map(({ key, label, value }) => (
+              <div key={key}>
+                <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2.5">
+                  {key === "linkedin" && value !== "—" ? (
+                    <a
+                      href={value}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 text-sm text-primary underline underline-offset-2 truncate flex items-center gap-1.5"
+                    >
+                      <Linkedin className="h-3.5 w-3.5 shrink-0" />
+                      {value}
+                    </a>
+                  ) : (
+                    <span className={`flex-1 text-sm truncate ${value === "—" ? "text-muted-foreground" : "text-foreground"}`}>
+                      {value}
+                    </span>
+                  )}
+                  {value !== "—" && (
+                    <button
+                      onClick={() => handleCopyField(key, value)}
+                      className="shrink-0 flex items-center gap-1 text-xs px-2 py-1 rounded hover:bg-accent transition-colors"
+                    >
+                      {copiedField === key ? (
+                        <span className="text-emerald-600 flex items-center gap-1">
+                          <Check className="h-3.5 w-3.5" /> Copiado
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Copy className="h-3.5 w-3.5" /> Copiar
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
