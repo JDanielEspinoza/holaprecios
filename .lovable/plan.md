@@ -1,84 +1,76 @@
 
 
-## Plan: Resilient Webhook System for n8n Integration
+# Plan: Upgrade Visual Premium SaaS
 
-### Phase 1 — Architecture (Investigation Complete)
+Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
 
-The request path for all n8n calls is:
+## 1. CSS Variables y Gradientes Base (`src/index.css`)
 
-```text
-Browser → supabase.functions.invoke() → Edge Function → n8n (nginx reverse proxy)
-```
+- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
+- Agregar variables CSS para gradientes y sombras reutilizables
+- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
+- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
 
-Three edge functions call n8n:
-- `send-whatsapp` → `https://n8n.ixcsoft.com.br/webhook/cotizacion-andinalink`
-- `send-registro-wispro` → `https://n8n.ixcsoft.com.br/webhook/enlace-registro`
-- `confirm-payment` → `https://n8n.ixcsoft.com.br/webhook/pago-andinalink-confirmado`
+## 2. Tailwind Config (`tailwind.config.ts`)
 
-One frontend call goes directly to Zapier (Pipedrive) via `fetch` with `mode: "no-cors"` in `MisCotizaciones.tsx:861`.
+- Agregar keyframes: `fade-slide-up`, `glow-pulse`
+- Agregar animations correspondientes
+- Ampliar `boxShadow` con sombras premium de dos niveles
 
-All three edge functions already have a basic `fetchWithRetry` (3 retries, 1s fixed delay) but it only checks `res.ok` — no exponential backoff, no jitter, no error logging, no differentiation of error types.
+## 3. Página Login (`src/pages/Login.tsx`)
 
-The 403 comes from nginx rejecting the request before it reaches n8n. Intermittent nature suggests rate limiting or WAF rules on the reverse proxy.
+- Fondo con gradiente sutil (purple → indigo → soft blue) animado
+- Card con sombra premium elevada, bordes más suaves
+- Inputs con transición de borde y glow en focus
+- Botón con gradiente y efecto press
 
-### Phase 2 — Architecture Documentation
+## 4. Página Principal (`src/pages/Index.tsx`)
 
-Add a documentation comment block at the top of each of the 3 edge functions describing the request path and 403 root cause.
+- Banner header: gradiente animado en lugar de color sólido
+- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
+- Selector de clientes: glow sutil en el borde
+- Card de resumen: fondo con gradiente más sofisticado
+- Total: tamaño aumentado, glow detrás del número
+- Secciones con `animate-fade-slide-up` escalonado
+- Botones con gradiente y press animation
 
-### Phase 3 — Resilient Retry in Edge Functions
+## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
 
-Since the calls already happen server-side (edge functions), the retry logic belongs there — not in a frontend utility. Replace the existing `fetchWithRetry` in all 3 edge functions with an improved version:
+- Card principal con sombra premium
+- Botones con transiciones suaves
+- Tipografía del total más impactante
 
-- Exponential backoff: 1s, 2s, 4s
-- Jitter: random 0-500ms added
-- Retry on: 403, 429, 500, 502, 503, 504
-- Do NOT retry: 400, 401, 404
-- Timeout: 30s via `AbortController`
-- Return structured response with `attempts` count
+## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
 
-### Phase 4 — Error Logging Table
+- Cards con hover elevation
+- Transiciones suaves en hover
 
-Create `webhook_errors` table via migration:
+## 7. Página Perfil (`src/pages/Perfil.tsx`)
 
-| Column | Type |
+- Card con sombra premium
+- Inputs con glow en focus
+- Foto de perfil con borde con glow
+
+## 8. AppMenu (`src/components/AppMenu.tsx`)
+
+- Dropdown con sombra premium y bordes más suaves
+
+## Archivos a modificar
+
+| Archivo | Cambio |
 |---|---|
-| id | uuid PK |
-| created_at | timestamptz |
-| quote_id | text |
-| request_url | text (redacted) |
-| payload_size_bytes | integer |
-| status_code | integer |
-| response_body_preview | text (500 chars) |
-| response_headers | jsonb |
-| retry_count | integer |
-| error_type | text |
-| user_agent | text |
+| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
+| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
+| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
+| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
+| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
+| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
+| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
 
-RLS: authenticated users can INSERT. No SELECT/UPDATE/DELETE for regular users.
+## Principios
 
-Each edge function will log to this table (using service role key) when all retries are exhausted.
-
-### Phase 5 — User Experience
-
-- During retries: edge functions return `{ success: false, retrying: true }` is not applicable since retries happen within the single edge function call.
-- On final failure: the edge function returns error details. Frontend already shows error toasts via existing patterns in `QuoteShare.tsx` and `MisCotizaciones.tsx`. Add a "Reintentar" (retry) button to the toast in `MisCotizaciones.tsx` for the confirm-payment and send-whatsapp flows (QuoteShare already has retry).
-
-### Phase 6 — Integration
-
-- Replace `fetchWithRetry` in all 3 edge functions with the new resilient version
-- Add error logging to `webhook_errors` on final failure
-- No changes to quote creation logic
-- No changes to payload structure (per memory constraint)
-
-### Files to modify:
-1. `supabase/functions/send-whatsapp/index.ts` — improved retry + docs + error logging
-2. `supabase/functions/send-registro-wispro/index.ts` — improved retry + docs + error logging
-3. `supabase/functions/confirm-payment/index.ts` — improved retry + docs + error logging
-4. New migration — `webhook_errors` table with RLS
-5. `src/pages/MisCotizaciones.tsx` — minor: add retry callbacks to error toasts for WhatsApp/payment flows
-
-### NOT modified:
-- No `src/utils/webhookClient.ts` (retry logic belongs in edge functions, not frontend)
-- No changes to pricing, quote creation, or payload structures
-- No changes to Zapier/Pipedrive integration
+- Todo sutil y refinado, nada exagerado
+- Transiciones 250-400ms con ease-out
+- Sombras de baja opacidad para profundidad realista
+- Gradientes casi imperceptibles para dar vida sin distraer
 
