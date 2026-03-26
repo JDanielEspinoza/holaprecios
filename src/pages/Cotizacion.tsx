@@ -95,6 +95,9 @@ const Cotizacion = () => {
   const adesao = items.filter((i) => i.section === "adesao");
   const hasDiscount = data.discount_amount > 0;
   const finalTotal = hasDiscount ? data.discounted_total : data.total;
+  const hasWispro = ecosystem.some((i) => i.label === "Wispro");
+  const hasAcs = ecosystem.some((i) => i.label === "ACS");
+  const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
   const isOpaQuote = items.some((i) => i.section === "mensalidade");
   const f = (n: number) => fmt(n, isOpaQuote);
   const fc = (n: number) => fmtClients(n, isOpaQuote);
