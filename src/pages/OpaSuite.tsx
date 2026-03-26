@@ -212,12 +212,8 @@ const OpaSuite = () => {
   if (view === "success" && quoteId) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header gradient */}
-        <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
-          <div className="absolute inset-0 flex items-center justify-center gap-4">
-            <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
-            <img src={logoIxc} alt="IXCsoft" className="h-8" />
-          </div>
+        <header className="w-full">
+          <img src={opaBanner} alt="Opa! Suite" className="w-full h-auto object-cover" />
         </header>
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
@@ -274,12 +270,8 @@ const OpaSuite = () => {
   // Form view
   return (
     <div className="min-h-screen bg-premium-gradient">
-      {/* Header — static gradient with logos only */}
-      <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
-        <div className="absolute inset-0 flex items-center justify-center gap-4">
-          <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
-          <img src={logoIxc} alt="IXCsoft" className="h-8" />
-        </div>
+      <header className="w-full">
+        <img src={opaBanner} alt="Opa! Suite" className="w-full h-auto object-cover" />
       </header>
 
       <div className="absolute top-4 left-4 z-10">
@@ -403,8 +395,10 @@ const OpaSuite = () => {
                         <CollapsibleContent className="pl-6 space-y-1 pt-1">
                           {/* None option */}
                           <button
-                            onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: null }))}
-                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                            onClick={() => {
+                              setGroupSelections((prev) => ({ ...prev, [gi]: null }));
+                              setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                            }}
                               groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
                             }`}
                           >
@@ -416,7 +410,10 @@ const OpaSuite = () => {
                             return (
                               <button
                                 key={oi}
-                                onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: oi }))}
+                                onClick={() => {
+                                  setGroupSelections((prev) => ({ ...prev, [gi]: oi }));
+                                  setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                                }}
                                 className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
                                   isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
                                 }`}
