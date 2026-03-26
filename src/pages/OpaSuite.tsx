@@ -4,6 +4,7 @@ import { pricingTiers } from "@/data/pricing";
 import {
   opaBasePrice, opaAddons, opaCloudPlans, getMinOpaCloudPlanIndex,
   adesaoBasicaPrice, fluxoBasicoPrice, opaAdesaoExtras, opaMensalidadeGroups,
+  opaHourlyAdesaoItems,
 } from "@/data/opaPricing";
 import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
@@ -62,6 +63,9 @@ const OpaSuite = () => {
   const [adesaoExtrasEnabled, setAdesaoExtrasEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false]))
   );
+  const [hourlyQty, setHourlyQty] = useState<Record<string, number>>(
+    Object.fromEntries(opaHourlyAdesaoItems.map((a) => [a.name, 0]))
+  );
 
   const [clientName, setClientName] = useState("");
   const [clientCompany, setClientCompany] = useState("");
@@ -100,8 +104,11 @@ const OpaSuite = () => {
     opaAdesaoExtras.forEach((item) => {
       if (adesaoExtrasEnabled[item.name] && item.price > 0) total += item.price;
     });
+    opaHourlyAdesaoItems.forEach((item) => {
+      total += (hourlyQty[item.name] || 0) * item.unitPrice;
+    });
     return total;
-  }, [fluxoBasicoEnabled, adesaoExtrasEnabled]);
+  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty]);
 
   const resetAll = () => {
     setClientCount(null);
@@ -111,6 +118,7 @@ const OpaSuite = () => {
     setOpenGroups({});
     setFluxoBasicoEnabled(false);
     setAdesaoExtrasEnabled(Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false])));
+    setHourlyQty(Object.fromEntries(opaHourlyAdesaoItems.map((a) => [a.name, 0])));
     setClientName("");
     setClientCompany("");
     setClientPhone("");
@@ -140,6 +148,12 @@ const OpaSuite = () => {
     opaAdesaoExtras.forEach((item) => {
       if (adesaoExtrasEnabled[item.name]) {
         items.push({ label: item.name, value: item.price, section: "adesao" });
+      }
+    });
+    opaHourlyAdesaoItems.forEach((item) => {
+      const qty = hourlyQty[item.name] || 0;
+      if (qty > 0) {
+        items.push({ label: `${item.name} (x${qty})`, value: qty * item.unitPrice, section: "adesao" });
       }
     });
     return items;
@@ -490,60 +504,86 @@ const OpaSuite = () => {
           </>
         )}
 
-        {/* Adesão (own card) */}
-        <Card className="card-premium animate-fade-slide-up-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Adesão (pagamento único)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Adesão Básica — always on */}
-            <div className="flex justify-between items-center text-sm">
-              <div>
-                <span className="text-foreground font-medium">Adesão Básica</span>
-                <span className="block text-xs text-muted-foreground">
-                  Configuração básica, canais, 3h treinamento, suporte, fluxo básico
-                </span>
-              </div>
-              <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
-            </div>
-
-            {/* Fluxo Básico entregue e configurado */}
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-3">
-                <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
-                <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
-              </div>
-              <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
-                {fmtBRL(fluxoBasicoPrice)}
-              </span>
-            </div>
-
-            {/* Extra adesão items */}
-            {opaAdesaoExtras.map((item) => (
-              <div key={item.name} className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-3">
-                  <Switch
-                    checked={adesaoExtrasEnabled[item.name] || false}
-                    onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
-                  />
-                  <div>
-                    <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
-                    {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
-                    {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
-                  </div>
+        {/* Adesão (own card) - only show when clientCount is set */}
+        {clientCount && (
+          <Card className="card-premium animate-fade-slide-up-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Adesão (pagamento único)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Adesão Básica — always on */}
+              <div className="flex justify-between items-center text-sm">
+                <div>
+                  <span className="text-foreground font-medium">Adesão Básica</span>
+                  <span className="block text-xs text-muted-foreground">
+                    Configuração básica, canais, 3h treinamento, suporte, fluxo básico
+                  </span>
                 </div>
-                <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
-                  {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
+                <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
+              </div>
+
+              {/* Fluxo Básico entregue e configurado */}
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-3">
+                  <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
+                  <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
+                </div>
+                <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                  {fmtBRL(fluxoBasicoPrice)}
                 </span>
               </div>
-            ))}
 
-            <div className="border-t border-border pt-3 flex justify-between items-center">
-              <span className="font-semibold text-foreground">Total Adesão</span>
-              <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
-            </div>
-          </CardContent>
-        </Card>
+              {/* Hourly adesão items */}
+              <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 sm:gap-x-3 gap-y-2 text-sm">
+                {opaHourlyAdesaoItems.map((item) => {
+                  const qty = hourlyQty[item.name] || 0;
+                  const subtotal = qty * item.unitPrice;
+                  return (
+                    <React.Fragment key={item.name}>
+                      <span className="text-foreground font-medium text-xs sm:text-sm truncate">{item.name}</span>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setHourlyQty((p) => ({ ...p, [item.name]: Math.max(0, (p[item.name] || 0) - 1) }))}>
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="w-6 text-center font-mono">{qty}</span>
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setHourlyQty((p) => ({ ...p, [item.name]: (p[item.name] || 0) + 1 }))}>
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <span className="text-muted-foreground text-right text-xs sm:text-sm whitespace-nowrap">{fmtBRL(item.unitPrice)}</span>
+                      <span className="font-semibold text-right text-foreground w-16 text-xs sm:text-sm whitespace-nowrap">{fmtBRL(subtotal)}</span>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              {/* Extra adesão items */}
+              {opaAdesaoExtras.map((item) => (
+                <div key={item.name} className="flex justify-between items-center text-sm">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={adesaoExtrasEnabled[item.name] || false}
+                      onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
+                    />
+                    <div>
+                      <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
+                      {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
+                      {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
+                    </div>
+                  </div>
+                  <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
+                    {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
+                  </span>
+                </div>
+              ))}
+
+              <div className="border-t border-border pt-3 flex justify-between items-center">
+                <span className="font-semibold text-foreground">Total Adesão</span>
+                <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Resumo */}
         <Card className="border-2 border-blue-600/30 bg-blue-600/5 card-premium animate-fade-slide-up-3">

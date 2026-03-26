@@ -8,13 +8,16 @@ import logoHola from "@/assets/logo-hola.png";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
-import logoOpa from "@/assets/logo-opa-suite.png";
+import logoOpa from "@/assets/logo-opa-suite-2.png";
 import { supabase } from "@/integrations/supabase/client";
 
-const fmt = (n: number) =>
-  "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = (n: number, isOpa: boolean = false) =>
+  isOpa
+    ? "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fmtClients = (n: number) => n.toLocaleString("es-AR");
+const fmtClients = (n: number, isOpa: boolean = false) =>
+  n.toLocaleString(isOpa ? "pt-BR" : "es-AR");
 
 interface LineItem {
   label: string;
@@ -81,6 +84,8 @@ const Cotizacion = () => {
   const ecosystem = items.filter((i) => i.section === "eco");
   const hola = items.filter((i) => i.section === "hola");
   const cloud = items.filter((i) => i.section === "cloud");
+  const mensalidade = items.filter((i) => i.section === "mensalidade");
+  const adesao = items.filter((i) => i.section === "adesao");
   const hasDiscount = data.discount_amount > 0;
   const finalTotal = hasDiscount ? data.discounted_total : data.total;
 
@@ -89,6 +94,8 @@ const Cotizacion = () => {
   const hasAcs = ecosystem.some((i) => i.label === "ACS");
   const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
   const isOpaQuote = items.some((i) => i.section === "mensalidade");
+  const f = (n: number) => fmt(n, isOpaQuote);
+  const fc = (n: number) => fmtClients(n, isOpaQuote);
 
   return (
     <>
@@ -111,9 +118,13 @@ const Cotizacion = () => {
                 <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
               )}
             </div>
-            <CardTitle className="text-xl text-black-500">Resumen de Cotización</CardTitle>
+            <CardTitle className="text-xl text-black-500">
+              {isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
+            </CardTitle>
             <p className="text-sm text-gray-500">
-              Detalle para {fmtClients(data.clients_count)} clientes
+              {isOpaQuote
+                ? `Detalhe para ${fc(data.clients_count)} clientes`
+                : `Detalle para ${fc(data.clients_count)} clientes`}
             </p>
             {/* Product logos */}
             {(hasWispro || hasAcs || hasHola) && (
@@ -144,32 +155,55 @@ const Cotizacion = () => {
               </div>
             )}
 
-            {ecosystem.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ecosistema</h3>
-                {ecosystem.map((item) => (
-                  <CotizacionLine key={item.label} label={item.label} value={item.value} />
-                ))}
-              </div>
+            {/* Opa! sections */}
+            {isOpaQuote && (
+              <>
+                {mensalidade.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Mensalidade</h3>
+                    {mensalidade.map((item) => (
+                      <CotizacionLine key={item.label} label={item.label} value={item.value} isOpa />
+                    ))}
+                  </div>
+                )}
+                {cloud.length > 0 && (
+                  <div className="border-t border-gray-200 pt-3 space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Opa! Cloud</h3>
+                    {cloud.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} isOpa />)}
+                  </div>
+                )}
+              </>
             )}
 
-            {hola.length > 0 && (
-              <div className="border-t border-gray-200 pt-3 space-y-2">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Personalización Hola</h3>
-                {hola.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
-              </div>
-            )}
-
-            {cloud.length > 0 && (
-              <div className="border-t border-gray-200 pt-3 space-y-2">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Cloud</h3>
-                {cloud.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
-              </div>
+            {/* Wispro sections */}
+            {!isOpaQuote && (
+              <>
+                {ecosystem.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ecosistema</h3>
+                    {ecosystem.map((item) => (
+                      <CotizacionLine key={item.label} label={item.label} value={item.value} />
+                    ))}
+                  </div>
+                )}
+                {hola.length > 0 && (
+                  <div className="border-t border-gray-200 pt-3 space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Personalización Hola</h3>
+                    {hola.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
+                  </div>
+                )}
+                {cloud.length > 0 && (
+                  <div className="border-t border-gray-200 pt-3 space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Cloud</h3>
+                    {cloud.map((item) => <CotizacionLine key={item.label} label={item.label} value={item.value} />)}
+                  </div>
+                )}
+              </>
             )}
 
             <div className="border-t-2 border-orange-500/30 pt-4 space-y-3">
               {/* Discount banner */}
-              {hasDiscount && (
+              {hasDiscount && !isOpaQuote && (
                 <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-center space-y-1">
                   <p className="text-sm font-medium text-emerald-700">
                     🎉 Tu Asesor te ha otorgado un <span className="font-bold text-emerald-800">{data.discount}%</span> de descuento
@@ -182,56 +216,82 @@ const Cotizacion = () => {
 
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xl font-bold text-black-500">Total Mensual</p>
-                  <p className="text-xs text-gray-500">Ecosistema + Personalización + Cloud</p>
+                  <p className="text-xl font-bold text-black-500">
+                    {isOpaQuote ? "Total Mensal" : "Total Mensual"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {isOpaQuote ? "Mensalidade + Cloud" : "Ecosistema + Personalización + Cloud"}
+                  </p>
                 </div>
                 <div className="text-right">
                   {hasDiscount && (
-                    <p className="text-lg text-gray-400 line-through">{fmt(data.total)}</p>
+                    <p className="text-lg text-gray-400 line-through">{f(data.total)}</p>
                   )}
-                  <p className="text-4xl font-bold text-orange-500">{fmt(finalTotal)}</p>
+                  <p className="text-4xl font-bold text-orange-500">{f(finalTotal)}</p>
                 </div>
               </div>
 
               {/* Summary of selected items */}
-              {items.length > 0 && (
+              {items.filter(i => i.section !== "adesao").length > 0 && (
                 <div className="mt-3 space-y-1">
-                  {items.map((item, idx) => (
+                  {items.filter(i => i.section !== "adesao").map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs text-gray-500">
                       <span className="h-1 w-1 rounded-full bg-orange-400 flex-shrink-0" />
                       <span>{item.label}</span>
-                      <span className="ml-auto font-medium text-gray-600">{fmt(item.value)}</span>
+                      <span className="ml-auto font-medium text-gray-600">{f(item.value)}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Implementation with feria discount */}
+            {/* Implementation / Adesão */}
             <div className="border-t border-gray-200 pt-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-600">Pago de Implementación (único pago)</p>
-                  {(() => {
-                    const appCount = ecosystem.length;
-                    return appCount > 0 ? (
-                      <p className="text-xs text-emerald-600">
-                        {appCount} {appCount === 1 ? "aplicación" : "aplicaciones"} × $50 (75% dto. sobre $200/app)
-                      </p>
-                    ) : null;
-                  })()}
+              {isOpaQuote ? (
+                <>
+                  {adesao.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Adesão (pagamento único)</p>
+                      {adesao.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm py-0.5">
+                          <span className="text-gray-700">{item.label}</span>
+                          <span className="font-semibold text-gray-700">{item.value > 0 ? f(item.value) : "Sob avaliação"}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                        <span className="font-semibold text-gray-700">Total Adesão</span>
+                        <span className="text-lg font-bold text-gray-700">{f(data.installation_cost)}</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-600">Pago de Implementación (único pago)</p>
+                    {(() => {
+                      const appCount = ecosystem.length;
+                      return appCount > 0 ? (
+                        <p className="text-xs text-emerald-600">
+                          {appCount} {appCount === 1 ? "aplicación" : "aplicaciones"} × $50 (75% dto. sobre $200/app)
+                        </p>
+                      ) : null;
+                    })()}
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <p className="text-sm text-gray-400 line-through">{f(data.installation_cost * 4)}</p>
+                    <p className="text-lg font-bold text-gray-700">{f(data.installation_cost)}</p>
+                  </div>
                 </div>
-                <div className="text-right flex-shrink-0 ml-4">
-                  <p className="text-sm text-gray-400 line-through">{fmt(data.installation_cost * 4)}</p>
-                  <p className="text-lg font-bold text-gray-700">{fmt(data.installation_cost)}</p>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Seller profile footer */}
             {(data.seller_name || data.seller_cargo || data.seller_numero || data.seller_email) && (
               <div className="border-t border-gray-200 pt-4 space-y-3">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tu asesor</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  {isOpaQuote ? "Seu consultor" : "Tu asesor"}
+                </p>
                 <div className="flex items-start gap-3">
                   <Avatar className="h-14 w-14 border-2 border-orange-500/20">
                     {data.seller_foto ? (
@@ -270,21 +330,23 @@ const Cotizacion = () => {
         <div className="w-full max-w-lg mt-4 no-print space-y-2 animate-fade-slide-up">
           <Button onClick={() => window.print()} className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white" size="lg">
             <Download className="h-5 w-5" />
-            Descargar PDF
+            {isOpaQuote ? "Baixar PDF" : "Descargar PDF"}
           </Button>
           <Button
             onClick={() => {
               const id = params.get("id") || "";
               const quoteUrl = `https://holaprecios.lovable.app/cotizacion?id=${id}`;
-              const sellerName = data?.seller_name || "tu asesor";
-              const text = `Hola! Recibí esta cotización de parte de ${sellerName} en Andina Link y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
+              const sellerName = data?.seller_name || (isOpaQuote ? "seu consultor" : "tu asesor");
+              const text = isOpaQuote
+                ? `Olá! Recebi esta cotação de ${sellerName} e gostaria de confirmar o valor! ${quoteUrl}`
+                : `Hola! Recibí esta cotización de parte de ${sellerName} en Andina Link y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
               window.open(`https://api.whatsapp.com/send?phone=5492615783684&text=${encodeURIComponent(text)}`, "_blank");
             }}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
             size="lg"
           >
             <Phone className="h-5 w-5" />
-            Deseo confirmar mi cotización
+            {isOpaQuote ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
           </Button>
         </div>
       </div>
@@ -292,11 +354,11 @@ const Cotizacion = () => {
   );
 };
 
-function CotizacionLine({ label, value }: { label: string; value: number }) {
+function CotizacionLine({ label, value, isOpa = false }: { label: string; value: number; isOpa?: boolean }) {
   return (
     <div className="flex justify-between items-center text-sm py-1 text-foreground">
       <span>{label}</span>
-      <span className="font-semibold">{fmt(value)}</span>
+      <span className="font-semibold">{fmt(value, isOpa)}</span>
     </div>
   );
 }
