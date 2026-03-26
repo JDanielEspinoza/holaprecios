@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { MessageSquare, Mic, AudioLines } from "lucide-react";
 import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import AppMenu from "@/components/AppMenu";
+import EventBadge from "@/components/EventBadge";
 import opaBanner from "@/assets/opasuite-banner.jpeg";
 import metaPartners from "@/assets/meta-partners.png";
 import geminiIcon from "@/assets/gemini-icon.png";

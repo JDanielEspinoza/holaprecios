@@ -9,6 +9,7 @@ import {
 import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
+import EventBadge from "@/components/EventBadge";
 import logoOpa from "@/assets/logo-opa-suite.png";
 import logoIxc from "@/assets/logo-ixcsoft.png";
 import opaBanner from "@/assets/opa-banner.jpg";
