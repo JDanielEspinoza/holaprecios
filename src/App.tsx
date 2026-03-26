@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { EventProvider } from "@/contexts/EventContext";
 import Index from "./pages/Index";
 import Cotizacion from "./pages/Cotizacion";
 import MisCotizaciones from "./pages/MisCotizaciones";
@@ -15,6 +16,7 @@ import Usuarios from "./pages/Usuarios";
 import OpaSuiteIA from "./pages/OpaSuiteIA";
 import HolaSuiteIA from "./pages/HolaSuiteIA";
 import Landing from "./pages/Landing";
+import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -49,20 +51,26 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/cotizacion" element={<Cotizacion />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-            <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
-            <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
-            <Route path="/cotizaciones-andina" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
-            <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
-            <Route path="/hola-suite-ia" element={<ProtectedRoute><HolaSuiteIA /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <EventProvider>
+            <Routes>
+              <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/cotizacion" element={<Cotizacion />} />
+              <Route path="/landing" element={<Landing />} />
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+              <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
+              <Route path="/mis-cotizaciones" element={<ProtectedRoute><MisCotizaciones /></ProtectedRoute>} />
+              <Route path="/cotizaciones-andina" element={<Navigate to="/cotizaciones" replace />} />
+              <Route path="/cotizaciones" element={<ProtectedRoute><CotizacionesAndina /></ProtectedRoute>} />
+              <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
+              <Route path="/hola-suite-ia" element={<ProtectedRoute><HolaSuiteIA /></ProtectedRoute>} />
+              <Route path="/coming-soon" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
+              <Route path="/coming-soon-ixc" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
+              <Route path="/coming-soon-olli" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </EventProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

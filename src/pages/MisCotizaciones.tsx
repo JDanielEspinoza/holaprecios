@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { EVENT_LIST } from "@/data/events";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,6 +42,8 @@ const fmt = (n: number) =>
 interface QuoteRow {
   id: string;
   quote_number: number;
+  event_code: string | null;
+  event_quote_label: string | null;
   client_name: string | null;
   client_company: string | null;
   client_email: string | null;
@@ -66,6 +69,7 @@ const MisCotizaciones = () => {
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
@@ -117,6 +121,13 @@ const MisCotizaciones = () => {
 
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
+    if (eventFilter !== "all") {
+      if (eventFilter === "NONE") {
+        list = list.filter((q) => !q.event_code || q.event_code === "NONE");
+      } else {
+        list = list.filter((q) => q.event_code === eventFilter);
+      }
+    }
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter((q) =>
@@ -124,13 +135,14 @@ const MisCotizaciones = () => {
         (q.client_company || "").toLowerCase().includes(s) ||
         (q.client_email || "").toLowerCase().includes(s) ||
         (q.client_phone || "").toLowerCase().includes(s) ||
+        (q.event_quote_label || "").toLowerCase().includes(s) ||
         String(q.quote_number).includes(s)
       );
     }
     return list;
-  }, [quotes, search, showArchived]);
+  }, [quotes, search, eventFilter, showArchived]);
 
-  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, pageSize]);
+  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, eventFilter, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginatedQuotes = useMemo(() => {
@@ -452,6 +464,18 @@ const MisCotizaciones = () => {
                   className="pl-9 input-premium"
                 />
               </div>
+              <Select value={eventFilter} onValueChange={setEventFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Evento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los eventos</SelectItem>
+                  <SelectItem value="NONE">Sin evento</SelectItem>
+                  {EVENT_LIST.filter((e) => e.code !== "NONE").map((e) => (
+                    <SelectItem key={e.code} value={e.code}>{e.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 variant={showArchived ? "default" : "outline"}
                 size="sm"
@@ -578,7 +602,7 @@ const MisCotizaciones = () => {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">
-                            #{q.quote_number}
+                            {q.event_quote_label || `#${q.quote_number}`}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
                             {formatDate(q.created_at)}

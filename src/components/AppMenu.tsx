@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User, FileText, LogOut, History, Building2, Users, X, Bot, ChevronDown } from "lucide-react";
+import { useEvent } from "@/contexts/EventContext";
+import { EVENTS, ACTIVE_EVENTS } from "@/data/events";
+import { Menu, User, FileText, LogOut, History, Building2, Users, X, Bot, ChevronDown, Calendar, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type MenuItem = {
   title: string;
   path?: string;
   icon: React.ElementType;
-  children?: { title: string; path: string; icon: React.ElementType }[];
+  children?: { title: string; path: string; icon: React.ElementType; comingSoon?: boolean }[];
 };
 
 const menuItems: MenuItem[] = [
@@ -17,13 +26,16 @@ const menuItems: MenuItem[] = [
     title: "Cotizar",
     icon: FileText,
     children: [
-      { title: "Andina Link 2026", path: "/", icon: Building2 },
+      { title: "Ecosistema Wispro + IXC", path: "/", icon: Cpu },
       { title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot },
       { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
+      { title: "Opa! Suite", path: "/coming-soon", icon: Bot, comingSoon: true },
+      { title: "IXC Consult", path: "/coming-soon-ixc", icon: Bot, comingSoon: true },
+      { title: "Olli", path: "/coming-soon-olli", icon: Bot, comingSoon: true },
     ],
   },
   { title: "Mis Cotizaciones", path: "/mis-cotizaciones", icon: History },
-  { title: "Cotizaciones Andina", path: "/cotizaciones-andina", icon: Building2 },
+  { title: "Cotizaciones", path: "/cotizaciones", icon: Building2 },
   { title: "Usuarios", path: "/usuarios", icon: Users },
 ];
 
@@ -33,6 +45,7 @@ const AppMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut } = useAuth();
+  const { activeEvent, setActiveEventCode } = useEvent();
 
   const handleNavigate = (path: string) => {
     setIsOpen(false);
@@ -49,7 +62,6 @@ const AppMenu = () => {
     setExpandedMenu((prev) => (prev === title ? null : title));
   };
 
-  // Check if any child is active
   const isChildActive = (item: MenuItem) =>
     item.children?.some((c) => location.pathname === c.path) ?? false;
 
@@ -78,6 +90,38 @@ const AppMenu = () => {
           </Button>
         </div>
 
+        {/* Event selector */}
+        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="h-4 w-4 text-orange-500" />
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Evento activo</span>
+          </div>
+          <Select
+            value={activeEvent.code}
+            onValueChange={(v) => setActiveEventCode(v)}
+          >
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="NONE">{EVENTS.NONE.name}</SelectItem>
+              {ACTIVE_EVENTS.filter((e) => e.code !== "NONE").map((event) => (
+                <SelectItem key={event.code} value={event.code}>
+                  {event.name}
+                </SelectItem>
+              ))}
+              {/* Show inactive events as disabled */}
+              {Object.values(EVENTS)
+                .filter((e) => !e.active && e.code !== "NONE")
+                .map((event) => (
+                  <SelectItem key={event.code} value={event.code} disabled>
+                    {event.name} (finalizado)
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <nav className="flex flex-col py-2">
           {menuItems.map((item) => {
             if (item.children) {
@@ -103,14 +147,14 @@ const AppMenu = () => {
                   </button>
                   <div
                     className={`overflow-hidden transition-all duration-200 ${
-                      isExpanded ? "max-h-60" : "max-h-0"
+                      isExpanded ? "max-h-96" : "max-h-0"
                     }`}
                   >
                     {item.children.map((child) => {
                       const isActive = location.pathname === child.path;
                       return (
                         <button
-                          key={child.path}
+                          key={child.title}
                           onClick={() => handleNavigate(child.path)}
                           className={`flex items-center gap-3 pl-12 pr-5 py-3 text-left w-full transition-colors text-sm ${
                             isActive
@@ -120,6 +164,11 @@ const AppMenu = () => {
                         >
                           <child.icon className="h-4 w-4" />
                           <span>{child.title}</span>
+                          {child.comingSoon && (
+                            <span className="ml-auto text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded-full">
+                              Pronto
+                            </span>
+                          )}
                         </button>
                       );
                     })}

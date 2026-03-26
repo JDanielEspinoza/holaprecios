@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { EVENT_LIST } from "@/data/events";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +38,8 @@ const fmt = (n: number) =>
 interface QuoteRow {
   id: string;
   quote_number: number;
+  event_code: string | null;
+  event_quote_label: string | null;
   client_name: string | null;
   client_company: string | null;
   client_email: string | null;
@@ -60,6 +63,7 @@ const CotizacionesAndina = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [agentFilter, setAgentFilter] = useState("all");
+  const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
 
   // Pagination
@@ -109,6 +113,13 @@ const CotizacionesAndina = () => {
 
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
+    if (eventFilter !== "all") {
+      if (eventFilter === "NONE") {
+        list = list.filter((q) => !q.event_code || q.event_code === "NONE");
+      } else {
+        list = list.filter((q) => q.event_code === eventFilter);
+      }
+    }
     if (agentFilter !== "all") {
       list = list.filter((q) => q.seller_name === agentFilter);
     }
@@ -119,13 +130,14 @@ const CotizacionesAndina = () => {
         (q.client_company || "").toLowerCase().includes(s) ||
         (q.client_email || "").toLowerCase().includes(s) ||
         (q.client_phone || "").toLowerCase().includes(s) ||
+        (q.event_quote_label || "").toLowerCase().includes(s) ||
         String(q.quote_number).includes(s)
       );
     }
     return list;
-  }, [quotes, search, agentFilter, showArchived]);
+  }, [quotes, search, agentFilter, eventFilter, showArchived]);
 
-  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, agentFilter, pageSize]);
+  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, agentFilter, eventFilter, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginatedQuotes = useMemo(() => {
@@ -293,7 +305,7 @@ const CotizacionesAndina = () => {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
         <div className="flex items-center gap-3 mb-6 animate-fade-slide-up">
           <Building2 className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Cotizaciones Andina Link</h1>
+          <h1 className="text-2xl font-bold text-foreground">Cotizaciones</h1>
           <Badge variant="secondary" className="ml-2">{filtered.length} cotizaciones</Badge>
         </div>
 
@@ -312,6 +324,20 @@ const CotizacionesAndina = () => {
               </div>
               <div className="flex gap-2 items-center">
                 <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={eventFilter} onValueChange={setEventFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Evento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los eventos</SelectItem>
+                    <SelectItem value="NONE">Sin evento</SelectItem>
+                    {EVENT_LIST.filter((e) => e.code !== "NONE").map((e) => (
+                      <SelectItem key={e.code} value={e.code}>{e.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 items-center">
                 <Select value={agentFilter} onValueChange={setAgentFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Agente" />
@@ -449,7 +475,7 @@ const CotizacionesAndina = () => {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">
-                            #{q.quote_number}
+                            {q.event_quote_label || `#${q.quote_number}`}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
                             {formatDate(q.created_at)}
