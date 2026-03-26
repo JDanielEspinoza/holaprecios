@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useEvent } from "@/contexts/EventContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ type ViewState = "form" | "loading" | "success";
 
 const Index = () => {
   const { user } = useAuth();
+  const { eventCode } = useEvent();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
