@@ -90,6 +90,17 @@ export const opaAdesaoExtras: OpaAdesaoItem[] = [
   { name: "Integração ERP, CRM e / ou outro sistema via Low Code", price: 0, sobAnalise: true },
 ];
 
+// Hourly adesão items (quantity-based, one-time)
+export type OpaHourlyAdesaoItem = {
+  name: string;
+  unitPrice: number;
+};
+
+export const opaHourlyAdesaoItems: OpaHourlyAdesaoItem[] = [
+  { name: "Hora Análise", unitPrice: 281.0 },
+  { name: "Hora Execução", unitPrice: 228.0 },
+];
+
 export function getMinOpaCloudPlanIndex(clientCount: number): number {
   for (let i = 0; i < opaCloudPlans.length; i++) {
     if (clientCount <= opaCloudPlans[i].maxClients) return i;

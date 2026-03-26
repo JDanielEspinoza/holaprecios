@@ -4,6 +4,7 @@ import { pricingTiers } from "@/data/pricing";
 import {
   opaBasePrice, opaAddons, opaCloudPlans, getMinOpaCloudPlanIndex,
   adesaoBasicaPrice, fluxoBasicoPrice, opaAdesaoExtras, opaMensalidadeGroups,
+  opaHourlyAdesaoItems,
 } from "@/data/opaPricing";
 import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
