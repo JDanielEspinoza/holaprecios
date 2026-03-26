@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { EVENT_LIST } from "@/data/events";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +38,8 @@ const fmt = (n: number) =>
 interface QuoteRow {
   id: string;
   quote_number: number;
+  event_code: string | null;
+  event_quote_label: string | null;
   client_name: string | null;
   client_company: string | null;
   client_email: string | null;
