@@ -55,13 +55,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     setSending(true);
     setResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          phone: cleanPhone,
-          agentName: agentName || "Tu asesor",
-          linkPresupuesto: quoteUrl,
-        },
-      });
+      // Use template API for Opa + ABRINT event, otherwise use default n8n webhook
+      const useTemplateApi = isOpa && eventCode === "ABRINT26";
+      const functionName = useTemplateApi ? "send-whatsapp-template" : "send-whatsapp";
+      const body = useTemplateApi
+        ? { phone: cleanPhone, agentName: agentName || "Especialista Comercial", linkPresupuesto: quoteUrl, eventCode }
+        : { phone: cleanPhone, agentName: agentName || "Tu asesor", linkPresupuesto: quoteUrl };
+
+      const { data, error } = await supabase.functions.invoke(functionName, { body });
 
       if (error) {
         setResult({
