@@ -464,6 +464,18 @@ const MisCotizaciones = () => {
                   className="pl-9 input-premium"
                 />
               </div>
+              <Select value={eventFilter} onValueChange={setEventFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Evento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los eventos</SelectItem>
+                  <SelectItem value="NONE">Sin evento</SelectItem>
+                  {EVENT_LIST.filter((e) => e.code !== "NONE").map((e) => (
+                    <SelectItem key={e.code} value={e.code}>{e.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 variant={showArchived ? "default" : "outline"}
                 size="sm"
