@@ -233,6 +233,7 @@ const OpaSuite = () => {
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
         </div>
+        <EventBadge />
 
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-lg mx-auto w-full">
           <div className="w-full space-y-6 animate-fade-slide-up">
@@ -294,6 +295,7 @@ const OpaSuite = () => {
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
+      <EventBadge />
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-10">
         {/* Client count selector */}
