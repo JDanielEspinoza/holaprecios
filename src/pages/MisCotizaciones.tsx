@@ -69,6 +69,7 @@ const MisCotizaciones = () => {
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
@@ -120,6 +121,13 @@ const MisCotizaciones = () => {
 
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
+    if (eventFilter !== "all") {
+      if (eventFilter === "NONE") {
+        list = list.filter((q) => !q.event_code || q.event_code === "NONE");
+      } else {
+        list = list.filter((q) => q.event_code === eventFilter);
+      }
+    }
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter((q) =>
@@ -127,13 +135,14 @@ const MisCotizaciones = () => {
         (q.client_company || "").toLowerCase().includes(s) ||
         (q.client_email || "").toLowerCase().includes(s) ||
         (q.client_phone || "").toLowerCase().includes(s) ||
+        (q.event_quote_label || "").toLowerCase().includes(s) ||
         String(q.quote_number).includes(s)
       );
     }
     return list;
-  }, [quotes, search, showArchived]);
+  }, [quotes, search, eventFilter, showArchived]);
 
-  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, pageSize]);
+  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, eventFilter, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginatedQuotes = useMemo(() => {
