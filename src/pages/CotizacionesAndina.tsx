@@ -324,6 +324,20 @@ const CotizacionesAndina = () => {
               </div>
               <div className="flex gap-2 items-center">
                 <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={eventFilter} onValueChange={setEventFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Evento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los eventos</SelectItem>
+                    <SelectItem value="NONE">Sin evento</SelectItem>
+                    {EVENT_LIST.filter((e) => e.code !== "NONE").map((e) => (
+                      <SelectItem key={e.code} value={e.code}>{e.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 items-center">
                 <Select value={agentFilter} onValueChange={setAgentFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Agente" />
