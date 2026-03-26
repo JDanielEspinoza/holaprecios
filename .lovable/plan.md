@@ -1,51 +1,44 @@
 
 
-## Plan: Fix Opa! Suite Cotação — Logo, Translations, and Validity Text
+## Plan: WhatsApp Template Integration for Hola! Suite
 
-### Problem
-The generated cotação page (`/cotizacion?id=...`) opened via "Baixar Cotação" still shows:
-- Wrong logo (Wispro + IXC instead of OpaSuite-3.png)
-- Spanish text throughout (Resumen de Cotización, Total Mensual, Tu asesor, Descargar PDF, etc.)
-- "$" currency format instead of "R$"
-- Validity text ("Cotización válida hasta...")
-- "Pago de Implementación" section mixing with Opa layout
+### Overview
+Add WhatsApp template sending for Hola! Suite quotes, similar to the existing Opa! Suite ABRINT integration but with its own API URL, Bearer token, canal ID, and event-dependent template IDs.
 
-### Root Cause
-The current `Cotizacion.tsx` code has conditional `isOpaQuote` logic, but the screenshot shows it is not activating correctly or the deployed version doesn't match. The plan ensures all Opa! quote text is unambiguously in Portuguese and the correct logo is used.
+### Configuration
+
+| Parameter | Value |
+|---|---|
+| API URL | `https://wispro.holasuite.com/api/v1/template/send` |
+| Canal ID | `67cb3542f3823200bddecfd9` |
+| Template — Sin Evento (NONE) | `69c59a4c721c69eda85b82d0` |
+| Template — APTC26 | `69c59b3a315f1b682c3d340b` |
+| Template — ABRINT26 | `69c59ba9315f1b682c3d352d` |
 
 ### Changes
 
-**File: `src/pages/Cotizacion.tsx`**
+**1. Store Bearer token as secret**
+- Add secret `HOLA_WHATSAPP_BEARER` with the provided token.
 
-1. **Logo** — Verify import of `logo-opa-suite-3.png` is correct and rendered for Opa quotes (already in code at line 11/126 — will re-verify the asset exists and is the correct file).
+**2. Update edge function `supabase/functions/send-whatsapp-template/index.ts`**
+- Add three new entries to `EVENT_CONFIGS` for Hola! Suite, keyed by compound codes like `HOLA_NONE`, `HOLA_APTC26`, `HOLA_ABRINT26`:
+  - All three share the same API URL, bearer secret name (`HOLA_WHATSAPP_BEARER`), and canal ID
+  - Each has its own `templateId`
 
-2. **Remove all remaining Spanish text for Opa context** — Audit every string in the file and ensure the `isOpaQuote` ternary uses Portuguese:
-   - "Resumo da Cotação" (not "Resumen de Cotización")
-   - "Detalhe para X clientes" (not "Detalle para")
-   - "Total Mensal" (not "Total Mensual")
-   - "Mensalidade + Cloud" (not "Ecosistema + Personalización + Cloud")
-   - "Especialista Comercial" (not "Tu asesor")
-   - "Baixar PDF" (not "Descargar PDF")
-   - "Desejo confirmar minha cotação" (not "Deseo confirmar mi cotización")
-   - WhatsApp message text in Portuguese
+**3. Update `src/components/QuoteShare.tsx`**
+- Currently the template API path is only triggered when `isOpa && eventCode === "ABRINT26"`
+- Change logic: always use the template API for both Opa and Hola quotes
+- For Hola quotes (`isOpa === false`), construct eventCode as `HOLA_${eventCode || "NONE"}` to match the new config keys
+- For Opa quotes, keep existing `ABRINT26` key
 
-3. **Remove validity date text** — Search for any "Cotización válida" or date text (currently not found in code — may be rendered from data or a cached deployment). Add explicit check to ensure no such footer appears for Opa quotes.
-
-4. **Currency format** — Ensure `fmt()` with `isOpa=true` uses "R$" format. Already in code; will verify the `f()` helper correctly passes `isOpaQuote`.
-
-5. **Opa layout sections** — Ensure for Opa quotes, only the Opa-specific sections render (Mensalidade, Cloud, Total Mensal, Adesão) and NOT the Wispro sections (Ecosistema, Personalización, Pago de Implementación).
-
-**File: `src/components/QuoteShare.tsx`**
-- Already has `isOpa` prop with PT-BR text — verify it's being passed correctly from `OpaSuite.tsx`.
-
-**File: `src/pages/OpaSuite.tsx`**
-- Verify `isOpa={true}` is passed to `QuoteShare` component.
+**4. Update `src/pages/Index.tsx`**
+- Pass `eventCode={eventCode}` to `<QuoteShare>` (currently missing)
 
 ### Files modified
 
 | File | Change |
 |---|---|
-| `src/pages/Cotizacion.tsx` | Re-verify and fix all PT-BR translations, logo, remove validity text |
-| `src/pages/OpaSuite.tsx` | Verify isOpa prop passed to QuoteShare |
-| `src/components/QuoteShare.tsx` | Verify PT-BR translations (may need minor fixes) |
+| `supabase/functions/send-whatsapp-template/index.ts` | Add 3 Hola! Suite event configs |
+| `src/components/QuoteShare.tsx` | Route all quotes through template API with correct event key |
+| `src/pages/Index.tsx` | Pass `eventCode` prop to QuoteShare |
 
