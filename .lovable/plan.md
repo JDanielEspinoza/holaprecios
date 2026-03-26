@@ -1,76 +1,43 @@
+## Plan: Multi-Event Quotation System (Revised v2) — IMPLEMENTED
 
+### ✅ Phase 1 — Database Migration
+- Added `event_code TEXT DEFAULT NULL` and `event_quote_label TEXT DEFAULT NULL` to `quotes`
+- Created `generate_event_quote_label()` function + trigger for auto-labeling (APTC26-01, ABRINT26-02, etc.)
+- Existing quotes stay `NULL` (no backfill)
 
-# Plan: Upgrade Visual Premium SaaS
+### ✅ Phase 2 — Event Context + Menu Selector
+- Created `src/data/events.ts` — event registry (NONE, ANDINA26, APTC26, ABRINT26)
+- Created `src/contexts/EventContext.tsx` — persists active event in localStorage, default "Sin evento"
+- Modified `AppMenu.tsx`: event selector dropdown in slide-out menu
+- Wrapped app with `EventProvider` in `App.tsx`
 
-Mejora visual global de toda la app sin cambiar lógica ni estructura. Solo diseño, profundidad y transiciones.
+### ✅ Phase 3 — Auto-attach event_code on Save
+- Modified `Index.tsx`: reads `eventCode` from context and includes it in quote insert
 
-## 1. CSS Variables y Gradientes Base (`src/index.css`)
+### ✅ Phase 4 — Modify Existing Edge Function
+- Modified `send-quote/index.ts` to accept `event_code` in payload
+- If NULL/NONE → identical to current behavior
+- If has value → can route to event-specific webhook URL (configurable via EVENT_WEBHOOK_URLS map)
+- Passes `event_code` to downstream webhook for template selection
 
-- Aumentar `--radius` a `0.75rem` (12px) para esquinas más suaves
-- Agregar variables CSS para gradientes y sombras reutilizables
-- Agregar clases utilitarias: `.card-premium` (sombra doble + hover elevación), `.btn-premium` (gradiente + press animation scale 0.97), `.input-premium` (glow en focus)
-- Agregar animaciones: `fade-slide-up` para aparición de secciones, transiciones suaves globales
+### ✅ Phase 5 — Cotizaciones (rename + event tabs)
+- Renamed title "Cotizaciones Andina Link" → "Cotizaciones"
+- Added event filter dropdown: Todos / Sin evento / per-event
+- Added event filter to MisCotizaciones too
+- Shows `event_quote_label` instead of `#quote_number` when available
+- Route `/cotizaciones-andina` redirects to `/cotizaciones`
 
-## 2. Tailwind Config (`tailwind.config.ts`)
+### ✅ Phase 6 — Menu Restructure (Cotizar by app)
+- Cotizar submenu organized by application:
+  - Ecosistema Wispro + IXC → / (existing calculator)
+  - Hola! Suite IA → /hola-suite-ia
+  - Opa! Suite IA → /opa-suite-ia
+  - Opa! Suite → placeholder (Pronto)
+  - IXC Consult → placeholder (Pronto)
+  - Olli → placeholder (Pronto)
+- Created `ComingSoon.tsx` placeholder page
 
-- Agregar keyframes: `fade-slide-up`, `glow-pulse`
-- Agregar animations correspondientes
-- Ampliar `boxShadow` con sombras premium de dos niveles
-
-## 3. Página Login (`src/pages/Login.tsx`)
-
-- Fondo con gradiente sutil (purple → indigo → soft blue) animado
-- Card con sombra premium elevada, bordes más suaves
-- Inputs con transición de borde y glow en focus
-- Botón con gradiente y efecto press
-
-## 4. Página Principal (`src/pages/Index.tsx`)
-
-- Banner header: gradiente animado en lugar de color sólido
-- Cards de productos: sombra doble, hover con `translateY(-3px)` y `scale(1.01)`, transición 250ms
-- Selector de clientes: glow sutil en el borde
-- Card de resumen: fondo con gradiente más sofisticado
-- Total: tamaño aumentado, glow detrás del número
-- Secciones con `animate-fade-slide-up` escalonado
-- Botones con gradiente y press animation
-
-## 5. Página Cotización compartida (`src/pages/Cotizacion.tsx`)
-
-- Card principal con sombra premium
-- Botones con transiciones suaves
-- Tipografía del total más impactante
-
-## 6. Página Historial (`src/pages/Cotizaciones.tsx`)
-
-- Cards con hover elevation
-- Transiciones suaves en hover
-
-## 7. Página Perfil (`src/pages/Perfil.tsx`)
-
-- Card con sombra premium
-- Inputs con glow en focus
-- Foto de perfil con borde con glow
-
-## 8. AppMenu (`src/components/AppMenu.tsx`)
-
-- Dropdown con sombra premium y bordes más suaves
-
-## Archivos a modificar
-
-| Archivo | Cambio |
-|---|---|
-| `src/index.css` | Variables, gradientes, clases utilitarias premium, animaciones |
-| `tailwind.config.ts` | Keyframes, animations, boxShadow extendidos |
-| `src/pages/Login.tsx` | Gradiente animado de fondo, card y inputs premium |
-| `src/pages/Index.tsx` | Sombras, hover effects, gradiente banner, total con glow, fade-in sections |
-| `src/pages/Cotizacion.tsx` | Sombra premium en card, tipografía mejorada |
-| `src/pages/Cotizaciones.tsx` | Hover elevation en cards |
-| `src/pages/Perfil.tsx` | Card premium, inputs con glow |
-
-## Principios
-
-- Todo sutil y refinado, nada exagerado
-- Transiciones 250-400ms con ease-out
-- Sombras de baja opacidad para profundidad realista
-- Gradientes casi imperceptibles para dar vida sin distraer
-
+### Phase 7 (future) — i18n + new calculators
+- i18n system (ES/PT-BR) with manual selector
+- Opa! Suite calculator for Abrint
+- Andina Link stays hardcoded in Spanish
