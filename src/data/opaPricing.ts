@@ -7,7 +7,7 @@ export const opaBasePrice = 212.0; // Licença Opa! Suite
 
 export const opaAddons: OpaAddon[] = [
   { name: "Usuário avulso", unitPrice: 30.0 },
-  { name: "WhatsApp Direct Tech Partner (broker IXC)", unitPrice: 201.0 },
+  { name: "Whatsapp Partner - Broker IXC", unitPrice: 201.0 },
   { name: "Instagram", unitPrice: 148.0 },
   { name: "WebChat", unitPrice: 148.0 },
   { name: "Messenger", unitPrice: 148.0 },
