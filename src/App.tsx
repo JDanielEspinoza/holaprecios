@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { EventProvider } from "@/contexts/EventContext";
 import Index from "./pages/Index";
 import Cotizacion from "./pages/Cotizacion";
 import MisCotizaciones from "./pages/MisCotizaciones";
@@ -15,6 +16,7 @@ import Usuarios from "./pages/Usuarios";
 import OpaSuiteIA from "./pages/OpaSuiteIA";
 import HolaSuiteIA from "./pages/HolaSuiteIA";
 import Landing from "./pages/Landing";
+import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
