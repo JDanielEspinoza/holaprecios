@@ -475,7 +475,7 @@ const CotizacionesAndina = () => {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">
-                            #{q.quote_number}
+                            {q.event_quote_label || `#${q.quote_number}`}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
                             {formatDate(q.created_at)}
