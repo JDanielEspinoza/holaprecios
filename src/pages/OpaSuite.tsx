@@ -490,7 +490,62 @@ const OpaSuite = () => {
           </>
         )}
 
-        {/* Summary */}
+        {/* Adesão (own card) */}
+        <Card className="card-premium animate-fade-slide-up-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Adesão (pagamento único)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Adesão Básica — always on */}
+            <div className="flex justify-between items-center text-sm">
+              <div>
+                <span className="text-foreground font-medium">Adesão Básica</span>
+                <span className="block text-xs text-muted-foreground">
+                  Configuração básica, canais, 3h treinamento, suporte, fluxo básico
+                </span>
+              </div>
+              <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
+            </div>
+
+            {/* Fluxo Básico entregue e configurado */}
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex items-center gap-3">
+                <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
+                <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
+              </div>
+              <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                {fmtBRL(fluxoBasicoPrice)}
+              </span>
+            </div>
+
+            {/* Extra adesão items */}
+            {opaAdesaoExtras.map((item) => (
+              <div key={item.name} className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={adesaoExtrasEnabled[item.name] || false}
+                    onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
+                  />
+                  <div>
+                    <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
+                    {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
+                    {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
+                  </div>
+                </div>
+                <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
+                  {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
+                </span>
+              </div>
+            ))}
+
+            <div className="border-t border-border pt-3 flex justify-between items-center">
+              <span className="font-semibold text-foreground">Total Adesão</span>
+              <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resumo */}
         <Card className="border-2 border-blue-600/30 bg-blue-600/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -517,7 +572,6 @@ const OpaSuite = () => {
               <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
             </div>
 
-            {/* Total Mensal */}
             <div className="border-t border-border pt-3 space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Subtotal Mensalidade</span>
@@ -535,59 +589,14 @@ const OpaSuite = () => {
               </div>
             </div>
 
-            {/* Adesão */}
-            <div className="border-t border-border pt-3 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Adesão (pagamento único)</p>
-
-              {/* Adesão Básica — always on */}
-              <div className="flex justify-between items-center text-sm">
-                <div>
-                  <span className="text-foreground font-medium">Adesão Básica</span>
-                  <span className="block text-xs text-muted-foreground">
-                    Configuração básica, canais, 3h treinamento, suporte, fluxo básico
-                  </span>
+            {adesaoTotal > 0 && (
+              <div className="border-t border-border pt-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Adesão (pagamento único)</span>
+                  <span className="font-semibold text-foreground">{fmtBRL(adesaoTotal)}</span>
                 </div>
-                <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
               </div>
-
-              {/* Fluxo Básico entregue e configurado */}
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-3">
-                  <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
-                  <div>
-                    <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
-                  </div>
-                </div>
-                <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
-                  {fmtBRL(fluxoBasicoPrice)}
-                </span>
-              </div>
-
-              {/* Extra adesão items */}
-              {opaAdesaoExtras.map((item) => (
-                <div key={item.name} className="flex justify-between items-center text-sm">
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={adesaoExtrasEnabled[item.name] || false}
-                      onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
-                    />
-                    <div>
-                      <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
-                      {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
-                      {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
-                    </div>
-                  </div>
-                  <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
-                    {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
-                  </span>
-                </div>
-              ))}
-
-              <div className="flex justify-between items-center pt-1">
-                <span className="font-semibold text-foreground">Total Adesão</span>
-                <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
