@@ -10,6 +10,7 @@ import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import logoOpa from "@/assets/logo-opa-suite.png";
 import logoIxc from "@/assets/logo-ixcsoft.png";
+import opaBanner from "@/assets/opa-banner.jpg";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
