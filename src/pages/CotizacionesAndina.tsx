@@ -63,6 +63,7 @@ const CotizacionesAndina = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [agentFilter, setAgentFilter] = useState("all");
+  const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
 
   // Pagination
