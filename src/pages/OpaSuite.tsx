@@ -63,6 +63,9 @@ const OpaSuite = () => {
   const [adesaoExtrasEnabled, setAdesaoExtrasEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false]))
   );
+  const [hourlyQty, setHourlyQty] = useState<Record<string, number>>(
+    Object.fromEntries(opaHourlyAdesaoItems.map((a) => [a.name, 0]))
+  );
 
   const [clientName, setClientName] = useState("");
   const [clientCompany, setClientCompany] = useState("");
@@ -101,8 +104,11 @@ const OpaSuite = () => {
     opaAdesaoExtras.forEach((item) => {
       if (adesaoExtrasEnabled[item.name] && item.price > 0) total += item.price;
     });
+    opaHourlyAdesaoItems.forEach((item) => {
+      total += (hourlyQty[item.name] || 0) * item.unitPrice;
+    });
     return total;
-  }, [fluxoBasicoEnabled, adesaoExtrasEnabled]);
+  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty]);
 
   const resetAll = () => {
     setClientCount(null);
