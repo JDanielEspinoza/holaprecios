@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MessageSquare, Mic, AudioLines, ChevronLeft, ChevronRight, Send, Megaphone, Wrench } from "lucide-react";
 import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import AppMenu from "@/components/AppMenu";
+import EventBadge from "@/components/EventBadge";
 import holaBanner from "@/assets/holabanner.jpg";
 import metaPartners from "@/assets/meta-partners.png";
 import geminiIcon from "@/assets/gemini-icon.png";
@@ -134,6 +135,7 @@ const HolaSuiteIA = () => {
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
+      <EventBadge />
 
       {/* Banner */}
       <motion.div
