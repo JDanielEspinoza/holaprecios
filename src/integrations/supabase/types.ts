@@ -100,6 +100,8 @@ export type Database = {
           discount_amount: number
           discounted_total: number
           entry_payment_paid: boolean
+          event_code: string | null
+          event_quote_label: string | null
           id: string
           installation_cost: number
           items: Json
@@ -126,6 +128,8 @@ export type Database = {
           discount_amount?: number
           discounted_total?: number
           entry_payment_paid?: boolean
+          event_code?: string | null
+          event_quote_label?: string | null
           id?: string
           installation_cost?: number
           items?: Json
@@ -152,6 +156,8 @@ export type Database = {
           discount_amount?: number
           discounted_total?: number
           entry_payment_paid?: boolean
+          event_code?: string | null
+          event_quote_label?: string | null
           id?: string
           installation_cost?: number
           items?: Json
