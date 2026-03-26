@@ -113,6 +113,13 @@ const CotizacionesAndina = () => {
 
   const filtered = useMemo(() => {
     let list = quotes.filter((q) => q.archived === showArchived);
+    if (eventFilter !== "all") {
+      if (eventFilter === "NONE") {
+        list = list.filter((q) => !q.event_code || q.event_code === "NONE");
+      } else {
+        list = list.filter((q) => q.event_code === eventFilter);
+      }
+    }
     if (agentFilter !== "all") {
       list = list.filter((q) => q.seller_name === agentFilter);
     }
@@ -123,13 +130,14 @@ const CotizacionesAndina = () => {
         (q.client_company || "").toLowerCase().includes(s) ||
         (q.client_email || "").toLowerCase().includes(s) ||
         (q.client_phone || "").toLowerCase().includes(s) ||
+        (q.event_quote_label || "").toLowerCase().includes(s) ||
         String(q.quote_number).includes(s)
       );
     }
     return list;
-  }, [quotes, search, agentFilter, showArchived]);
+  }, [quotes, search, agentFilter, eventFilter, showArchived]);
 
-  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, agentFilter, pageSize]);
+  useEffect(() => { setCurrentPage(1); setSelectedIds(new Set()); }, [search, showArchived, agentFilter, eventFilter, pageSize]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginatedQuotes = useMemo(() => {
@@ -297,7 +305,7 @@ const CotizacionesAndina = () => {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
         <div className="flex items-center gap-3 mb-6 animate-fade-slide-up">
           <Building2 className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Cotizaciones Andina Link</h1>
+          <h1 className="text-2xl font-bold text-foreground">Cotizaciones</h1>
           <Badge variant="secondary" className="ml-2">{filtered.length} cotizaciones</Badge>
         </div>
 
