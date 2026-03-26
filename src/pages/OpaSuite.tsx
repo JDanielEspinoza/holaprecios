@@ -10,6 +10,7 @@ import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import logoOpa from "@/assets/logo-opa-suite.png";
 import logoIxc from "@/assets/logo-ixcsoft.png";
+import opaBanner from "@/assets/opa-banner.jpg";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -211,12 +212,8 @@ const OpaSuite = () => {
   if (view === "success" && quoteId) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header gradient */}
-        <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
-          <div className="absolute inset-0 flex items-center justify-center gap-4">
-            <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
-            <img src={logoIxc} alt="IXCsoft" className="h-8" />
-          </div>
+        <header className="w-full">
+          <img src={opaBanner} alt="Opa! Suite" className="w-full h-auto object-cover" />
         </header>
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
@@ -273,12 +270,8 @@ const OpaSuite = () => {
   // Form view
   return (
     <div className="min-h-screen bg-premium-gradient">
-      {/* Header — static gradient with logos only */}
-      <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
-        <div className="absolute inset-0 flex items-center justify-center gap-4">
-          <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
-          <img src={logoIxc} alt="IXCsoft" className="h-8" />
-        </div>
+      <header className="w-full">
+        <img src={opaBanner} alt="Opa! Suite" className="w-full h-auto object-cover" />
       </header>
 
       <div className="absolute top-4 left-4 z-10">
@@ -402,7 +395,10 @@ const OpaSuite = () => {
                         <CollapsibleContent className="pl-6 space-y-1 pt-1">
                           {/* None option */}
                           <button
-                            onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: null }))}
+                            onClick={() => {
+                              setGroupSelections((prev) => ({ ...prev, [gi]: null }));
+                              setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                            }}
                             className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
                               groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
                             }`}
@@ -415,7 +411,10 @@ const OpaSuite = () => {
                             return (
                               <button
                                 key={oi}
-                                onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: oi }))}
+                                onClick={() => {
+                                  setGroupSelections((prev) => ({ ...prev, [gi]: oi }));
+                                  setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                                }}
                                 className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
                                   isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
                                 }`}
@@ -491,7 +490,62 @@ const OpaSuite = () => {
           </>
         )}
 
-        {/* Summary */}
+        {/* Adesão (own card) */}
+        <Card className="card-premium animate-fade-slide-up-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Adesão (pagamento único)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Adesão Básica — always on */}
+            <div className="flex justify-between items-center text-sm">
+              <div>
+                <span className="text-foreground font-medium">Adesão Básica</span>
+                <span className="block text-xs text-muted-foreground">
+                  Configuração básica, canais, 3h treinamento, suporte, fluxo básico
+                </span>
+              </div>
+              <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
+            </div>
+
+            {/* Fluxo Básico entregue e configurado */}
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex items-center gap-3">
+                <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
+                <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
+              </div>
+              <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                {fmtBRL(fluxoBasicoPrice)}
+              </span>
+            </div>
+
+            {/* Extra adesão items */}
+            {opaAdesaoExtras.map((item) => (
+              <div key={item.name} className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={adesaoExtrasEnabled[item.name] || false}
+                    onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
+                  />
+                  <div>
+                    <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
+                    {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
+                    {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
+                  </div>
+                </div>
+                <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
+                  {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
+                </span>
+              </div>
+            ))}
+
+            <div className="border-t border-border pt-3 flex justify-between items-center">
+              <span className="font-semibold text-foreground">Total Adesão</span>
+              <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resumo */}
         <Card className="border-2 border-blue-600/30 bg-blue-600/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -518,7 +572,6 @@ const OpaSuite = () => {
               <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
             </div>
 
-            {/* Total Mensal */}
             <div className="border-t border-border pt-3 space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Subtotal Mensalidade</span>
@@ -536,59 +589,14 @@ const OpaSuite = () => {
               </div>
             </div>
 
-            {/* Adesão */}
-            <div className="border-t border-border pt-3 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Adesão (pagamento único)</p>
-
-              {/* Adesão Básica — always on */}
-              <div className="flex justify-between items-center text-sm">
-                <div>
-                  <span className="text-foreground font-medium">Adesão Básica</span>
-                  <span className="block text-xs text-muted-foreground">
-                    Configuração básica, canais, 3h treinamento, suporte, fluxo básico
-                  </span>
+            {adesaoTotal > 0 && (
+              <div className="border-t border-border pt-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Adesão (pagamento único)</span>
+                  <span className="font-semibold text-foreground">{fmtBRL(adesaoTotal)}</span>
                 </div>
-                <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
               </div>
-
-              {/* Fluxo Básico entregue e configurado */}
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-3">
-                  <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
-                  <div>
-                    <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
-                  </div>
-                </div>
-                <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
-                  {fmtBRL(fluxoBasicoPrice)}
-                </span>
-              </div>
-
-              {/* Extra adesão items */}
-              {opaAdesaoExtras.map((item) => (
-                <div key={item.name} className="flex justify-between items-center text-sm">
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={adesaoExtrasEnabled[item.name] || false}
-                      onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
-                    />
-                    <div>
-                      <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
-                      {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
-                      {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
-                    </div>
-                  </div>
-                  <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
-                    {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
-                  </span>
-                </div>
-              ))}
-
-              <div className="flex justify-between items-center pt-1">
-                <span className="font-semibold text-foreground">Total Adesão</span>
-                <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
