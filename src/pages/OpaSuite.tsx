@@ -271,7 +271,7 @@ const OpaSuite = () => {
               </Card>
             )}
 
-            <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} clientName={clientName} agentName={profile?.nombre} isOpa />
+            <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} clientName={clientName} agentName={profile?.nombre} isOpa eventCode={eventCode} />
 
             <Button onClick={handleNewQuote} variant="outline" className="w-full gap-2 border-gray-300 text-gray-600 hover:bg-gray-50" size="lg">
               <ArrowLeft className="h-5 w-5" />

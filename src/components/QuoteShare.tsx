@@ -11,6 +11,7 @@ interface QuoteShareProps {
   clientName?: string;
   agentName?: string;
   isOpa?: boolean;
+  eventCode?: string | null;
 }
 
 type SendResult = {
@@ -20,7 +21,7 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, eventCode }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
@@ -54,13 +55,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     setSending(true);
     setResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          phone: cleanPhone,
-          agentName: agentName || "Tu asesor",
-          linkPresupuesto: quoteUrl,
-        },
-      });
+      // Use template API for Opa + ABRINT event, otherwise use default n8n webhook
+      const useTemplateApi = isOpa && eventCode === "ABRINT26";
+      const functionName = useTemplateApi ? "send-whatsapp-template" : "send-whatsapp";
+      const body = useTemplateApi
+        ? { phone: cleanPhone, agentName: agentName || "Especialista Comercial", linkPresupuesto: quoteUrl, eventCode }
+        : { phone: cleanPhone, agentName: agentName || "Tu asesor", linkPresupuesto: quoteUrl };
+
+      const { data, error } = await supabase.functions.invoke(functionName, { body });
 
       if (error) {
         setResult({
@@ -113,7 +115,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     } finally {
       setSending(false);
     }
-  }, [clientPhone, quoteUrl, agentName]);
+  }, [clientPhone, quoteUrl, agentName, isOpa, eventCode]);
 
   const handleRegistroWispro = useCallback(async () => {
     if (!clientPhone) return;
