@@ -150,6 +150,12 @@ const OpaSuite = () => {
         items.push({ label: item.name, value: item.price, section: "adesao" });
       }
     });
+    opaHourlyAdesaoItems.forEach((item) => {
+      const qty = hourlyQty[item.name] || 0;
+      if (qty > 0) {
+        items.push({ label: `${item.name} (x${qty})`, value: qty * item.unitPrice, section: "adesao" });
+      }
+    });
     return items;
   };
 
