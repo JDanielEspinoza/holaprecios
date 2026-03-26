@@ -8,13 +8,16 @@ import logoHola from "@/assets/logo-hola.png";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
-import logoOpa from "@/assets/logo-opa-suite.png";
+import logoOpa from "@/assets/logo-opa-suite-2.png";
 import { supabase } from "@/integrations/supabase/client";
 
-const fmt = (n: number) =>
-  "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = (n: number, isOpa: boolean = false) =>
+  isOpa
+    ? "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fmtClients = (n: number) => n.toLocaleString("es-AR");
+const fmtClients = (n: number, isOpa: boolean = false) =>
+  n.toLocaleString(isOpa ? "pt-BR" : "es-AR");
 
 interface LineItem {
   label: string;
