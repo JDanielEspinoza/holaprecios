@@ -399,6 +399,7 @@ const OpaSuite = () => {
                               setGroupSelections((prev) => ({ ...prev, [gi]: null }));
                               setOpenGroups((prev) => ({ ...prev, [gi]: false }));
                             }}
+                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
                               groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
                             }`}
                           >
