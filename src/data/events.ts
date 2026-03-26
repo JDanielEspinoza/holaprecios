@@ -4,6 +4,7 @@ export interface EventConfig {
   language: "es" | "pt-br";
   prefix: string | null;
   active: boolean;
+  logo?: string; // path to event logo asset
   webhookUrl?: string; // Override webhook URL per event (future)
 }
 
@@ -21,6 +22,7 @@ export const EVENTS: Record<string, EventConfig> = {
     language: "es",
     prefix: "ANDINA",
     active: false,
+    logo: "/src/assets/event-andina.png",
   },
   APTC26: {
     code: "APTC26",
@@ -28,6 +30,7 @@ export const EVENTS: Record<string, EventConfig> = {
     language: "es",
     prefix: "APTC26",
     active: true,
+    logo: "/src/assets/event-aptc.png",
   },
   ABRINT26: {
     code: "ABRINT26",
@@ -35,6 +38,7 @@ export const EVENTS: Record<string, EventConfig> = {
     language: "pt-br",
     prefix: "ABRINT26",
     active: true,
+    logo: "/src/assets/event-abrint.png",
   },
 };
 
