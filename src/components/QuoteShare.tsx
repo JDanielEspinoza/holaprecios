@@ -10,6 +10,7 @@ interface QuoteShareProps {
   clientPhone?: string;
   clientName?: string;
   agentName?: string;
+  isOpa?: boolean;
 }
 
 type SendResult = {
