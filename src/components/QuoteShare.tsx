@@ -175,7 +175,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          Compartir Cotización
+          {isOpa ? "Compartilhar Cotação" : "Compartir Cotización"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -188,16 +188,16 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             {sending ? (
-              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
+              <><Loader2 className="h-5 w-5 animate-spin" /> {isOpa ? "Enviando..." : "Enviando..."}</>
             ) : sent ? (
-              <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
+              <><CheckCircle className="h-5 w-5" /> {isOpa ? "Enviado por WhatsApp" : "Enviado por WhatsApp"}</>
             ) : (
-              <><MessageCircle className="h-5 w-5" /> Enviar Cotización por WhatsApp</>
+              <><MessageCircle className="h-5 w-5" /> {isOpa ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
             )}
           </Button>
           {!hasPhone && (
             <p className="text-xs text-muted-foreground text-center">
-              Completá el teléfono del cliente para habilitar WhatsApp
+              {isOpa ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
             </p>
           )}
         </div>
@@ -253,23 +253,25 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
           </div>
         )}
 
-        {/* Registro Wispro */}
-        <div className="space-y-3">
-          <Button
-            onClick={handleRegistroWispro}
-            disabled={!hasPhone || sendingRegistro || sentRegistro}
-            className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
-            size="lg"
-          >
-            {sendingRegistro ? (
-              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
-            ) : sentRegistro ? (
-              <><CheckCircle className="h-5 w-5" /> Enlace Enviado</>
-            ) : (
-              <><MessageCircle className="h-5 w-5" /> Enlace Para Registro Wispro</>
-            )}
-          </Button>
-        </div>
+        {/* Registro Wispro - hide for Opa */}
+        {!isOpa && (
+          <div className="space-y-3">
+            <Button
+              onClick={handleRegistroWispro}
+              disabled={!hasPhone || sendingRegistro || sentRegistro}
+              className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
+              size="lg"
+            >
+              {sendingRegistro ? (
+                <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
+              ) : sentRegistro ? (
+                <><CheckCircle className="h-5 w-5" /> Enlace Enviado</>
+              ) : (
+                <><MessageCircle className="h-5 w-5" /> Enlace Para Registro Wispro</>
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Registro result */}
         {resultRegistro && (
