@@ -177,6 +177,7 @@ const Index = () => {
         seller_numero: "+5492615783684",
         seller_email: profile?.email_contacto || "",
         seller_foto: profile?.foto_url || null,
+        event_code: eventCode,
       } as any).select("id").single();
 
       if (error) throw error;
