@@ -1,54 +1,51 @@
 
 
-## Plan: Opa! Suite Cotação Refinements
+## Plan: Fix Opa! Suite Cotação — Logo, Translations, and Validity Text
 
-### Overview
-Seven changes to the Opa! Suite quotation flow: new logo, full PT-BR translation, separate monthly vs adesão totals, remove validity text, rename seller label, translate buttons, and add installment (parcelamento) rules.
+### Problem
+The generated cotação page (`/cotizacion?id=...`) opened via "Baixar Cotação" still shows:
+- Wrong logo (Wispro + IXC instead of OpaSuite-3.png)
+- Spanish text throughout (Resumen de Cotización, Total Mensual, Tu asesor, Descargar PDF, etc.)
+- "$" currency format instead of "R$"
+- Validity text ("Cotización válida hasta...")
+- "Pago de Implementación" section mixing with Opa layout
 
-### Change 1 — New logo on generated cotação
-Copy uploaded `OpaSuite-3.png` to `src/assets/logo-opa-suite-3.png`. In `Cotizacion.tsx`, import it and use it instead of `logo-opa-suite-2.png` for Opa! quotes.
+### Root Cause
+The current `Cotizacion.tsx` code has conditional `isOpaQuote` logic, but the screenshot shows it is not activating correctly or the deployed version doesn't match. The plan ensures all Opa! quote text is unambiguously in Portuguese and the correct logo is used.
 
-### Change 2 — Full PT-BR translation in Cotizacion.tsx
-Ensure all Opa! quote text is in Portuguese:
-- Error state: "Cotação não encontrada."
-- Seller label: change "Seu consultor" → "Especialista Comercial"
-- All section headers already in PT-BR (Mensalidade, Opa! Cloud, Adesão) — verify and fix any remaining Spanish text.
+### Changes
 
-### Change 3 — Separate Total Mensal from Adesão in cotação
-Currently both are shown together. Restructure the Opa! cotação layout:
-- Show **Total Mensal** (mensalidade + cloud) prominently with its breakdown.
-- Show **Adesão (pagamento único)** as a visually separate section below, with its own total.
+**File: `src/pages/Cotizacion.tsx`**
 
-### Change 4 — Remove validity date text
-Search for any "Cotización válida hasta" or "válida" text in `Cotizacion.tsx` and remove it. Based on code review, this text doesn't appear in Cotizacion.tsx — check if it's in QuoteShare or elsewhere and remove.
+1. **Logo** — Verify import of `logo-opa-suite-3.png` is correct and rendered for Opa quotes (already in code at line 11/126 — will re-verify the asset exists and is the correct file).
 
-### Change 5 — Translate QuoteShare buttons for Opa! context
-`QuoteShare` component has Spanish text. Add an `isOpa` prop to `QuoteShare`:
-- "Compartir Cotización" → "Compartilhar Cotação"
-- "Enviar Cotización por WhatsApp" → "Enviar Cotação por WhatsApp"
-- "Descargar Cotización" → "Baixar Cotação"
-- "Escaneá el QR..." → "Escaneie o QR..."
-- "Completá el teléfono..." → "Preencha o telefone..."
-- "Enlace Para Registro Wispro" → "Link para Registro Wispro" (or hide for Opa!)
-- Error/success messages translated similarly.
+2. **Remove all remaining Spanish text for Opa context** — Audit every string in the file and ensure the `isOpaQuote` ternary uses Portuguese:
+   - "Resumo da Cotação" (not "Resumen de Cotización")
+   - "Detalhe para X clientes" (not "Detalle para")
+   - "Total Mensal" (not "Total Mensual")
+   - "Mensalidade + Cloud" (not "Ecosistema + Personalización + Cloud")
+   - "Especialista Comercial" (not "Tu asesor")
+   - "Baixar PDF" (not "Descargar PDF")
+   - "Desejo confirmar minha cotação" (not "Deseo confirmar mi cotización")
+   - WhatsApp message text in Portuguese
 
-Pass `isOpa={true}` from `OpaSuite.tsx` success screen.
+3. **Remove validity date text** — Search for any "Cotización válida" or date text (currently not found in code — may be rendered from data or a cached deployment). Add explicit check to ensure no such footer appears for Opa quotes.
 
-### Change 6 — Installment rules (parcelamento)
-Add installment logic to the Opa! cotação in `Cotizacion.tsx`. Based on the **net adesão total** (`installation_cost`):
-- ≤ R$ 854 → até 2x
-- R$ 855–1.590 → até 3x
-- R$ 1.591–2.650 → até 4x
-- ≥ R$ 2.651 → até 6x
+4. **Currency format** — Ensure `fmt()` with `isOpa=true` uses "R$" format. Already in code; will verify the `f()` helper correctly passes `isOpaQuote`.
 
-Display below the Adesão total: "Parcelamento em até Nx de R$ X,XX"
+5. **Opa layout sections** — Ensure for Opa quotes, only the Opa-specific sections render (Mensalidade, Cloud, Total Mensal, Adesão) and NOT the Wispro sections (Ecosistema, Personalización, Pago de Implementación).
+
+**File: `src/components/QuoteShare.tsx`**
+- Already has `isOpa` prop with PT-BR text — verify it's being passed correctly from `OpaSuite.tsx`.
+
+**File: `src/pages/OpaSuite.tsx`**
+- Verify `isOpa={true}` is passed to `QuoteShare` component.
 
 ### Files modified
 
 | File | Change |
 |---|---|
-| `src/assets/logo-opa-suite-3.png` | NEW — uploaded logo |
-| `src/pages/Cotizacion.tsx` | New logo, PT-BR text, separate sections, parcelamento, seller label |
-| `src/components/QuoteShare.tsx` | Add `isOpa` prop for PT-BR translations |
-| `src/pages/OpaSuite.tsx` | Pass `isOpa` to QuoteShare |
+| `src/pages/Cotizacion.tsx` | Re-verify and fix all PT-BR translations, logo, remove validity text |
+| `src/pages/OpaSuite.tsx` | Verify isOpa prop passed to QuoteShare |
+| `src/components/QuoteShare.tsx` | Verify PT-BR translations (may need minor fixes) |
 
