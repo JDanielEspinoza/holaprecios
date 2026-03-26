@@ -8,6 +8,7 @@ import logoHola from "@/assets/logo-hola.png";
 import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
+import logoOpa from "@/assets/logo-opa-suite.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number) =>
@@ -87,6 +88,7 @@ const Cotizacion = () => {
   const hasWispro = ecosystem.some((i) => i.label === "Wispro");
   const hasAcs = ecosystem.some((i) => i.label === "ACS");
   const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
+  const isOpaQuote = items.some((i) => i.section === "mensalidade");
 
   return (
     <>
@@ -103,7 +105,11 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
             <div className="flex justify-center mb-4">
-              <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
+              {isOpaQuote ? (
+                <img src={logoOpa} alt="Opa! Suite" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
+              ) : (
+                <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
+              )}
             </div>
             <CardTitle className="text-xl text-black-500">Resumen de Cotización</CardTitle>
             <p className="text-sm text-gray-500">
@@ -257,11 +263,6 @@ const Cotizacion = () => {
               </div>
             )}
 
-            <div className="border-t border-gray-200 pt-4">
-              <p className="text-xs text-center text-gray-500 italic">
-                * Cotización válida hasta el jueves 12 de marzo a las 18:00 h.
-              </p>
-            </div>
           </CardContent>
         </Card>
 

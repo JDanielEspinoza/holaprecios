@@ -166,15 +166,10 @@ const OpaSuite = () => {
   if (view === "success" && quoteId) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Banner */}
-        <div className="relative w-full h-32 overflow-hidden">
-          <img src={opaBanner} alt="Opa! Suite" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60" />
-          <div className="absolute inset-0 flex items-center justify-center gap-6">
-            <img src={logoOpa} alt="Opa! Suite" className="h-16 rounded-xl" />
-            <img src={logoIxc} alt="IXCsoft" className="h-10" />
-          </div>
-        </div>
+      {/* Banner */}
+        <header className="w-full overflow-hidden relative">
+          <img src={opaBanner} alt="Opa! Suite" className="w-full h-20 object-cover object-center" />
+        </header>
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
         </div>
@@ -231,14 +226,9 @@ const OpaSuite = () => {
   return (
     <div className="min-h-screen bg-premium-gradient">
       {/* Banner */}
-      <div className="relative w-full h-32 overflow-hidden">
-        <img src={opaBanner} alt="Opa! Suite" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60" />
-        <div className="absolute inset-0 flex items-center justify-center gap-6">
-          <img src={logoOpa} alt="Opa! Suite" className="h-16 rounded-xl" />
-          <img src={logoIxc} alt="IXCsoft" className="h-10" />
-        </div>
-      </div>
+      <header className="w-full overflow-hidden relative">
+        <img src={opaBanner} alt="Opa! Suite" className="w-full h-20 object-cover object-center" />
+      </header>
 
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
@@ -316,13 +306,13 @@ const OpaSuite = () => {
                   </div>
 
                   {/* Addon items */}
-                  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 gap-y-2 text-sm">
+                  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 sm:gap-x-3 gap-y-2 text-sm">
                     {opaAddons.map((addon) => {
                       const qty = addonQty[addon.name] || 0;
                       const subtotal = qty * addon.unitPrice;
                       return (
                         <React.Fragment key={addon.name}>
-                          <span className="text-foreground font-medium sm:font-normal py-1">{addon.name}</span>
+                          <span className="text-foreground font-medium sm:font-normal py-1 text-xs sm:text-sm truncate">{addon.name}</span>
                           <div className="flex items-center gap-1">
                             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: Math.max(0, (p[addon.name] || 0) - 1) }))}>
                               <Minus className="h-3 w-3" />
@@ -332,8 +322,8 @@ const OpaSuite = () => {
                               <Plus className="h-3 w-3" />
                             </Button>
                           </div>
-                          <span className="text-muted-foreground text-right">{fmtBRL(addon.unitPrice)}</span>
-                          <span className="font-semibold text-right text-foreground w-16">{fmtBRL(subtotal)}</span>
+                          <span className="text-muted-foreground text-right text-xs sm:text-sm whitespace-nowrap">{fmtBRL(addon.unitPrice)}</span>
+                          <span className="font-semibold text-right text-foreground w-16 text-xs sm:text-sm whitespace-nowrap">{fmtBRL(subtotal)}</span>
                         </React.Fragment>
                       );
                     })}
