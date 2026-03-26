@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pricingTiers } from "@/data/pricing";
 import {
   opaBasePrice, opaAddons, opaCloudPlans, getMinOpaCloudPlanIndex,
-  adesaoBasicaPrice, fluxoPersonalizadoPrice,
+  adesaoBasicaPrice, fluxoBasicoPrice, opaAdesaoExtras, opaMensalidadeGroups,
 } from "@/data/opaPricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
-import opaBanner from "@/assets/opa-banner.jpg";
 import logoOpa from "@/assets/logo-opa-suite.png";
 import logoIxc from "@/assets/logo-ixcsoft.png";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 
@@ -47,7 +49,18 @@ const OpaSuite = () => {
     Object.fromEntries(opaAddons.map((a) => [a.name, 0]))
   );
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
-  const [fluxoEnabled, setFluxoEnabled] = useState(false);
+
+  // Collapsible group selections (group index -> selected option index, or null)
+  const [groupSelections, setGroupSelections] = useState<Record<number, number | null>>(
+    Object.fromEntries(opaMensalidadeGroups.map((_, i) => [i, null]))
+  );
+  const [openGroups, setOpenGroups] = useState<Record<number, boolean>>({});
+
+  // Adesão toggles
+  const [fluxoBasicoEnabled, setFluxoBasicoEnabled] = useState(false);
+  const [adesaoExtrasEnabled, setAdesaoExtrasEnabled] = useState<Record<string, boolean>>(
+    Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false]))
+  );
 
   const [clientName, setClientName] = useState("");
   const [clientCompany, setClientCompany] = useState("");
@@ -61,7 +74,17 @@ const OpaSuite = () => {
     return opaAddons.reduce((sum, a) => sum + (addonQty[a.name] || 0) * a.unitPrice, 0);
   }, [addonQty]);
 
-  const mensalidadeTotal = opaBasePrice + addonTotal;
+  const groupsTotal = useMemo(() => {
+    return opaMensalidadeGroups.reduce((sum, group, gi) => {
+      const sel = groupSelections[gi];
+      if (sel !== null && sel !== undefined) {
+        return sum + group.options[sel].price;
+      }
+      return sum;
+    }, 0);
+  }, [groupSelections]);
+
+  const mensalidadeTotal = opaBasePrice + addonTotal + groupsTotal;
 
   const cloudPrice = useMemo(() => {
     if (!selectedCloud) return 0;
@@ -70,13 +93,23 @@ const OpaSuite = () => {
 
   const totalMensal = mensalidadeTotal + cloudPrice;
 
-  const adesaoTotal = adesaoBasicaPrice + (fluxoEnabled ? fluxoPersonalizadoPrice : 0);
+  const adesaoTotal = useMemo(() => {
+    let total = adesaoBasicaPrice;
+    if (fluxoBasicoEnabled) total += fluxoBasicoPrice;
+    opaAdesaoExtras.forEach((item) => {
+      if (adesaoExtrasEnabled[item.name] && item.price > 0) total += item.price;
+    });
+    return total;
+  }, [fluxoBasicoEnabled, adesaoExtrasEnabled]);
 
   const resetAll = () => {
     setClientCount(null);
     setAddonQty(Object.fromEntries(opaAddons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
-    setFluxoEnabled(false);
+    setGroupSelections(Object.fromEntries(opaMensalidadeGroups.map((_, i) => [i, null])));
+    setOpenGroups({});
+    setFluxoBasicoEnabled(false);
+    setAdesaoExtrasEnabled(Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false])));
     setClientName("");
     setClientCompany("");
     setClientPhone("");
@@ -91,11 +124,23 @@ const OpaSuite = () => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "mensalidade" });
     });
+    // Group selections
+    opaMensalidadeGroups.forEach((group, gi) => {
+      const sel = groupSelections[gi];
+      if (sel !== null && sel !== undefined) {
+        items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "mensalidade" });
+      }
+    });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
     items.push({ label: "Adesão Básica", value: adesaoBasicaPrice, section: "adesao" });
-    if (fluxoEnabled && fluxoPersonalizadoPrice > 0) {
-      items.push({ label: "Fluxo Personalizado", value: fluxoPersonalizadoPrice, section: "adesao" });
+    if (fluxoBasicoEnabled) {
+      items.push({ label: "Fluxo Básico entregue e configurado", value: fluxoBasicoPrice, section: "adesao" });
     }
+    opaAdesaoExtras.forEach((item) => {
+      if (adesaoExtrasEnabled[item.name]) {
+        items.push({ label: item.name, value: item.price, section: "adesao" });
+      }
+    });
     return items;
   };
 
@@ -166,9 +211,12 @@ const OpaSuite = () => {
   if (view === "success" && quoteId) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Banner */}
-        <header className="w-full overflow-hidden relative">
-          <img src={opaBanner} alt="Opa! Suite" className="w-full h-20 object-cover object-center" />
+        {/* Header gradient */}
+        <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
+          <div className="absolute inset-0 flex items-center justify-center gap-4">
+            <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
+            <img src={logoIxc} alt="IXCsoft" className="h-8" />
+          </div>
         </header>
         <div className="absolute top-4 left-4 z-10">
           <AppMenu />
@@ -225,9 +273,12 @@ const OpaSuite = () => {
   // Form view
   return (
     <div className="min-h-screen bg-premium-gradient">
-      {/* Banner */}
-      <header className="w-full overflow-hidden relative">
-        <img src={opaBanner} alt="Opa! Suite" className="w-full h-20 object-cover object-center" />
+      {/* Header — static gradient with logos only */}
+      <header className="w-full h-20 bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 relative">
+        <div className="absolute inset-0 flex items-center justify-center gap-4">
+          <img src={logoOpa} alt="Opa! Suite" className="h-10 rounded-lg" />
+          <img src={logoIxc} alt="IXCsoft" className="h-8" />
+        </div>
       </header>
 
       <div className="absolute top-4 left-4 z-10">
@@ -329,6 +380,56 @@ const OpaSuite = () => {
                     })}
                   </div>
 
+                  {/* Collapsible groups */}
+                  <div className="border-t border-border pt-3 space-y-2">
+                    {opaMensalidadeGroups.map((group, gi) => (
+                      <Collapsible
+                        key={gi}
+                        open={openGroups[gi] || false}
+                        onOpenChange={(open) => setOpenGroups((prev) => ({ ...prev, [gi]: open }))}
+                      >
+                        <CollapsibleTrigger className="w-full flex justify-between items-center text-sm font-medium text-foreground hover:bg-accent/50 rounded-md px-2 py-2 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <ChevronDown className={`h-4 w-4 transition-transform ${openGroups[gi] ? "rotate-180" : ""}`} />
+                            <span>{group.groupName}</span>
+                          </div>
+                          {groupSelections[gi] !== null && groupSelections[gi] !== undefined && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                              {fmtBRL(group.options[groupSelections[gi]!].price)}
+                            </span>
+                          )}
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-6 space-y-1 pt-1">
+                          {/* None option */}
+                          <button
+                            onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: null }))}
+                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                              groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                            }`}
+                          >
+                            <span className="text-muted-foreground">Nenhum</span>
+                            <span className="text-muted-foreground">{fmtBRL(0)}</span>
+                          </button>
+                          {group.options.map((opt, oi) => {
+                            const isSelected = groupSelections[gi] === oi;
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => setGroupSelections((prev) => ({ ...prev, [gi]: oi }))}
+                                className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                                  isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                                }`}
+                              >
+                                <span className="text-foreground">{opt.label}</span>
+                                <span className="font-semibold text-foreground whitespace-nowrap ml-2">{fmtBRL(opt.price)}</span>
+                              </button>
+                            );
+                          })}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                  </div>
+
                   <div className="border-t border-border pt-3 flex justify-between items-center">
                     <span className="font-semibold text-foreground">Subtotal Mensalidade</span>
                     <span className="text-xl font-bold text-blue-600">{fmtBRL(mensalidadeTotal)}</span>
@@ -409,6 +510,11 @@ const OpaSuite = () => {
                 const qty = addonQty[a.name] || 0;
                 return <OpaSummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} />;
               })}
+              {opaMensalidadeGroups.map((group, gi) => {
+                const sel = groupSelections[gi];
+                if (sel === null || sel === undefined) return null;
+                return <OpaSummaryLine key={gi} label={group.options[sel].label} value={group.options[sel].price} />;
+              })}
               <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
             </div>
 
@@ -433,6 +539,8 @@ const OpaSuite = () => {
             {/* Adesão */}
             <div className="border-t border-border pt-3 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Adesão (pagamento único)</p>
+
+              {/* Adesão Básica — always on */}
               <div className="flex justify-between items-center text-sm">
                 <div>
                   <span className="text-foreground font-medium">Adesão Básica</span>
@@ -442,18 +550,40 @@ const OpaSuite = () => {
                 </div>
                 <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
               </div>
+
+              {/* Fluxo Básico entregue e configurado */}
               <div className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-3">
-                  <Switch checked={fluxoEnabled} onCheckedChange={setFluxoEnabled} />
+                  <Switch checked={fluxoBasicoEnabled} onCheckedChange={setFluxoBasicoEnabled} />
                   <div>
-                    <span className="text-foreground font-medium">Fluxo Personalizado</span>
-                    <span className="block text-xs text-muted-foreground">Sob análise</span>
+                    <span className="text-foreground font-medium">Fluxo Básico entregue e configurado</span>
                   </div>
                 </div>
-                <span className={`font-bold ${fluxoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
-                  {fmtBRL(fluxoPersonalizadoPrice)}
+                <span className={`font-bold ${fluxoBasicoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                  {fmtBRL(fluxoBasicoPrice)}
                 </span>
               </div>
+
+              {/* Extra adesão items */}
+              {opaAdesaoExtras.map((item) => (
+                <div key={item.name} className="flex justify-between items-center text-sm">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={adesaoExtrasEnabled[item.name] || false}
+                      onCheckedChange={(v) => setAdesaoExtrasEnabled((prev) => ({ ...prev, [item.name]: v }))}
+                    />
+                    <div>
+                      <span className="text-foreground font-medium text-xs sm:text-sm">{item.name}</span>
+                      {item.description && <span className="block text-xs text-muted-foreground">{item.description}</span>}
+                      {item.sobAnalise && <span className="block text-xs text-muted-foreground">Sob avaliação</span>}
+                    </div>
+                  </div>
+                  <span className={`font-bold whitespace-nowrap ml-2 ${adesaoExtrasEnabled[item.name] ? "text-foreground" : "text-muted-foreground"}`}>
+                    {item.sobAnalise ? "Sob avaliação" : fmtBRL(item.price)}
+                  </span>
+                </div>
+              ))}
+
               <div className="flex justify-between items-center pt-1">
                 <span className="font-semibold text-foreground">Total Adesão</span>
                 <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
