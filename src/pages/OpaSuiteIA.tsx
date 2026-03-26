@@ -99,6 +99,7 @@ const OpaSuiteIA = () => {
       <div className="absolute top-4 left-4 z-10">
         <AppMenu />
       </div>
+      <EventBadge />
 
       {/* Banner with animation */}
       <motion.div
