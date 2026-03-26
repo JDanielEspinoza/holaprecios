@@ -576,10 +576,11 @@ function ProductCard({ title, value, logo, checked, onToggle }: { title: string;
 }
 
 function SummaryLine({ label, value, active }: { label: string; value: number; active: boolean }) {
+  if (!active || value <= 0) return null;
   return (
-    <div className={`flex justify-between items-center text-sm py-1 ${active ? "text-foreground" : "text-muted-foreground line-through opacity-50"}`}>
+    <div className="flex justify-between items-center text-sm py-1 text-foreground">
       <span>{label}</span>
-      <span className="font-semibold">{fmt(active ? value : 0)}</span>
+      <span className="font-semibold">{fmt(value)}</span>
     </div>
   );
 }
