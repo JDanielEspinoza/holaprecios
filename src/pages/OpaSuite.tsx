@@ -1,0 +1,522 @@
+import React, { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { pricingTiers } from "@/data/pricing";
+import {
+  opaBasePrice, opaAddons, opaCloudPlans, getMinOpaCloudPlanIndex,
+  adesaoBasicaPrice, fluxoPersonalizadoPrice,
+} from "@/data/opaPricing";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail } from "lucide-react";
+import { QuoteShare } from "@/components/QuoteShare";
+import AppMenu from "@/components/AppMenu";
+import opaBanner from "@/assets/opa-banner.jpg";
+import logoOpa from "@/assets/logo-opa-suite.png";
+import logoIxc from "@/assets/logo-ixcsoft.png";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import { useEvent } from "@/contexts/EventContext";
+import { useProfile } from "@/hooks/useProfile";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+
+const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
+
+const fmtBRL = (n: number) =>
+  "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const fmtClients = (n: number) => n.toLocaleString("pt-BR");
+
+type ViewState = "form" | "loading" | "success";
+
+const OpaSuite = () => {
+  const { user } = useAuth();
+  const { eventCode } = useEvent();
+  const { profile } = useProfile();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [view, setView] = useState<ViewState>("form");
+  const [clientCount, setClientCount] = useState<number | null>(null);
+  const [addonQty, setAddonQty] = useState<Record<string, number>>(
+    Object.fromEntries(opaAddons.map((a) => [a.name, 0]))
+  );
+  const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
+  const [fluxoEnabled, setFluxoEnabled] = useState(false);
+
+  const [clientName, setClientName] = useState("");
+  const [clientCompany, setClientCompany] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+
+  const [quoteId, setQuoteId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const addonTotal = useMemo(() => {
+    return opaAddons.reduce((sum, a) => sum + (addonQty[a.name] || 0) * a.unitPrice, 0);
+  }, [addonQty]);
+
+  const mensalidadeTotal = opaBasePrice + addonTotal;
+
+  const cloudPrice = useMemo(() => {
+    if (!selectedCloud) return 0;
+    return opaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
+  }, [selectedCloud]);
+
+  const totalMensal = mensalidadeTotal + cloudPrice;
+
+  const adesaoTotal = adesaoBasicaPrice + (fluxoEnabled ? fluxoPersonalizadoPrice : 0);
+
+  const resetAll = () => {
+    setClientCount(null);
+    setAddonQty(Object.fromEntries(opaAddons.map((a) => [a.name, 0])));
+    setSelectedCloud(null);
+    setFluxoEnabled(false);
+    setClientName("");
+    setClientCompany("");
+    setClientPhone("");
+    setClientEmail("");
+    setQuoteId(null);
+  };
+
+  const buildItems = () => {
+    const items: { label: string; value: number; section: string }[] = [];
+    items.push({ label: "Licença Opa! Suite", value: opaBasePrice, section: "mensalidade" });
+    opaAddons.forEach((a) => {
+      const qty = addonQty[a.name] || 0;
+      if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "mensalidade" });
+    });
+    if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
+    items.push({ label: "Adesão Básica", value: adesaoBasicaPrice, section: "adesao" });
+    if (fluxoEnabled && fluxoPersonalizadoPrice > 0) {
+      items.push({ label: "Fluxo Personalizado", value: fluxoPersonalizadoPrice, section: "adesao" });
+    }
+    return items;
+  };
+
+  const handleGenerateQuote = async () => {
+    if (!user) return;
+    setSaving(true);
+    setView("loading");
+    try {
+      const items = buildItems();
+      const { data, error } = await supabase.from("quotes" as any).insert({
+        user_id: user.id,
+        client_name: clientName,
+        client_company: clientCompany,
+        client_phone: clientPhone,
+        client_email: clientEmail,
+        clients_count: clientCount || 0,
+        items: items as any,
+        discount: 0,
+        total: totalMensal,
+        discounted_total: totalMensal,
+        discount_amount: 0,
+        installation_cost: adesaoTotal,
+        seller_name: profile?.nombre || "",
+        seller_cargo: profile?.cargo || "",
+        seller_numero: "+5492615783684",
+        seller_email: profile?.email_contacto || "",
+        seller_foto: profile?.foto_url || null,
+        event_code: eventCode,
+      } as any).select("id").single();
+
+      if (error) throw error;
+      setQuoteId((data as any).id);
+      await new Promise((r) => setTimeout(r, 2500));
+      setView("success");
+      toast({ title: "Cotação gerada", description: "O QR está pronto para compartilhar." });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+      setView("form");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleNewQuote = () => {
+    resetAll();
+    setView("form");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const quoteUrl = quoteId ? `${PUBLISHED_DOMAIN}/cotizacion?id=${quoteId}` : "";
+
+  // Loading screen
+  if (view === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="text-center space-y-6 animate-fade-slide-up">
+          <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-700">Gerando cotação...</h2>
+            <p className="text-gray-500">Isso levará apenas alguns segundos</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Success screen
+  if (view === "success" && quoteId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Banner */}
+        <div className="relative w-full h-32 overflow-hidden">
+          <img src={opaBanner} alt="Opa! Suite" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60" />
+          <div className="absolute inset-0 flex items-center justify-center gap-6">
+            <img src={logoOpa} alt="Opa! Suite" className="h-16 rounded-xl" />
+            <img src={logoIxc} alt="IXCsoft" className="h-10" />
+          </div>
+        </div>
+        <div className="absolute top-4 left-4 z-10">
+          <AppMenu />
+        </div>
+
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-lg mx-auto w-full">
+          <div className="w-full space-y-6 animate-fade-slide-up">
+            <div className="text-center space-y-2">
+              <CheckCircle className="h-14 w-14 text-emerald-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-gray-700">Cotação gerada!</h2>
+              <p className="text-gray-500 text-sm">Compartilhe com seu cliente via WhatsApp ou escaneando o QR</p>
+            </div>
+
+            {(clientName || clientCompany || clientPhone || clientEmail) && (
+              <Card className="border border-gray-200 bg-white">
+                <CardContent className="pt-4 space-y-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Destinatário</p>
+                  {clientName && (
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <User className="h-3.5 w-3.5 text-gray-400" /><span>{clientName}</span>
+                    </div>
+                  )}
+                  {clientCompany && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Building className="h-3.5 w-3.5" /><span>{clientCompany}</span>
+                    </div>
+                  )}
+                  {clientPhone && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Phone className="h-3.5 w-3.5" /><span>{clientPhone}</span>
+                    </div>
+                  )}
+                  {clientEmail && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Mail className="h-3.5 w-3.5" /><span>{clientEmail}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            <QuoteShare quoteUrl={quoteUrl} clientPhone={clientPhone} clientName={clientName} agentName={profile?.nombre} />
+
+            <Button onClick={handleNewQuote} variant="outline" className="w-full gap-2 border-gray-300 text-gray-600 hover:bg-gray-50" size="lg">
+              <ArrowLeft className="h-5 w-5" />
+              Criar outra cotação
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Form view
+  return (
+    <div className="min-h-screen bg-premium-gradient">
+      {/* Banner */}
+      <div className="relative w-full h-32 overflow-hidden">
+        <img src={opaBanner} alt="Opa! Suite" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60" />
+        <div className="absolute inset-0 flex items-center justify-center gap-6">
+          <img src={logoOpa} alt="Opa! Suite" className="h-16 rounded-xl" />
+          <img src={logoIxc} alt="IXCsoft" className="h-10" />
+        </div>
+      </div>
+
+      <div className="absolute top-4 left-4 z-10">
+        <AppMenu />
+      </div>
+
+      <main className="mx-auto max-w-6xl px-6 py-10 space-y-10">
+        {/* Client count selector */}
+        <Card className="border-2 border-blue-500/20 bg-gradient-to-r from-blue-500/5 via-background to-blue-500/5 card-premium animate-fade-slide-up">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Quantidade de clientes</p>
+                  <p className="text-xs text-muted-foreground">Selecione a faixa para calcular</p>
+                </div>
+              </div>
+              <div className="flex-1 w-full md:w-auto">
+                <Select value={clientCount?.toString() || ""} onValueChange={(v) => {
+                  const count = Number(v);
+                  setClientCount(count);
+                  setQuoteId(null);
+                  const minIdx = getMinOpaCloudPlanIndex(count);
+                  setSelectedCloud(opaCloudPlans[minIdx].name);
+                }}>
+                  <SelectTrigger className="h-12 text-lg font-semibold">
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pricingTiers.map((t) => (
+                      <SelectItem key={t.clients} value={t.clients.toString()}>
+                        {fmtClients(t.clients)} clientes
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive" onClick={resetAll} title="Resetar tudo">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {clientCount && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-slide-up-1">
+              {/* Mensalidade */}
+              <Card className="card-premium">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Settings2 className="h-5 w-5" />
+                    Mensalidade
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Licença Opa! Suite: 1 WhatsApp Oficial + Hospedagem Meta + 3 acessos
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="hidden md:flex justify-between text-sm font-medium text-muted-foreground border-b border-border pb-2">
+                    <span>Serviço</span>
+                    <div className="flex gap-8">
+                      <span>Qtd.</span>
+                      <span>P/U</span>
+                      <span className="w-20 text-right">Subtotal</span>
+                    </div>
+                  </div>
+
+                  {/* Base license - always shown */}
+                  <div className="flex justify-between items-center text-sm py-1">
+                    <span className="font-medium text-foreground">Licença base</span>
+                    <span className="font-semibold text-foreground w-20 text-right">{fmtBRL(opaBasePrice)}</span>
+                  </div>
+
+                  {/* Addon items */}
+                  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 gap-y-2 text-sm">
+                    {opaAddons.map((addon) => {
+                      const qty = addonQty[addon.name] || 0;
+                      const subtotal = qty * addon.unitPrice;
+                      return (
+                        <React.Fragment key={addon.name}>
+                          <span className="text-foreground font-medium sm:font-normal py-1">{addon.name}</span>
+                          <div className="flex items-center gap-1">
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: Math.max(0, (p[addon.name] || 0) - 1) }))}>
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-6 text-center font-mono">{qty}</span>
+                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setAddonQty((p) => ({ ...p, [addon.name]: (p[addon.name] || 0) + 1 }))}>
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <span className="text-muted-foreground text-right">{fmtBRL(addon.unitPrice)}</span>
+                          <span className="font-semibold text-right text-foreground w-16">{fmtBRL(subtotal)}</span>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className="border-t border-border pt-3 flex justify-between items-center">
+                    <span className="font-semibold text-foreground">Subtotal Mensalidade</span>
+                    <span className="text-xl font-bold text-blue-600">{fmtBRL(mensalidadeTotal)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Opa! Cloud */}
+              <Card className="card-premium flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Cloud className="h-5 w-5" />
+                    Opa! Cloud
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Plano atribuído automaticamente conforme clientes. Você pode fazer upgrade.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-2 flex flex-col flex-1">
+                  <div className="space-y-2">
+                    {(() => {
+                      const minIdx = clientCount ? getMinOpaCloudPlanIndex(clientCount) : 0;
+                      return opaCloudPlans.map((plan, idx) => {
+                        const isSelected = selectedCloud === plan.name;
+                        return (
+                          <button
+                            key={plan.name}
+                            onClick={() => setSelectedCloud(plan.name)}
+                            className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
+                              isSelected
+                                ? "border-blue-600 bg-blue-600/10 ring-2 ring-blue-600/30"
+                                : "border-border hover:bg-accent/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-blue-600 bg-blue-600" : "border-muted-foreground"}`}>
+                                {isSelected && <Check className="h-3 w-3 text-white" />}
+                              </div>
+                              <span className="font-medium text-foreground text-sm">{plan.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {idx === minIdx && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">Recomendado</span>}
+                              <span className="font-bold text-foreground">{fmtBRL(plan.price)}</span>
+                            </div>
+                          </button>
+                        );
+                      });
+                    })()}
+                  </div>
+                  <div className="mt-auto pt-2">
+                    <div className="border-t border-border pt-3 flex justify-between items-center">
+                      <span className="font-semibold text-foreground">Cloud selecionado</span>
+                      <span className="text-xl font-bold text-blue-600">{fmtBRL(cloudPrice)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* Summary */}
+        <Card className="border-2 border-blue-600/30 bg-blue-600/5 card-premium animate-fade-slide-up-3">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl">Resumo</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {clientCount ? `Para ${fmtClients(clientCount)} clientes` : "Selecione a quantidade de clientes"}
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <OpaSummaryLine label="Licença Opa! Suite" value={opaBasePrice} />
+              {opaAddons.map((a) => {
+                const qty = addonQty[a.name] || 0;
+                return <OpaSummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} />;
+              })}
+              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
+            </div>
+
+            {/* Total Mensal */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal Mensalidade</span>
+                <span className="font-semibold text-foreground">{fmtBRL(mensalidadeTotal)}</span>
+              </div>
+              {cloudPrice > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Opa! Cloud</span>
+                  <span className="font-semibold text-foreground">{fmtBRL(cloudPrice)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-lg font-bold text-foreground">Total Mensal</span>
+                <span className="text-2xl font-bold text-blue-600">{fmtBRL(totalMensal)}</span>
+              </div>
+            </div>
+
+            {/* Adesão */}
+            <div className="border-t border-border pt-3 space-y-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Adesão (pagamento único)</p>
+              <div className="flex justify-between items-center text-sm">
+                <div>
+                  <span className="text-foreground font-medium">Adesão Básica</span>
+                  <span className="block text-xs text-muted-foreground">
+                    Configuração básica, canais, 3h treinamento, suporte, fluxo básico
+                  </span>
+                </div>
+                <span className="font-bold text-foreground">{fmtBRL(adesaoBasicaPrice)}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-3">
+                  <Switch checked={fluxoEnabled} onCheckedChange={setFluxoEnabled} />
+                  <div>
+                    <span className="text-foreground font-medium">Fluxo Personalizado</span>
+                    <span className="block text-xs text-muted-foreground">Sob análise</span>
+                  </div>
+                </div>
+                <span className={`font-bold ${fluxoEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                  {fmtBRL(fluxoPersonalizadoPrice)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="font-semibold text-foreground">Total Adesão</span>
+                <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Client fields */}
+        <Card className="card-premium animate-fade-slide-up-4">
+          <CardHeader>
+            <CardTitle className="text-lg">Dados do destinatário (opcional)</CardTitle>
+            <p className="text-sm text-muted-foreground">Preencha os dados do cliente para personalizar a cotação</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="clientName">Nome</Label>
+                <Input id="clientName" placeholder="Nome do cliente" value={clientName} onChange={(e) => { setClientName(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientCompany">Empresa</Label>
+                <Input id="clientCompany" placeholder="Nome da empresa" value={clientCompany} onChange={(e) => { setClientCompany(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientPhone">Telefone</Label>
+                <Input id="clientPhone" placeholder="Telefone de contato" value={clientPhone} onChange={(e) => { setClientPhone(e.target.value); setQuoteId(null); }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientEmail">Email</Label>
+                <Input id="clientEmail" placeholder="Email de contato" type="email" value={clientEmail} onChange={(e) => { setClientEmail(e.target.value); setQuoteId(null); }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Generate */}
+        <Button onClick={handleGenerateQuote} disabled={saving || !clientCount} className="w-full h-14 text-lg bg-blue-600 hover:bg-blue-700 text-white" size="lg">
+          Gerar Cotação
+        </Button>
+      </main>
+    </div>
+  );
+};
+
+function OpaSummaryLine({ label, value }: { label: string; value: number }) {
+  if (value <= 0) return null;
+  return (
+    <div className="flex justify-between items-center text-sm py-1 text-foreground">
+      <span>{label}</span>
+      <span className="font-semibold">{fmtBRL(value)}</span>
+    </div>
+  );
+}
+
+export default OpaSuite;

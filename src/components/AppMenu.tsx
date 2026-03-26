@@ -29,7 +29,7 @@ const menuItems: MenuItem[] = [
       { title: "Ecosistema Wispro + IXC", path: "/", icon: Cpu },
       { title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot },
       { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
-      { title: "Opa! Suite", path: "/coming-soon", icon: Bot, comingSoon: true },
+      { title: "Opa! Suite", path: "/opa-suite", icon: Bot },
       { title: "IXC Consult", path: "/coming-soon-ixc", icon: Bot, comingSoon: true },
       { title: "Olli", path: "/coming-soon-olli", icon: Bot, comingSoon: true },
     ],
