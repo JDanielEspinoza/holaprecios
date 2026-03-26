@@ -333,14 +333,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             <Download className="h-5 w-5" />
-            Descargar Cotización
+            {isOpa ? "Baixar Cotação" : "Descargar Cotización"}
           </Button>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
               <QRCodeSVG id="quote-qr" value={quoteUrl} size={100} level="L" />
             </div>
             <p className="text-xs text-muted-foreground">
-              Escaneá el QR para ver la cotización en el celular.
+              {isOpa ? "Escaneie o QR para ver a cotação no celular." : "Escaneá el QR para ver la cotización en el celular."}
             </p>
           </div>
         </div>
