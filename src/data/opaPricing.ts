@@ -16,6 +16,45 @@ export const opaAddons: OpaAddon[] = [
   { name: "Ambiente de IA", unitPrice: 265.0 },
 ];
 
+// Collapsible groups inside Mensalidade (select one option per group, or none)
+export type OpaGroupOption = {
+  label: string;
+  price: number;
+};
+
+export type OpaCollapsibleGroup = {
+  groupName: string;
+  options: OpaGroupOption[];
+};
+
+export const opaMensalidadeGroups: OpaCollapsibleGroup[] = [
+  {
+    groupName: "Treinamento Especializado",
+    options: [
+      { label: "3h adicionais de Treinamento Especializado", price: 239.0 },
+      { label: "5h adicionais de Treinamento Especializado", price: 398.0 },
+      { label: "9h adicionais de Treinamento Especializado", price: 716.0 },
+    ],
+  },
+  {
+    groupName: "Retreinamento",
+    options: [
+      { label: "3 horas de Retreinamento disponível por 6 meses", price: 239.0 },
+      { label: "6 horas de Retreinamentos disponíveis por 6 meses", price: 477.0 },
+      { label: "4 horas de Retreinamento disponível por 12 meses", price: 318.0 },
+      { label: "8 horas de Retreinamentos disponíveis por 12 meses", price: 636.0 },
+    ],
+  },
+  {
+    groupName: "Banco de Templates",
+    options: [
+      { label: "Banco de Templates (30 Templates)", price: 239.0 },
+      { label: "Banco de Templates (50 Templates)", price: 398.0 },
+      { label: "Banco de Templates (100 Templates)", price: 795.0 },
+    ],
+  },
+];
+
 export type OpaCloudPlan = {
   name: string;
   price: number;
@@ -32,8 +71,24 @@ export const opaCloudPlans: OpaCloudPlan[] = [
   { name: "Hospedagem até 100.000 atendimentos/mês", price: 2565.0, maxClients: 100000 },
 ];
 
+// Adesão items (one-time payments)
 export const adesaoBasicaPrice = 854.0;
-export const fluxoPersonalizadoPrice = 0.0; // "sob análise"
+export const fluxoBasicoPrice = 1272.0; // Fluxo Básico entregue e configurado
+
+export type OpaAdesaoItem = {
+  name: string;
+  price: number;
+  description?: string;
+  sobAnalise?: boolean;
+};
+
+export const opaAdesaoExtras: OpaAdesaoItem[] = [
+  { name: "Criação Fluxo Personalizado", price: 3434.0, description: "Sob análise de regra de negócio" },
+  { name: "Configurações Básicas: Roleta-Rodízio-Distribuição Automática e Carteirização", price: 318.0 },
+  { name: "Configuração e Entrega Gráficos e Relatórios (Looker Studio)", price: 159.0 },
+  { name: "Configuração e Entrega Gráficos e Relatórios Personalizados (Looker Studio)", price: 763.0 },
+  { name: "Integração ERP, CRM e / ou outro sistema via Low Code", price: 0, sobAnalise: true },
+];
 
 export function getMinOpaCloudPlanIndex(clientCount: number): number {
   for (let i = 0; i < opaCloudPlans.length; i++) {
