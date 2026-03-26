@@ -12,21 +12,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import eventAndina from "@/assets/event-andina.png";
+import eventAbrint from "@/assets/event-abrint.png";
+import eventAptc from "@/assets/event-aptc.png";
+
+const EVENT_LOGOS: Record<string, string> = {
+  ANDINA26: eventAndina,
+  ABRINT26: eventAbrint,
+  APTC26: eventAptc,
+};
 
 type MenuItem = {
   title: string;
+  titlePt?: string;
   path?: string;
   icon: React.ElementType;
-  children?: { title: string; path: string; icon: React.ElementType; comingSoon?: boolean }[];
+  children?: { title: string; titlePt?: string; path: string; icon: React.ElementType; comingSoon?: boolean }[];
 };
 
 const menuItems: MenuItem[] = [
-  { title: "Mi Perfil", path: "/perfil", icon: User },
+  { title: "Mi Perfil", titlePt: "Meu Perfil", path: "/perfil", icon: User },
   {
     title: "Cotizar",
+    titlePt: "Cotar",
     icon: FileText,
     children: [
-      { title: "Ecosistema Wispro + IXC", path: "/", icon: Cpu },
+      { title: "Ecosistema Wispro + IXC", titlePt: "Ecossistema Wispro + IXC", path: "/", icon: Cpu },
       { title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot },
       { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
       { title: "Opa! Suite", path: "/opa-suite", icon: Bot },
@@ -34,9 +45,9 @@ const menuItems: MenuItem[] = [
       { title: "Olli", path: "/coming-soon-olli", icon: Bot, comingSoon: true },
     ],
   },
-  { title: "Mis Cotizaciones", path: "/mis-cotizaciones", icon: History },
-  { title: "Cotizaciones", path: "/cotizaciones", icon: Building2 },
-  { title: "Usuarios", path: "/usuarios", icon: Users },
+  { title: "Mis Cotizaciones", titlePt: "Minhas Cotações", path: "/mis-cotizaciones", icon: History },
+  { title: "Cotizaciones", titlePt: "Cotações", path: "/cotizaciones", icon: Building2 },
+  { title: "Usuarios", titlePt: "Usuários", path: "/usuarios", icon: Users },
 ];
 
 const AppMenu = () => {
@@ -46,6 +57,10 @@ const AppMenu = () => {
   const location = useLocation();
   const { signOut } = useAuth();
   const { activeEvent, setActiveEventCode } = useEvent();
+
+  const isPt = activeEvent.language === "pt-br";
+  const t = (item: { title: string; titlePt?: string }) =>
+    isPt && item.titlePt ? item.titlePt : item.title;
 
   const handleNavigate = (path: string) => {
     setIsOpen(false);
@@ -64,6 +79,8 @@ const AppMenu = () => {
 
   const isChildActive = (item: MenuItem) =>
     item.children?.some((c) => location.pathname === c.path) ?? false;
+
+  const eventLogo = EVENT_LOGOS[activeEvent.code];
 
   return (
     <>
@@ -84,7 +101,7 @@ const AppMenu = () => {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <span className="text-lg font-semibold text-gray-700">Menú</span>
+          <span className="text-lg font-semibold text-gray-700">{isPt ? "Menu" : "Menú"}</span>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)}>
             <X className="h-5 w-5 text-gray-500" />
           </Button>
@@ -94,7 +111,12 @@ const AppMenu = () => {
         <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="h-4 w-4 text-orange-500" />
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Evento activo</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              {isPt ? "Evento ativo" : "Evento activo"}
+            </span>
+            {eventLogo && (
+              <img src={eventLogo} alt={activeEvent.name} className="h-5 w-auto object-contain ml-auto" />
+            )}
           </div>
           <Select
             value={activeEvent.code}
@@ -104,18 +126,22 @@ const AppMenu = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="NONE">{EVENTS.NONE.name}</SelectItem>
+              <SelectItem value="NONE">{isPt ? "Sem evento" : EVENTS.NONE.name}</SelectItem>
               {ACTIVE_EVENTS.filter((e) => e.code !== "NONE").map((event) => (
                 <SelectItem key={event.code} value={event.code}>
-                  {event.name}
+                  <div className="flex items-center gap-2">
+                    {EVENT_LOGOS[event.code] && (
+                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-4 w-auto object-contain" />
+                    )}
+                    <span>{event.name}</span>
+                  </div>
                 </SelectItem>
               ))}
-              {/* Show inactive events as disabled */}
               {Object.values(EVENTS)
                 .filter((e) => !e.active && e.code !== "NONE")
                 .map((event) => (
                   <SelectItem key={event.code} value={event.code} disabled>
-                    {event.name} (finalizado)
+                    {event.name} ({isPt ? "finalizado" : "finalizado"})
                   </SelectItem>
                 ))}
             </SelectContent>
@@ -139,7 +165,7 @@ const AppMenu = () => {
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
+                      <span>{t(item)}</span>
                     </div>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
@@ -163,10 +189,10 @@ const AppMenu = () => {
                           }`}
                         >
                           <child.icon className="h-4 w-4" />
-                          <span>{child.title}</span>
+                          <span>{t(child)}</span>
                           {child.comingSoon && (
                             <span className="ml-auto text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded-full">
-                              Pronto
+                              {isPt ? "Em breve" : "Pronto"}
                             </span>
                           )}
                         </button>
@@ -189,7 +215,7 @@ const AppMenu = () => {
                 }`}
               >
                 <item.icon className="h-5 w-5" />
-                <span>{item.title}</span>
+                <span>{t(item)}</span>
               </button>
             );
           })}
@@ -201,7 +227,7 @@ const AppMenu = () => {
             className="flex items-center gap-3 w-full px-5 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
             <LogOut className="h-5 w-5" />
-            <span>Cerrar Sesión</span>
+            <span>{isPt ? "Sair" : "Cerrar Sesión"}</span>
           </button>
         </div>
       </div>
