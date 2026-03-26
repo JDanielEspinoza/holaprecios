@@ -19,11 +19,33 @@ interface EventTemplateConfig {
 }
 
 const EVENT_CONFIGS: Record<string, EventTemplateConfig> = {
+  // Opa! Suite – ABRINT
   ABRINT26: {
     apiUrl: "https://suporte.ixcsoft.com.br/api/v1/template/send",
     bearerSecretName: "ABRINT_WHATSAPP_BEARER",
     templateId: "69c592e1f54228f9ef7f51db",
     canalId: "68b761d690667efeda7ae19b",
+  },
+  // Hola! Suite – Sin Evento
+  HOLA_NONE: {
+    apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
+    bearerSecretName: "HOLA_WHATSAPP_BEARER",
+    templateId: "69c59a4c721c69eda85b82d0",
+    canalId: "67cb3542f3823200bddecfd9",
+  },
+  // Hola! Suite – APTC Cumbre
+  HOLA_APTC26: {
+    apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
+    bearerSecretName: "HOLA_WHATSAPP_BEARER",
+    templateId: "69c59b3a315f1b682c3d340b",
+    canalId: "67cb3542f3823200bddecfd9",
+  },
+  // Hola! Suite – ABRINT
+  HOLA_ABRINT26: {
+    apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
+    bearerSecretName: "HOLA_WHATSAPP_BEARER",
+    templateId: "69c59ba9315f1b682c3d352d",
+    canalId: "67cb3542f3823200bddecfd9",
   },
 };
 

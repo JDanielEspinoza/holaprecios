@@ -55,12 +55,20 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     setSending(true);
     setResult(null);
     try {
-      // Use template API for Opa + ABRINT event, otherwise use default n8n webhook
-      const useTemplateApi = isOpa && eventCode === "ABRINT26";
-      const functionName = useTemplateApi ? "send-whatsapp-template" : "send-whatsapp";
-      const body = useTemplateApi
-        ? { phone: cleanPhone, agentName: agentName || "Especialista Comercial", linkPresupuesto: quoteUrl, eventCode }
-        : { phone: cleanPhone, agentName: agentName || "Tu asesor", linkPresupuesto: quoteUrl };
+      // Build the event key for the template API
+      // Opa! Suite keeps its raw eventCode (e.g. "ABRINT26")
+      // Hola! Suite prefixes with "HOLA_" (e.g. "HOLA_NONE", "HOLA_APTC26")
+      const templateEventKey = isOpa
+        ? (eventCode || "ABRINT26")
+        : `HOLA_${eventCode || "NONE"}`;
+
+      const functionName = "send-whatsapp-template";
+      const body = {
+        phone: cleanPhone,
+        agentName: agentName || (isOpa ? "Especialista Comercial" : "Tu asesor"),
+        linkPresupuesto: quoteUrl,
+        eventCode: templateEventKey,
+      };
 
       const { data, error } = await supabase.functions.invoke(functionName, { body });
 
