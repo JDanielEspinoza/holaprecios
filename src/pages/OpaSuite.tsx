@@ -118,6 +118,7 @@ const OpaSuite = () => {
     setOpenGroups({});
     setFluxoBasicoEnabled(false);
     setAdesaoExtrasEnabled(Object.fromEntries(opaAdesaoExtras.map((a) => [a.name, false])));
+    setHourlyQty(Object.fromEntries(opaHourlyAdesaoItems.map((a) => [a.name, 0])));
     setClientName("");
     setClientCompany("");
     setClientPhone("");
