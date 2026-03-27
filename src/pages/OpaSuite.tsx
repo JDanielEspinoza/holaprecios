@@ -477,12 +477,17 @@ const OpaSuite = () => {
               </Card>
 
               {/* Opa! Cloud - Flip Card */}
-              <div className="[perspective:1200px]">
+              <div style={{ perspective: "1200px" }}>
                 <div
-                  className={`relative transition-transform duration-700 [transform-style:preserve-3d] ${cloudFlipped ? "[transform:rotateX(180deg)]" : ""}`}
+                  style={{
+                    transformStyle: "preserve-3d",
+                    transform: cloudFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                    transition: "transform 0.7s ease",
+                    position: "relative",
+                  }}
                 >
                   {/* Front: Cloud plans */}
-                  <Card className="card-premium flex flex-col [backface-visibility:hidden]">
+                  <Card className="flex flex-col shadow-[var(--shadow-premium)]" style={{ backfaceVisibility: "hidden" }}>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Cloud className="h-5 w-5" />
@@ -541,7 +546,7 @@ const OpaSuite = () => {
                   </Card>
 
                   {/* Back: Server requirements table */}
-                  <Card className="card-premium absolute inset-0 [backface-visibility:hidden] [transform:rotateX(180deg)] overflow-auto flex flex-col">
+                  <Card className="absolute inset-0 overflow-auto flex flex-col shadow-[var(--shadow-premium)]" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Server className="h-5 w-5" />
