@@ -685,6 +685,7 @@ const OpaSuite = () => {
                 ))}
               </div>
 
+              <div className="border-t border-border pt-3 flex justify-between items-center">
                 <span className="font-semibold text-foreground">Total Adesão</span>
                 <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
               </div>
