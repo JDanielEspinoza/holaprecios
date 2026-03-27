@@ -523,6 +523,7 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* Client fields */}
         <Card className="card-premium animate-fade-slide-up-4">
