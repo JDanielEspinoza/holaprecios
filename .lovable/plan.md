@@ -1,44 +1,33 @@
 
 
-## Plan: WhatsApp Template Integration for Hola! Suite
+## Plan: Update MisCotizaciones WhatsApp sending to use template API
 
-### Overview
-Add WhatsApp template sending for Hola! Suite quotes, similar to the existing Opa! Suite ABRINT integration but with its own API URL, Bearer token, canal ID, and event-dependent template IDs.
+### Single Change
 
-### Configuration
+**File: `src/pages/MisCotizaciones.tsx` (lines 366-374)**
 
-| Parameter | Value |
-|---|---|
-| API URL | `https://wispro.holasuite.com/api/v1/template/send` |
-| Canal ID | `67cb3542f3823200bddecfd9` |
-| Template — Sin Evento (NONE) | `69c59a4c721c69eda85b82d0` |
-| Template — APTC26 | `69c59b3a315f1b682c3d340b` |
-| Template — ABRINT26 | `69c59ba9315f1b682c3d352d` |
+Replace the `send-whatsapp` invocation with the template-aware version:
 
-### Changes
+```typescript
+const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
+const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
 
-**1. Store Bearer token as secret**
-- Add secret `HOLA_WHATSAPP_BEARER` with the provided token.
+const isOpaQuote = (q.items || []).some((i: any) => 
+  i.section === "mensalidade" || i.section === "opa_cloud"
+);
+const templateEventKey = isOpaQuote
+  ? (q.event_code || "ABRINT26")
+  : `HOLA_${q.event_code || "NONE"}`;
 
-**2. Update edge function `supabase/functions/send-whatsapp-template/index.ts`**
-- Add three new entries to `EVENT_CONFIGS` for Hola! Suite, keyed by compound codes like `HOLA_NONE`, `HOLA_APTC26`, `HOLA_ABRINT26`:
-  - All three share the same API URL, bearer secret name (`HOLA_WHATSAPP_BEARER`), and canal ID
-  - Each has its own `templateId`
+const { error } = await supabase.functions.invoke("send-whatsapp-template", {
+  body: {
+    phone: cleanPhone,
+    agentName: q.seller_name || profile?.nombre || (isOpaQuote ? "Especialista Comercial" : "Tu asesor"),
+    linkPresupuesto: quoteUrl,
+    eventCode: templateEventKey,
+  },
+});
+```
 
-**3. Update `src/components/QuoteShare.tsx`**
-- Currently the template API path is only triggered when `isOpa && eventCode === "ABRINT26"`
-- Change logic: always use the template API for both Opa and Hola quotes
-- For Hola quotes (`isOpa === false`), construct eventCode as `HOLA_${eventCode || "NONE"}` to match the new config keys
-- For Opa quotes, keep existing `ABRINT26` key
-
-**4. Update `src/pages/Index.tsx`**
-- Pass `eventCode={eventCode}` to `<QuoteShare>` (currently missing)
-
-### Files modified
-
-| File | Change |
-|---|---|
-| `supabase/functions/send-whatsapp-template/index.ts` | Add 3 Hola! Suite event configs |
-| `src/components/QuoteShare.tsx` | Route all quotes through template API with correct event key |
-| `src/pages/Index.tsx` | Pass `eventCode` prop to QuoteShare |
+No other files modified.
 
