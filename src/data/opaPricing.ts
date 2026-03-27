@@ -14,6 +14,7 @@ export const opaAddons: OpaAddon[] = [
   { name: "Telefonia", unitPrice: 509.0 },
   { name: "Telegram", unitPrice: 148.0 },
   { name: "Ambiente de IA", unitPrice: 265.0 },
+  { name: "Serviço de Página Web", unitPrice: 79.50 },
 ];
 
 // Collapsible groups inside Mensalidade (select one option per group, or none)
