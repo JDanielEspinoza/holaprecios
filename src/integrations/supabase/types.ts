@@ -88,6 +88,8 @@ export type Database = {
       }
       quotes: {
         Row: {
+          adesao_installments: number | null
+          adesao_payment_type: string | null
           archive_reason: string | null
           archived: boolean
           client_company: string | null
@@ -116,6 +118,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          adesao_installments?: number | null
+          adesao_payment_type?: string | null
           archive_reason?: string | null
           archived?: boolean
           client_company?: string | null
@@ -144,6 +148,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          adesao_installments?: number | null
+          adesao_payment_type?: string | null
           archive_reason?: string | null
           archived?: boolean
           client_company?: string | null
