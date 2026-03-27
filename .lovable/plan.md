@@ -1,33 +1,30 @@
 
 
-## Plan: Update MisCotizaciones WhatsApp sending to use template API
+## Plan: Fix missing columns + Update WhatsApp number for Opa! Suite
 
-### Single Change
-
-**File: `src/pages/MisCotizaciones.tsx` (lines 366-374)**
-
-Replace the `send-whatsapp` invocation with the template-aware version:
-
-```typescript
-const cleanPhone = q.client_phone.replace(/[\s\-\+\(\)]/g, "");
-const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
-
-const isOpaQuote = (q.items || []).some((i: any) => 
-  i.section === "mensalidade" || i.section === "opa_cloud"
-);
-const templateEventKey = isOpaQuote
-  ? (q.event_code || "ABRINT26")
-  : `HOLA_${q.event_code || "NONE"}`;
-
-const { error } = await supabase.functions.invoke("send-whatsapp-template", {
-  body: {
-    phone: cleanPhone,
-    agentName: q.seller_name || profile?.nombre || (isOpaQuote ? "Especialista Comercial" : "Tu asesor"),
-    linkPresupuesto: quoteUrl,
-    eventCode: templateEventKey,
-  },
-});
+### Step 1 — Database Migration
+Add the two missing columns to `quotes`:
+```sql
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS adesao_payment_type text DEFAULT 'vista';
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS adesao_installments integer NULL;
 ```
+This resolves the schema cache error.
 
-No other files modified.
+### Step 2 — Update WhatsApp number in Cotizacion.tsx
+In `src/pages/Cotizacion.tsx` (line 370), change the Opa! Suite WhatsApp phone from `5492615783684` to `554931991780` for the confirmation button. The number only changes for Opa quotes; Hola quotes keep the current number.
+
+Current:
+```typescript
+window.open(`https://api.whatsapp.com/send?phone=5492615783684&text=...`)
+```
+Change to conditionally use `554931991780` when `isOpaQuote` is true.
+
+### Step 3 — No UI changes needed for payment buttons
+The payment type buttons (À Vista / Parcelado) and installment logic already exist in `OpaSuite.tsx` (lines 80-81, 118-128). The `handleGenerateQuote` already saves `adesao_payment_type` and `adesao_installments` (lines 201-202). Once the migration runs, this will work.
+
+### Files modified
+| File | Change |
+|---|---|
+| DB migration | Add `adesao_payment_type` and `adesao_installments` columns |
+| `src/pages/Cotizacion.tsx` | Use `554931991780` for Opa quotes WhatsApp confirmation |
 
