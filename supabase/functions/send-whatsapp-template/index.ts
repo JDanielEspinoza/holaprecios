@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
     if (!res.ok) result.error = preview;
 
     return new Response(JSON.stringify(result), {
-      status: res.ok ? 200 : 502,
+      status: 200,
       headers: jsonHeaders,
     });
   } catch (err) {
