@@ -367,7 +367,8 @@ const Cotizacion = () => {
               const text = isOpaQuote
                 ? `Olá! Recebi esta cotação de ${sellerName} e gostaria de confirmar o valor! ${quoteUrl}`
                 : `Hola! Recibí esta cotización de parte de ${sellerName} en Andina Link y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
-              window.open(`https://api.whatsapp.com/send?phone=5492615783684&text=${encodeURIComponent(text)}`, "_blank");
+              const whatsappPhone = isOpaQuote ? "554931991780" : "5492615783684";
+              window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
             size="lg"
