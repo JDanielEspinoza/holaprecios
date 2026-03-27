@@ -460,7 +460,7 @@ const Index = () => {
           </>
         )}
 
-        {/* Summary */}
+        {clientCount && (
         <Card className="border-2 border-primary/30 bg-primary/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -523,6 +523,7 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* Client fields */}
         <Card className="card-premium animate-fade-slide-up-4">
