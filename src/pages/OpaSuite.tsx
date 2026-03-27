@@ -712,12 +712,23 @@ const OpaSuite = () => {
                 const qty = addonQty[a.name] || 0;
                 return <OpaSummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} />;
               })}
+              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
+            </div>
+
+            {/* Adesão items in summary */}
+            <div className="border-t border-border pt-2 space-y-1">
+              <OpaSummaryLine label="Adesão Básica" value={adesaoBasicaPrice} />
+              {fluxoBasicoEnabled && <OpaSummaryLine label="Fluxo Básico entregue e configurado" value={fluxoBasicoPrice} />}
+              {opaHourlyAdesaoItems.map((item) => {
+                const qty = hourlyQty[item.name] || 0;
+                return qty > 0 ? <OpaSummaryLine key={item.name} label={`${item.name} (x${qty})`} value={qty * item.unitPrice} /> : null;
+              })}
+              {opaAdesaoExtras.map((item) => adesaoExtrasEnabled[item.name] ? <OpaSummaryLine key={item.name} label={item.name} value={item.price} /> : null)}
               {opaMensalidadeGroups.map((group, gi) => {
                 const sel = groupSelections[gi];
                 if (sel === null || sel === undefined) return null;
-                return <OpaSummaryLine key={gi} label={group.options[sel].label} value={group.options[sel].price} />;
+                return <OpaSummaryLine key={`grp-${gi}`} label={group.options[sel].label} value={group.options[sel].price} />;
               })}
-              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
             </div>
 
             <div className="border-t border-border pt-3 space-y-2">
