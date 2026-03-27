@@ -6,11 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-/**
- * Event-specific WhatsApp template configurations.
- * Each entry maps an event_code to its API credentials and template payload shape.
- * To add a new event, just add another entry here.
- */
 interface EventTemplateConfig {
   apiUrl: string;
   bearerSecretName: string;
@@ -19,28 +14,24 @@ interface EventTemplateConfig {
 }
 
 const EVENT_CONFIGS: Record<string, EventTemplateConfig> = {
-  // Opa! Suite – ABRINT
   ABRINT26: {
     apiUrl: "https://suporte.ixcsoft.com.br/api/v1/template/send",
     bearerSecretName: "ABRINT_WHATSAPP_BEARER",
     templateId: "69c592e1f54228f9ef7f51db",
     canalId: "68b761d690667efeda7ae19b",
   },
-  // Hola! Suite – Sin Evento
   HOLA_NONE: {
     apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
     bearerSecretName: "HOLA_WHATSAPP_BEARER",
     templateId: "69c59a4c721c69eda85b82d0",
     canalId: "67cb3542f3823200bddecfd9",
   },
-  // Hola! Suite – APTC Cumbre
   HOLA_APTC26: {
     apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
     bearerSecretName: "HOLA_WHATSAPP_BEARER",
     templateId: "69c59b3a315f1b682c3d340b",
     canalId: "67cb3542f3823200bddecfd9",
   },
-  // Hola! Suite – ABRINT
   HOLA_ABRINT26: {
     apiUrl: "https://wispro.holasuite.com/api/v1/template/send",
     bearerSecretName: "HOLA_WHATSAPP_BEARER",
@@ -54,24 +45,22 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
+
   try {
     const body = await req.json();
     const { phone, agentName, linkPresupuesto, eventCode } = body;
 
     if (!phone) {
-      return new Response(JSON.stringify({ error: "phone is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ success: false, error: "phone is required" }), {
+        status: 400, headers: jsonHeaders,
       });
     }
 
     if (!eventCode || !EVENT_CONFIGS[eventCode]) {
       return new Response(
-        JSON.stringify({ error: `No template config for event: ${eventCode}` }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ success: false, error: `No template config for event: ${eventCode}` }),
+        { status: 400, headers: jsonHeaders },
       );
     }
 
@@ -79,20 +68,15 @@ Deno.serve(async (req) => {
     const bearer = Deno.env.get(config.bearerSecretName);
 
     if (!bearer) {
-      console.error(`[send-whatsapp-template] Missing secret: ${config.bearerSecretName}`);
+      console.error(`[send-whatsapp-template] ERROR: Missing secret ${config.bearerSecretName}`);
       return new Response(
-        JSON.stringify({ error: "API credentials not configured for this event" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ success: false, error: "API credentials not configured for this event" }),
+        { status: 500, headers: jsonHeaders },
       );
     }
 
     const payload = {
-      contato: {
-        canalCliente: phone,
-      },
+      contato: { canalCliente: phone },
       template: {
         _id: config.templateId,
         variaveis: [agentName || "Especialista Comercial", linkPresupuesto || ""],
@@ -100,33 +84,61 @@ Deno.serve(async (req) => {
       canal: config.canalId,
     };
 
-    console.log(`[send-whatsapp-template] Sending to ${config.apiUrl} for event ${eventCode}`);
+    const phoneSuffix = phone.slice(-4);
+    console.log(`[send-whatsapp-template] Sending to ${config.apiUrl} for event ${eventCode} with phone ...${phoneSuffix}`);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    const timeout = setTimeout(() => controller.abort(), 20000);
 
-    const res = await fetch(config.apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${bearer}`,
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
+    let res: Response;
+    try {
+      res = await fetch(config.apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${bearer}`,
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      const isTimeout = fetchErr instanceof DOMException && fetchErr.name === "AbortError";
+      const errMsg = isTimeout
+        ? "Request timed out after 20s"
+        : (fetchErr instanceof Error ? fetchErr.message : String(fetchErr));
+      const stack = fetchErr instanceof Error ? fetchErr.stack : undefined;
+      console.error(`[send-whatsapp-template] ERROR: ${errMsg}`, stack || "");
+      return new Response(
+        JSON.stringify({ success: false, error: errMsg }),
+        { status: 504, headers: jsonHeaders },
+      );
+    }
 
     clearTimeout(timeout);
 
     const responseText = await res.text();
+    const preview = responseText.length > 1000 ? responseText.substring(0, 1000) + "…" : responseText;
+
+    if (res.ok) {
+      console.log(`[send-whatsapp-template] SUCCESS status=${res.status} body=${preview}`);
+    } else {
+      console.error(`[send-whatsapp-template] ERROR status=${res.status} body=${preview}`);
+    }
+
+    // Try to extract messageSentId from response
+    let messageSentId: string | undefined;
+    try {
+      const parsed = JSON.parse(responseText);
+      messageSentId = parsed?._id || parsed?.id || parsed?.messageSentId;
+    } catch { /* not JSON, ignore */ }
 
     if (!res.ok) {
-      console.error(`[send-whatsapp-template] API error ${res.status}: ${responseText}`);
-
-      // Log to webhook_errors table
+      // Log to webhook_errors
       try {
         const sb = createClient(
           Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
         );
         await sb.from("webhook_errors").insert({
           request_url: config.apiUrl,
@@ -143,23 +155,23 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: res.ok,
-        webhook_response: responseText,
-        status_code: res.status,
-      }),
-      {
-        status: res.ok ? 200 : 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    const result: Record<string, unknown> = {
+      success: res.ok,
+      statusCode: res.status,
+    };
+    if (messageSentId) result.messageSentId = messageSentId;
+    if (!res.ok) result.error = preview;
+
+    return new Response(JSON.stringify(result), {
+      status: res.ok ? 200 : 502,
+      headers: jsonHeaders,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[send-whatsapp-template] Unhandled error:", message);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const stack = err instanceof Error ? err.stack : undefined;
+    console.error(`[send-whatsapp-template] ERROR: ${message}`, stack || "");
+    return new Response(JSON.stringify({ success: false, error: message }), {
+      status: 500, headers: jsonHeaders,
     });
   }
 });
