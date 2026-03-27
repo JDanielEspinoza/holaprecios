@@ -45,6 +45,15 @@ const menuItems: MenuItem[] = [
       { title: "Olli", path: "/coming-soon-olli", icon: Bot, comingSoon: true },
     ],
   },
+  {
+    title: "Ambientes IA",
+    titlePt: "Ambientes IA",
+    icon: Cpu,
+    children: [
+      { title: "Hola! Suite IA", path: "/hola-suite-ia", icon: Bot },
+      { title: "Opa! Suite IA", path: "/opa-suite-ia", icon: Bot },
+    ],
+  },
   { title: "Mis Cotizaciones", titlePt: "Minhas Cotações", path: "/mis-cotizaciones", icon: History },
   { title: "Cotizaciones", titlePt: "Cotações", path: "/cotizaciones", icon: Building2 },
   { title: "Usuarios", titlePt: "Usuários", path: "/usuarios", icon: Users },
@@ -84,7 +93,7 @@ const AppMenu = () => {
 
   return (
     <>
-      <Button variant="ghost" size="icon" className="h-10 w-10 text-white hover:text-white/80" onClick={() => setIsOpen(true)}>
+      <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-700 hover:text-gray-900" onClick={() => setIsOpen(true)}>
         <Menu className="h-5 w-5" />
       </Button>
 

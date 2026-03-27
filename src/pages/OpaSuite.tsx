@@ -94,7 +94,7 @@ const OpaSuite = () => {
     }, 0);
   }, [groupSelections]);
 
-  const mensalidadeTotal = opaBasePrice + addonTotal + groupsTotal;
+  const mensalidadeTotal = opaBasePrice + addonTotal;
 
   const cloudPrice = useMemo(() => {
     if (!selectedCloud) return 0;
@@ -112,8 +112,9 @@ const OpaSuite = () => {
     opaHourlyAdesaoItems.forEach((item) => {
       total += (hourlyQty[item.name] || 0) * item.unitPrice;
     });
+    total += groupsTotal;
     return total;
-  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty]);
+  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty, groupsTotal]);
 
   const maxInstallments = useMemo(() => {
     if (adesaoTotal <= 854) return 2;
@@ -157,7 +158,7 @@ const OpaSuite = () => {
     opaMensalidadeGroups.forEach((group, gi) => {
       const sel = groupSelections[gi];
       if (sel !== null && sel !== undefined) {
-        items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "mensalidade" });
+        items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "adesao" });
       }
     });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
@@ -413,61 +414,7 @@ const OpaSuite = () => {
                     })}
                   </div>
 
-                  {/* Collapsible groups */}
-                  <div className="border-t border-border pt-3 space-y-2">
-                    {opaMensalidadeGroups.map((group, gi) => (
-                      <Collapsible
-                        key={gi}
-                        open={openGroups[gi] || false}
-                        onOpenChange={(open) => setOpenGroups((prev) => ({ ...prev, [gi]: open }))}
-                      >
-                        <CollapsibleTrigger className="w-full flex justify-between items-center text-sm font-medium text-foreground hover:bg-accent/50 rounded-md px-2 py-2 transition-colors">
-                          <div className="flex items-center gap-2">
-                            <ChevronDown className={`h-4 w-4 transition-transform ${openGroups[gi] ? "rotate-180" : ""}`} />
-                            <span>{group.groupName}</span>
-                          </div>
-                          {groupSelections[gi] !== null && groupSelections[gi] !== undefined && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                              {fmtBRL(group.options[groupSelections[gi]!].price)}
-                            </span>
-                          )}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pl-6 space-y-1 pt-1">
-                          {/* None option */}
-                          <button
-                            onClick={() => {
-                              setGroupSelections((prev) => ({ ...prev, [gi]: null }));
-                              setOpenGroups((prev) => ({ ...prev, [gi]: false }));
-                            }}
-                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
-                              groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
-                            }`}
-                          >
-                            <span className="text-muted-foreground">Nenhum</span>
-                            <span className="text-muted-foreground">{fmtBRL(0)}</span>
-                          </button>
-                          {group.options.map((opt, oi) => {
-                            const isSelected = groupSelections[gi] === oi;
-                            return (
-                              <button
-                                key={oi}
-                                onClick={() => {
-                                  setGroupSelections((prev) => ({ ...prev, [gi]: oi }));
-                                  setOpenGroups((prev) => ({ ...prev, [gi]: false }));
-                                }}
-                                className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
-                                  isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
-                                }`}
-                              >
-                                <span className="text-foreground">{opt.label}</span>
-                                <span className="font-semibold text-foreground whitespace-nowrap ml-2">{fmtBRL(opt.price)}</span>
-                              </button>
-                            );
-                          })}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ))}
-                  </div>
+                  {/* Collapsible groups removed - moved to Adesão */}
 
                   <div className="border-t border-border pt-3 flex justify-between items-center">
                     <span className="font-semibold text-foreground">Subtotal Mensalidade</span>
@@ -683,6 +630,61 @@ const OpaSuite = () => {
                 </div>
               ))}
 
+              {/* Collapsible groups (Treinamento, Retreinamento, Banco de Templates) */}
+              <div className="border-t border-border pt-3 space-y-2">
+                {opaMensalidadeGroups.map((group, gi) => (
+                  <Collapsible
+                    key={gi}
+                    open={openGroups[gi] || false}
+                    onOpenChange={(open) => setOpenGroups((prev) => ({ ...prev, [gi]: open }))}
+                  >
+                    <CollapsibleTrigger className="w-full flex justify-between items-center text-sm font-medium text-foreground hover:bg-accent/50 rounded-md px-2 py-2 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <ChevronDown className={`h-4 w-4 transition-transform ${openGroups[gi] ? "rotate-180" : ""}`} />
+                        <span>{group.groupName}</span>
+                      </div>
+                      {groupSelections[gi] !== null && groupSelections[gi] !== undefined && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                          {fmtBRL(group.options[groupSelections[gi]!].price)}
+                        </span>
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-6 space-y-1 pt-1">
+                      <button
+                        onClick={() => {
+                          setGroupSelections((prev) => ({ ...prev, [gi]: null }));
+                          setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                        }}
+                        className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                          groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                        }`}
+                      >
+                        <span className="text-muted-foreground">Nenhum</span>
+                        <span className="text-muted-foreground">{fmtBRL(0)}</span>
+                      </button>
+                      {group.options.map((opt, oi) => {
+                        const isSelected = groupSelections[gi] === oi;
+                        return (
+                          <button
+                            key={oi}
+                            onClick={() => {
+                              setGroupSelections((prev) => ({ ...prev, [gi]: oi }));
+                              setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                            }}
+                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                              isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                            }`}
+                          >
+                            <span className="text-foreground">{opt.label}</span>
+                            <span className="font-semibold text-foreground whitespace-nowrap ml-2">{fmtBRL(opt.price)}</span>
+                          </button>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+
               <div className="border-t border-border pt-3 flex justify-between items-center">
                 <span className="font-semibold text-foreground">Total Adesão</span>
                 <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
@@ -710,12 +712,23 @@ const OpaSuite = () => {
                 const qty = addonQty[a.name] || 0;
                 return <OpaSummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} />;
               })}
+              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
+            </div>
+
+            {/* Adesão items in summary */}
+            <div className="border-t border-border pt-2 space-y-1">
+              <OpaSummaryLine label="Adesão Básica" value={adesaoBasicaPrice} />
+              {fluxoBasicoEnabled && <OpaSummaryLine label="Fluxo Básico entregue e configurado" value={fluxoBasicoPrice} />}
+              {opaHourlyAdesaoItems.map((item) => {
+                const qty = hourlyQty[item.name] || 0;
+                return qty > 0 ? <OpaSummaryLine key={item.name} label={`${item.name} (x${qty})`} value={qty * item.unitPrice} /> : null;
+              })}
+              {opaAdesaoExtras.map((item) => adesaoExtrasEnabled[item.name] ? <OpaSummaryLine key={item.name} label={item.name} value={item.price} /> : null)}
               {opaMensalidadeGroups.map((group, gi) => {
                 const sel = groupSelections[gi];
                 if (sel === null || sel === undefined) return null;
-                return <OpaSummaryLine key={gi} label={group.options[sel].label} value={group.options[sel].price} />;
+                return <OpaSummaryLine key={`grp-${gi}`} label={group.options[sel].label} value={group.options[sel].price} />;
               })}
-              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
             </div>
 
             <div className="border-t border-border pt-3 space-y-2">
