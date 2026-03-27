@@ -1,30 +1,34 @@
 
 
-## Plan: Fix missing columns + Update WhatsApp number for Opa! Suite
+## Plan: Multiple Opa! Suite and Menu Updates
 
-### Step 1 — Database Migration
-Add the two missing columns to `quotes`:
-```sql
-ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS adesao_payment_type text DEFAULT 'vista';
-ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS adesao_installments integer NULL;
-```
-This resolves the schema cache error.
+### 1. Hamburger icon color (AppMenu.tsx)
+Change the Menu icon button from `text-white` to `text-gray-700` so it's visible on white backgrounds.
 
-### Step 2 — Update WhatsApp number in Cotizacion.tsx
-In `src/pages/Cotizacion.tsx` (line 370), change the Opa! Suite WhatsApp phone from `5492615783684` to `554931991780` for the confirmation button. The number only changes for Opa quotes; Hola quotes keep the current number.
+### 2. Add "Ambientes IA" submenu (AppMenu.tsx)
+Add a new top-level menu item "Ambientes IA" with children:
+- "Hola! Suite IA" → `/hola-suite-ia`
+- "Opa! Suite IA" → `/opa-suite-ia`
 
-Current:
-```typescript
-window.open(`https://api.whatsapp.com/send?phone=5492615783684&text=...`)
-```
-Change to conditionally use `554931991780` when `isOpaQuote` is true.
+This is separate from the existing "Cotar" submenu. Uses `Bot` icon for children and a suitable parent icon (e.g. `Cpu` or `Bot`).
 
-### Step 3 — No UI changes needed for payment buttons
-The payment type buttons (À Vista / Parcelado) and installment logic already exist in `OpaSuite.tsx` (lines 80-81, 118-128). The `handleGenerateQuote` already saves `adesao_payment_type` and `adesao_installments` (lines 201-202). Once the migration runs, this will work.
+### 3. Move Treinamento/Retreinamento/Banco de Templates to Adesão (opaPricing.ts + OpaSuite.tsx)
+- Remove `opaMensalidadeGroups` from the Mensalidade section UI
+- Remove `groupsTotal` from `mensalidadeTotal` calculation
+- Add the collapsible groups UI into the Adesão card instead
+- Add `groupsTotal` to `adesaoTotal` calculation
+- Update `buildItems()` so group selections use `section: "adesao"` instead of `"mensalidade"`
 
-### Files modified
+### 4. Add "Serviço de Página Web" addon (opaPricing.ts)
+Add `{ name: "Serviço de Página Web", unitPrice: 79.50 }` to the `opaAddons` array in Mensalidade.
+
+### 5. Fix installment auto-selection display
+The installment logic is already correct per the rules. Ensure when switching to "Parcelado", the max installments button is auto-selected (already implemented at line 758). No changes needed here — the rules match what's coded.
+
+### Files Modified
 | File | Change |
 |---|---|
-| DB migration | Add `adesao_payment_type` and `adesao_installments` columns |
-| `src/pages/Cotizacion.tsx` | Use `554931991780` for Opa quotes WhatsApp confirmation |
+| `src/components/AppMenu.tsx` | Icon color + Ambientes IA submenu |
+| `src/data/opaPricing.ts` | Add Serviço de Página Web addon |
+| `src/pages/OpaSuite.tsx` | Move collapsible groups from Mensalidade to Adesão, update totals |
 
