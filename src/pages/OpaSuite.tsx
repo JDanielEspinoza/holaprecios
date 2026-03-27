@@ -94,7 +94,7 @@ const OpaSuite = () => {
     }, 0);
   }, [groupSelections]);
 
-  const mensalidadeTotal = opaBasePrice + addonTotal + groupsTotal;
+  const mensalidadeTotal = opaBasePrice + addonTotal;
 
   const cloudPrice = useMemo(() => {
     if (!selectedCloud) return 0;
@@ -112,8 +112,9 @@ const OpaSuite = () => {
     opaHourlyAdesaoItems.forEach((item) => {
       total += (hourlyQty[item.name] || 0) * item.unitPrice;
     });
+    total += groupsTotal;
     return total;
-  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty]);
+  }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty, groupsTotal]);
 
   const maxInstallments = useMemo(() => {
     if (adesaoTotal <= 854) return 2;
@@ -157,7 +158,7 @@ const OpaSuite = () => {
     opaMensalidadeGroups.forEach((group, gi) => {
       const sel = groupSelections[gi];
       if (sel !== null && sel !== undefined) {
-        items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "mensalidade" });
+        items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "adesao" });
       }
     });
     if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
