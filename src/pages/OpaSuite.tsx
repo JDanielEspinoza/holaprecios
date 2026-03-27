@@ -630,7 +630,61 @@ const OpaSuite = () => {
                 </div>
               ))}
 
-              <div className="border-t border-border pt-3 flex justify-between items-center">
+              {/* Collapsible groups (Treinamento, Retreinamento, Banco de Templates) */}
+              <div className="border-t border-border pt-3 space-y-2">
+                {opaMensalidadeGroups.map((group, gi) => (
+                  <Collapsible
+                    key={gi}
+                    open={openGroups[gi] || false}
+                    onOpenChange={(open) => setOpenGroups((prev) => ({ ...prev, [gi]: open }))}
+                  >
+                    <CollapsibleTrigger className="w-full flex justify-between items-center text-sm font-medium text-foreground hover:bg-accent/50 rounded-md px-2 py-2 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <ChevronDown className={`h-4 w-4 transition-transform ${openGroups[gi] ? "rotate-180" : ""}`} />
+                        <span>{group.groupName}</span>
+                      </div>
+                      {groupSelections[gi] !== null && groupSelections[gi] !== undefined && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                          {fmtBRL(group.options[groupSelections[gi]!].price)}
+                        </span>
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-6 space-y-1 pt-1">
+                      <button
+                        onClick={() => {
+                          setGroupSelections((prev) => ({ ...prev, [gi]: null }));
+                          setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                        }}
+                        className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                          groupSelections[gi] === null ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                        }`}
+                      >
+                        <span className="text-muted-foreground">Nenhum</span>
+                        <span className="text-muted-foreground">{fmtBRL(0)}</span>
+                      </button>
+                      {group.options.map((opt, oi) => {
+                        const isSelected = groupSelections[gi] === oi;
+                        return (
+                          <button
+                            key={oi}
+                            onClick={() => {
+                              setGroupSelections((prev) => ({ ...prev, [gi]: oi }));
+                              setOpenGroups((prev) => ({ ...prev, [gi]: false }));
+                            }}
+                            className={`w-full flex justify-between items-center rounded-md px-3 py-2 text-sm transition-colors text-left ${
+                              isSelected ? "bg-blue-600/10 border border-blue-600/30" : "hover:bg-accent/50"
+                            }`}
+                          >
+                            <span className="text-foreground">{opt.label}</span>
+                            <span className="font-semibold text-foreground whitespace-nowrap ml-2">{fmtBRL(opt.price)}</span>
+                          </button>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+
                 <span className="font-semibold text-foreground">Total Adesão</span>
                 <span className="text-xl font-bold text-blue-600">{fmtBRL(adesaoTotal)}</span>
               </div>
