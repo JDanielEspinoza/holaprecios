@@ -366,7 +366,7 @@ const Cotizacion = () => {
               const sellerName = data?.seller_name || (isOpaQuote ? "seu especialista" : "tu asesor");
               const text = isOpaQuote
                 ? `Olá! Recebi esta cotação de ${sellerName} e gostaria de confirmar o valor! ${quoteUrl}`
-                : `Hola! Recibí esta cotización de parte de ${sellerName} en Andina Link y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
+                : `Hola! Recibí esta cotización de parte de ${sellerName} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
               const whatsappPhone = isOpaQuote ? "554931991780" : "5492615783684";
               window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
