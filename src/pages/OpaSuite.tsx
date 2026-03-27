@@ -131,6 +131,7 @@ const OpaSuite = () => {
     setClientCount(null);
     setAddonQty(Object.fromEntries(opaAddons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
+    setCloudFlipped(false);
     setGroupSelections(Object.fromEntries(opaMensalidadeGroups.map((_, i) => [i, null])));
     setOpenGroups({});
     setFluxoBasicoEnabled(false);
