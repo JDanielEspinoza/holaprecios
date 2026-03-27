@@ -76,6 +76,9 @@ const OpaSuite = () => {
   const [quoteId, setQuoteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [paymentType, setPaymentType] = useState<'vista' | 'parcelado'>('vista');
+  const [selectedInstallments, setSelectedInstallments] = useState<number | null>(null);
+
   const addonTotal = useMemo(() => {
     return opaAddons.reduce((sum, a) => sum + (addonQty[a.name] || 0) * a.unitPrice, 0);
   }, [addonQty]);
@@ -111,6 +114,18 @@ const OpaSuite = () => {
     return total;
   }, [fluxoBasicoEnabled, adesaoExtrasEnabled, hourlyQty]);
 
+  const maxInstallments = useMemo(() => {
+    if (adesaoTotal <= 854) return 2;
+    if (adesaoTotal <= 1590) return 3;
+    if (adesaoTotal <= 2650) return 4;
+    return 6;
+  }, [adesaoTotal]);
+
+  const installmentValue = useMemo(() => {
+    if (!selectedInstallments || selectedInstallments <= 0) return 0;
+    return adesaoTotal / selectedInstallments;
+  }, [adesaoTotal, selectedInstallments]);
+
   const resetAll = () => {
     setClientCount(null);
     setAddonQty(Object.fromEntries(opaAddons.map((a) => [a.name, 0])));
@@ -125,6 +140,8 @@ const OpaSuite = () => {
     setClientPhone("");
     setClientEmail("");
     setQuoteId(null);
+    setPaymentType('vista');
+    setSelectedInstallments(null);
   };
 
   const buildItems = () => {
@@ -179,6 +196,8 @@ const OpaSuite = () => {
         discounted_total: totalMensal,
         discount_amount: 0,
         installation_cost: adesaoTotal,
+        adesao_payment_type: paymentType,
+        adesao_installments: paymentType === 'parcelado' ? selectedInstallments : null,
         seller_name: profile?.nombre || "",
         seller_cargo: profile?.cargo || "",
         seller_numero: "+5492615783684",
@@ -635,11 +654,55 @@ const OpaSuite = () => {
             </div>
 
             {adesaoTotal > 0 && (
-              <div className="border-t border-border pt-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Adesão (pagamento único)</span>
-                  <span className="font-semibold text-foreground">{fmtBRL(adesaoTotal)}</span>
+              <div className="border-t border-border pt-3 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground text-sm">Adesão (pagamento único)</span>
+                    <span className="font-semibold text-foreground text-lg">{fmtBRL(adesaoTotal)}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      variant={paymentType === 'vista' ? 'default' : 'outline'}
+                      className={paymentType === 'vista' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                      size="lg"
+                      onClick={() => { setPaymentType('vista'); setSelectedInstallments(null); }}
+                    >
+                      À Vista
+                    </Button>
+                    <Button
+                      variant={paymentType === 'parcelado' ? 'default' : 'outline'}
+                      className={paymentType === 'parcelado' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                      size="lg"
+                      onClick={() => { setPaymentType('parcelado'); setSelectedInstallments(maxInstallments); }}
+                    >
+                      Parcelado
+                    </Button>
+                  </div>
                 </div>
+
+                {paymentType === 'parcelado' && (
+                  <div className="space-y-3 pl-1">
+                    <span className="text-sm font-medium text-foreground">Número de parcelas:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: maxInstallments - 1 }, (_, i) => i + 2).map((n) => (
+                        <Button
+                          key={n}
+                          variant={selectedInstallments === n ? 'default' : 'outline'}
+                          className={selectedInstallments === n ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                          size="sm"
+                          onClick={() => setSelectedInstallments(n)}
+                        >
+                          {n}x
+                        </Button>
+                      ))}
+                    </div>
+                    {selectedInstallments && (
+                      <p className="text-sm text-muted-foreground">
+                        Valor de cada parcela: <span className="font-semibold text-foreground">{fmtBRL(installmentValue)}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
