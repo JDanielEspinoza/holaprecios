@@ -6,7 +6,7 @@ import {
   adesaoBasicaPrice, fluxoBasicoPrice, opaAdesaoExtras, opaMensalidadeGroups,
   opaHourlyAdesaoItems,
 } from "@/data/opaPricing";
-import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown } from "lucide-react";
+import { Users, Cloud, Plus, Minus, Check, RotateCcw, Settings2, Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ChevronDown, Server } from "lucide-react";
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import EventBadge from "@/components/EventBadge";
@@ -52,6 +52,7 @@ const OpaSuite = () => {
     Object.fromEntries(opaAddons.map((a) => [a.name, 0]))
   );
   const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
+  const [cloudFlipped, setCloudFlipped] = useState(false);
 
   // Collapsible group selections (group index -> selected option index, or null)
   const [groupSelections, setGroupSelections] = useState<Record<number, number | null>>(
@@ -130,6 +131,7 @@ const OpaSuite = () => {
     setClientCount(null);
     setAddonQty(Object.fromEntries(opaAddons.map((a) => [a.name, 0])));
     setSelectedCloud(null);
+    setCloudFlipped(false);
     setGroupSelections(Object.fromEntries(opaMensalidadeGroups.map((_, i) => [i, null])));
     setOpenGroups({});
     setFluxoBasicoEnabled(false);
@@ -474,56 +476,131 @@ const OpaSuite = () => {
                 </CardContent>
               </Card>
 
-              {/* Opa! Cloud */}
-              <Card className="card-premium flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Cloud className="h-5 w-5" />
-                    Opa! Cloud
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Plano atribuído automaticamente conforme clientes. Você pode fazer upgrade.
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-2 flex flex-col flex-1">
-                  <div className="space-y-2">
-                    {(() => {
-                      const minIdx = clientCount ? getMinOpaCloudPlanIndex(clientCount) : 0;
-                      return opaCloudPlans.map((plan, idx) => {
-                        const isSelected = selectedCloud === plan.name;
-                        return (
-                          <button
-                            key={plan.name}
-                            onClick={() => setSelectedCloud(plan.name)}
-                            className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
-                              isSelected
-                                ? "border-blue-600 bg-blue-600/10 ring-2 ring-blue-600/30"
-                                : "border-border hover:bg-accent/50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-blue-600 bg-blue-600" : "border-muted-foreground"}`}>
-                                {isSelected && <Check className="h-3 w-3 text-white" />}
-                              </div>
-                              <span className="font-medium text-foreground text-sm">{plan.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {idx === minIdx && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">Recomendado</span>}
-                              <span className="font-bold text-foreground">{fmtBRL(plan.price)}</span>
-                            </div>
-                          </button>
-                        );
-                      });
-                    })()}
-                  </div>
-                  <div className="mt-auto pt-2">
-                    <div className="border-t border-border pt-3 flex justify-between items-center">
-                      <span className="font-semibold text-foreground">Cloud selecionado</span>
-                      <span className="text-xl font-bold text-blue-600">{fmtBRL(cloudPrice)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Opa! Cloud - Flip Card */}
+              <div className="[perspective:1200px]">
+                <div
+                  className={`relative transition-transform duration-700 [transform-style:preserve-3d] ${cloudFlipped ? "[transform:rotateX(180deg)]" : ""}`}
+                >
+                  {/* Front: Cloud plans */}
+                  <Card className="card-premium flex flex-col [backface-visibility:hidden]">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Cloud className="h-5 w-5" />
+                        Opa! Cloud
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Plano atribuído automaticamente conforme clientes. Você pode fazer upgrade.
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-2 flex flex-col flex-1">
+                      <div className="space-y-2">
+                        {(() => {
+                          const minIdx = clientCount ? getMinOpaCloudPlanIndex(clientCount) : 0;
+                          return opaCloudPlans.map((plan, idx) => {
+                            const isSelected = selectedCloud === plan.name;
+                            return (
+                              <button
+                                key={plan.name}
+                                onClick={() => setSelectedCloud(plan.name)}
+                                className={`w-full flex justify-between items-center rounded-lg border px-4 py-3 transition-colors text-left ${
+                                  isSelected
+                                    ? "border-blue-600 bg-blue-600/10 ring-2 ring-blue-600/30"
+                                    : "border-border hover:bg-accent/50"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? "border-blue-600 bg-blue-600" : "border-muted-foreground"}`}>
+                                    {isSelected && <Check className="h-3 w-3 text-white" />}
+                                  </div>
+                                  <span className="font-medium text-foreground text-sm">{plan.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {idx === minIdx && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">Recomendado</span>}
+                                  <span className="font-bold text-foreground">{fmtBRL(plan.price)}</span>
+                                </div>
+                              </button>
+                            );
+                          });
+                        })()}
+                      </div>
+                      <div className="mt-auto pt-4 space-y-3">
+                        <div className="border-t border-border pt-3 flex justify-between items-center">
+                          <span className="font-semibold text-foreground">Cloud selecionado</span>
+                          <span className="text-xl font-bold text-blue-600">{fmtBRL(cloudPrice)}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="w-full text-muted-foreground hover:text-foreground gap-2"
+                          onClick={() => { setSelectedCloud(null); setCloudFlipped(true); }}
+                        >
+                          <Server className="h-4 w-4" />
+                          Sem nuvem (servidor próprio)
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Back: Server requirements table */}
+                  <Card className="card-premium absolute inset-0 [backface-visibility:hidden] [transform:rotateX(180deg)] overflow-auto flex flex-col">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Server className="h-5 w-5" />
+                        Pré-requisitos de instalação em servidor próprio
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col flex-1">
+                      <div className="overflow-x-auto flex-1">
+                        <table className="w-full text-sm border-collapse">
+                          <thead>
+                            <tr className="border-b border-border">
+                              <th className="text-left py-2 px-2 font-semibold text-foreground">Atendimentos/mês</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">Core</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">SSD</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">Memória</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">IP Público</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">SSL</th>
+                              <th className="text-center py-2 px-2 font-semibold text-foreground">Domínio</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { range: "Até 5.000", core: "2", ssd: "200 GB", mem: "6 GB" },
+                              { range: "Até 20.000", core: "4", ssd: "1 TERA", mem: "12 GB" },
+                              { range: "Até 40.000", core: "4", ssd: "1 TERA", mem: "16 GB" },
+                              { range: "Até 60.000", core: "8", ssd: "2 TERA", mem: "32 GB" },
+                              { range: "Até 100.000", core: "16", ssd: "2 TERA", mem: "64 GB" },
+                            ].map((row) => (
+                              <tr key={row.range} className="border-b border-border/50 hover:bg-accent/30 transition-colors">
+                                <td className="py-2.5 px-2 font-medium text-foreground whitespace-nowrap">{row.range}</td>
+                                <td className="py-2.5 px-2 text-center text-muted-foreground">{row.core}</td>
+                                <td className="py-2.5 px-2 text-center text-muted-foreground">{row.ssd}</td>
+                                <td className="py-2.5 px-2 text-center text-muted-foreground">{row.mem}</td>
+                                <td className="py-2.5 px-2 text-center text-blue-600">✓</td>
+                                <td className="py-2.5 px-2 text-center text-blue-600">✓</td>
+                                <td className="py-2.5 px-2 text-center text-blue-600">✓</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="mt-auto pt-4">
+                        <Button
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={() => {
+                            setCloudFlipped(false);
+                            const minIdx = clientCount ? getMinOpaCloudPlanIndex(clientCount) : 0;
+                            setSelectedCloud(opaCloudPlans[minIdx].name);
+                          }}
+                        >
+                          <Cloud className="h-4 w-4" />
+                          Voltar para Opa! Cloud
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
           </>
         )}
