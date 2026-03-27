@@ -686,7 +686,7 @@ const OpaSuite = () => {
           </Card>
         )}
 
-        {/* Resumo */}
+        {clientCount && (
         <Card className="border-2 border-blue-600/30 bg-blue-600/5 card-premium animate-fade-slide-up-3">
           <CardHeader>
             <div className="flex items-center justify-between">
