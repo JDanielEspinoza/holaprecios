@@ -126,19 +126,23 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
             <div className="flex justify-center mb-4">
-              {isOpaQuote ? (
+              {isAssinaQuote ? (
+                <img src={logoAssina} alt="IXC Assina" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
+              ) : isOpaQuote ? (
                 <img src={logoOpa} alt="Opa! Suite" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
               ) : (
                 <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
               )}
             </div>
             <CardTitle className="text-xl text-black-500">
-              {isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
+              {isAssinaQuote ? "Resumo da Cotação" : isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
             </CardTitle>
             <p className="text-sm text-gray-500">
-              {isOpaQuote
-                ? `Detalhe para ${fc(data.clients_count)} clientes`
-                : `Detalle para ${fc(data.clients_count)} clientes`}
+              {isAssinaQuote
+                ? `Pacote para ${fc(data.clients_count)} documentos/mês`
+                : isOpaQuote
+                  ? `Detalhe para ${fc(data.clients_count)} clientes`
+                  : `Detalle para ${fc(data.clients_count)} clientes`}
             </p>
             {/* Product logos */}
             {(hasWispro || hasAcs || hasHola) && (
