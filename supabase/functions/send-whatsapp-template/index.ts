@@ -38,6 +38,12 @@ const EVENT_CONFIGS: Record<string, EventTemplateConfig> = {
     templateId: "69c59ba9315f1b682c3d352d",
     canalId: "67cb3542f3823200bddecfd9",
   },
+  ASSINA_ABRINT26: {
+    apiUrl: "https://suporte.ixcsoft.com.br/api/v1/template/send",
+    bearerSecretName: "ABRINT_WHATSAPP_BEARER",
+    templateId: "69cac994960782d8c4c7e9fa",
+    canalId: "67631010bda9205b3609811b",
+  },
 };
 
 Deno.serve(async (req) => {

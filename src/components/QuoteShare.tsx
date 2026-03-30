@@ -11,6 +11,7 @@ interface QuoteShareProps {
   clientName?: string;
   agentName?: string;
   isOpa?: boolean;
+  isAssina?: boolean;
   eventCode?: string | null;
 }
 
@@ -21,7 +22,7 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, eventCode }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, isAssina = false, eventCode }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
@@ -56,16 +57,19 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     setResult(null);
     try {
       // Build the event key for the template API
+      // Assina uses "ASSINA_" prefix (e.g. "ASSINA_ABRINT26")
       // Opa! Suite keeps its raw eventCode (e.g. "ABRINT26")
       // Hola! Suite prefixes with "HOLA_" (e.g. "HOLA_NONE", "HOLA_APTC26")
-      const templateEventKey = isOpa
-        ? (eventCode || "ABRINT26")
-        : `HOLA_${eventCode || "NONE"}`;
+      const templateEventKey = isAssina
+        ? `ASSINA_${eventCode || "ABRINT26"}`
+        : isOpa
+          ? (eventCode || "ABRINT26")
+          : `HOLA_${eventCode || "NONE"}`;
 
       const functionName = "send-whatsapp-template";
       const body = {
         phone: cleanPhone,
-        agentName: agentName || (isOpa ? "Especialista Comercial" : "Tu asesor"),
+        agentName: agentName || (isAssina ? "Especialista Comercial" : isOpa ? "Especialista Comercial" : "Tu asesor"),
         linkPresupuesto: quoteUrl,
         eventCode: templateEventKey,
       };
@@ -123,7 +127,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     } finally {
       setSending(false);
     }
-  }, [clientPhone, quoteUrl, agentName, isOpa, eventCode]);
+  }, [clientPhone, quoteUrl, agentName, isOpa, isAssina, eventCode]);
 
   const handleRegistroWispro = useCallback(async () => {
     if (!clientPhone) return;
@@ -185,7 +189,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          {isOpa ? "Compartilhar Cotação" : "Compartir Cotización"}
+          {(isOpa || isAssina) ? "Compartilhar Cotação" : "Compartir Cotización"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -198,16 +202,16 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             {sending ? (
-              <><Loader2 className="h-5 w-5 animate-spin" /> {isOpa ? "Enviando..." : "Enviando..."}</>
+              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
             ) : sent ? (
-              <><CheckCircle className="h-5 w-5" /> {isOpa ? "Enviado por WhatsApp" : "Enviado por WhatsApp"}</>
+              <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
             ) : (
-              <><MessageCircle className="h-5 w-5" /> {isOpa ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
+              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
             )}
           </Button>
           {!hasPhone && (
             <p className="text-xs text-muted-foreground text-center">
-              {isOpa ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
+              {(isOpa || isAssina) ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
             </p>
           )}
         </div>
@@ -263,8 +267,8 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
           </div>
         )}
 
-        {/* Registro Wispro - hide for Opa */}
-        {!isOpa && (
+        {/* Registro Wispro - hide for Opa and Assina */}
+        {!isOpa && !isAssina && (
           <div className="space-y-3">
             <Button
               onClick={handleRegistroWispro}
@@ -343,14 +347,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             <Download className="h-5 w-5" />
-            {isOpa ? "Baixar Cotação" : "Descargar Cotización"}
+            {(isOpa || isAssina) ? "Baixar Cotação" : "Descargar Cotización"}
           </Button>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
               <QRCodeSVG id="quote-qr" value={quoteUrl} size={100} level="L" />
             </div>
             <p className="text-xs text-muted-foreground">
-              {isOpa ? "Escaneie o QR para ver a cotação no celular." : "Escaneá el QR para ver la cotización en el celular."}
+              {(isOpa || isAssina) ? "Escaneie o QR para ver a cotação no celular." : "Escaneá el QR para ver la cotización en el celular."}
             </p>
           </div>
         </div>

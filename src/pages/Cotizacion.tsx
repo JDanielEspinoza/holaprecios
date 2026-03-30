@@ -9,6 +9,7 @@ import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import logoOpa from "@/assets/logo-opa-suite-3.png";
+import logoAssina from "@/assets/ixc-assina-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number, isOpa: boolean = false) =>
@@ -100,8 +101,10 @@ const Cotizacion = () => {
   const hasAcs = ecosystem.some((i) => i.label === "ACS");
   const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
   const isOpaQuote = items.some((i) => i.section === "mensalidade");
-  const f = (n: number) => fmt(n, isOpaQuote);
-  const fc = (n: number) => fmtClients(n, isOpaQuote);
+  const isAssinaQuote = items.some((i) => i.section?.startsWith("assina_"));
+  const isBRL = isOpaQuote || isAssinaQuote;
+  const f = (n: number) => fmt(n, isBRL);
+  const fc = (n: number) => fmtClients(n, isBRL);
 
   // For Opa: compute monthly total (mensalidade + cloud only)
   const opaMonthlyTotal = isOpaQuote
@@ -123,19 +126,23 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
             <div className="flex justify-center mb-4">
-              {isOpaQuote ? (
+              {isAssinaQuote ? (
+                <img src={logoAssina} alt="IXC Assina" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
+              ) : isOpaQuote ? (
                 <img src={logoOpa} alt="Opa! Suite" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
               ) : (
                 <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
               )}
             </div>
             <CardTitle className="text-xl text-black-500">
-              {isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
+              {isAssinaQuote ? "Resumo da Cotação" : isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
             </CardTitle>
             <p className="text-sm text-gray-500">
-              {isOpaQuote
-                ? `Detalhe para ${fc(data.clients_count)} clientes`
-                : `Detalle para ${fc(data.clients_count)} clientes`}
+              {isAssinaQuote
+                ? `Pacote para ${fc(data.clients_count)} documentos/mês`
+                : isOpaQuote
+                  ? `Detalhe para ${fc(data.clients_count)} clientes`
+                  : `Detalle para ${fc(data.clients_count)} clientes`}
             </p>
             {/* Product logos */}
             {(hasWispro || hasAcs || hasHola) && (
@@ -166,8 +173,34 @@ const Cotizacion = () => {
               </div>
             )}
 
+            {/* IXC Assina sections */}
+            {isAssinaQuote && (
+              <>
+                {items.filter((i) => i.section?.startsWith("assina_")).map((item, idx) => (
+                  item.value > 0 ? (
+                    <div key={idx} className="flex justify-between items-center text-sm py-1 text-foreground">
+                      <span>{item.label}</span>
+                      <span className="font-semibold">{f(item.value)}</span>
+                    </div>
+                  ) : (
+                    <div key={idx} className="text-sm py-0.5 text-gray-500">
+                      {item.label}
+                    </div>
+                  )
+                ))}
+                <div className="border-t-2 border-teal-500/30 pt-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xl font-bold text-black-500">Total Mensal</p>
+                    </div>
+                    <p className="text-4xl font-bold text-teal-600">{f(data.total)}</p>
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Opa! sections */}
-            {isOpaQuote && (
+            {isOpaQuote && !isAssinaQuote && (
               <>
                 {mensalidade.length > 0 && (
                   <div className="space-y-2">
@@ -230,7 +263,7 @@ const Cotizacion = () => {
             )}
 
             {/* Wispro sections */}
-            {!isOpaQuote && (
+            {!isOpaQuote && !isAssinaQuote && (
               <>
                 {ecosystem.length > 0 && (
                   <div className="space-y-2">
@@ -318,7 +351,7 @@ const Cotizacion = () => {
             {(data.seller_name || data.seller_cargo || data.seller_numero || data.seller_email) && (
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  {isOpaQuote ? "Especialista Comercial" : "Tu asesor"}
+                  {(isOpaQuote || isAssinaQuote) ? "Especialista Comercial" : "Tu asesor"}
                 </p>
                 <div className="flex items-start gap-3">
                   <Avatar className="h-14 w-14 border-2 border-orange-500/20">
@@ -358,30 +391,30 @@ const Cotizacion = () => {
         <div className="w-full max-w-lg mt-4 no-print space-y-2 animate-fade-slide-up">
           <Button onClick={() => window.print()} className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white" size="lg">
             <Download className="h-5 w-5" />
-            {isOpaQuote ? "Baixar PDF" : "Descargar PDF"}
+            {(isOpaQuote || isAssinaQuote) ? "Baixar PDF" : "Descargar PDF"}
           </Button>
           <Button
             onClick={() => {
               const id = params.get("id") || "";
               const quoteUrl = `https://holaprecios.lovable.app/cotizacion?id=${id}`;
-              const sellerName = data?.seller_name || (isOpaQuote ? "seu especialista" : "tu asesor");
+              const sellerName = data?.seller_name || ((isOpaQuote || isAssinaQuote) ? "seu especialista" : "tu asesor");
               const eventName = data?.event_code && data.event_code !== "NONE"
                 ? ({"ANDINA26":"Andina Link 2026","APTC26":"APTC Cumbre 2026","ABRINT26":"Abrint 2026"} as Record<string,string>)[data.event_code] || data.event_code
                 : null;
               const eventSuffix = eventName
-                ? (isOpaQuote ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
+                ? ((isOpaQuote || isAssinaQuote) ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
                 : "";
-              const text = isOpaQuote
+              const text = (isOpaQuote || isAssinaQuote)
                 ? `Olá! Recebi esta cotação de ${sellerName}${eventSuffix} e gostaria de confirmar o valor! ${quoteUrl}`
                 : `Hola! Recibí esta cotización de parte de ${sellerName}${eventSuffix} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
-              const whatsappPhone = isOpaQuote ? "554931991780" : "5492615783684";
+              const whatsappPhone = isAssinaQuote ? "5549920009215" : isOpaQuote ? "554931991780" : "5492615783684";
               window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
             size="lg"
           >
             <Phone className="h-5 w-5" />
-            {isOpaQuote ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
+            {(isOpaQuote || isAssinaQuote) ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
           </Button>
         </div>
       </div>

@@ -16,6 +16,7 @@ import Usuarios from "./pages/Usuarios";
 import OpaSuiteIA from "./pages/OpaSuiteIA";
 import HolaSuiteIA from "./pages/HolaSuiteIA";
 import OpaSuite from "./pages/OpaSuite";
+import IxcAssina from "./pages/IxcAssina";
 import Landing from "./pages/Landing";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
               <Route path="/hola-suite-ia" element={<ProtectedRoute><HolaSuiteIA /></ProtectedRoute>} />
               <Route path="/opa-suite" element={<ProtectedRoute><OpaSuite /></ProtectedRoute>} />
+              <Route path="/ixc-assina" element={<ProtectedRoute><IxcAssina /></ProtectedRoute>} />
               <Route path="/coming-soon" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-ixc" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-olli" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
