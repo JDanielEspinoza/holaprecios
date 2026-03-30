@@ -18,14 +18,11 @@ const EventBadge = () => {
   if (!logo) return null;
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-1.5 shadow-md">
-      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-        {activeEvent.language === "pt-br" ? "Evento" : "Evento"}
-      </span>
+    <div className="absolute top-4 right-4 z-10">
       <img
         src={logo}
         alt={activeEvent.name}
-        className="h-7 w-auto object-contain"
+        className="h-12 w-auto object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]"
       />
     </div>
   );
