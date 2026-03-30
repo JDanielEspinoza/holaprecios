@@ -101,8 +101,10 @@ const Cotizacion = () => {
   const hasAcs = ecosystem.some((i) => i.label === "ACS");
   const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
   const isOpaQuote = items.some((i) => i.section === "mensalidade");
-  const f = (n: number) => fmt(n, isOpaQuote);
-  const fc = (n: number) => fmtClients(n, isOpaQuote);
+  const isAssinaQuote = items.some((i) => i.section?.startsWith("assina_"));
+  const isBRL = isOpaQuote || isAssinaQuote;
+  const f = (n: number) => fmt(n, isBRL);
+  const fc = (n: number) => fmtClients(n, isBRL);
 
   // For Opa: compute monthly total (mensalidade + cloud only)
   const opaMonthlyTotal = isOpaQuote
