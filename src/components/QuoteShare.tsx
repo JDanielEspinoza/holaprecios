@@ -57,11 +57,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     setResult(null);
     try {
       // Build the event key for the template API
+      // Assina uses "ASSINA_" prefix (e.g. "ASSINA_ABRINT26")
       // Opa! Suite keeps its raw eventCode (e.g. "ABRINT26")
       // Hola! Suite prefixes with "HOLA_" (e.g. "HOLA_NONE", "HOLA_APTC26")
-      const templateEventKey = isOpa
-        ? (eventCode || "ABRINT26")
-        : `HOLA_${eventCode || "NONE"}`;
+      const templateEventKey = isAssina
+        ? `ASSINA_${eventCode || "ABRINT26"}`
+        : isOpa
+          ? (eventCode || "ABRINT26")
+          : `HOLA_${eventCode || "NONE"}`;
 
       const functionName = "send-whatsapp-template";
       const body = {
