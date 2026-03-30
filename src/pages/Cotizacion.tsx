@@ -9,6 +9,7 @@ import logoWispro from "@/assets/logo-wispro.png";
 import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import logoOpa from "@/assets/logo-opa-suite-3.png";
+import logoAssina from "@/assets/ixc-assina-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number, isOpa: boolean = false) =>
