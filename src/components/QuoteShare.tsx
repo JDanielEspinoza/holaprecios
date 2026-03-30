@@ -22,7 +22,7 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, eventCode }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, isAssina = false, eventCode }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
