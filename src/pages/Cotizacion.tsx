@@ -263,7 +263,7 @@ const Cotizacion = () => {
             )}
 
             {/* Wispro sections */}
-            {!isOpaQuote && (
+            {!isOpaQuote && !isAssinaQuote && (
               <>
                 {ecosystem.length > 0 && (
                   <div className="space-y-2">
