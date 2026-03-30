@@ -273,7 +273,7 @@ const IxcAssina = () => {
                   <h3 className={`text-lg font-bold ${isEspecialista ? "text-gray-300" : "text-gray-800"}`}>
                     Profissional
                   </h3>
-                  <p className={`text-xs ${isEspecialista && selectedPackage !== "profissional" ? "text-gray-500" : "text-gray-500"}`}>
+                  <p className={`text-xs ${isEspecialista ? "text-gray-500" : "text-gray-500"}`}>
                     Detecção facial
                   </p>
                 </div>
