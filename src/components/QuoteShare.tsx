@@ -189,7 +189,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          {isOpa ? "Compartilhar Cotação" : "Compartir Cotización"}
+          {(isOpa || isAssina) ? "Compartilhar Cotação" : "Compartir Cotización"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
