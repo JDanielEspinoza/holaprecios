@@ -127,7 +127,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     } finally {
       setSending(false);
     }
-  }, [clientPhone, quoteUrl, agentName, isOpa, eventCode]);
+  }, [clientPhone, quoteUrl, agentName, isOpa, isAssina, eventCode]);
 
   const handleRegistroWispro = useCallback(async () => {
     if (!clientPhone) return;
