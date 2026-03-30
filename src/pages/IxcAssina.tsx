@@ -270,7 +270,7 @@ const IxcAssina = () => {
                   <Shield className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-bold ${isEspecialista && selectedPackage !== "profissional" ? "text-gray-300" : "text-gray-800"}`}>
+                  <h3 className={`text-lg font-bold ${isEspecialista ? "text-gray-300" : "text-gray-800"}`}>
                     Profissional
                   </h3>
                   <p className={`text-xs ${isEspecialista && selectedPackage !== "profissional" ? "text-gray-500" : "text-gray-500"}`}>
