@@ -261,3 +261,20 @@
   width: auto;
   object-fit: contain;
 }
+/* Banner global — nunca se desborda */
+.app-banner {
+  max-width: 64rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem 1rem 0;
+}
+.app-banner > div {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+.app-banner img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
