@@ -125,15 +125,15 @@ const Cotizacion = () => {
         <Card className="w-full max-w-lg bg-white border border-gray-200 shadow-premium print-card animate-fade-slide-up">
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
-            <div className="flex justify-center mb-4">
-              {isAssinaQuote ? (
-                <img src={logoAssina} alt="IXC Assina" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
-              ) : isOpaQuote ? (
-                <img src={logoOpa} alt="Opa! Suite" className="h-24 md:h-28 w-auto object-contain mb-2 rounded-xl" />
-              ) : (
-                <img src={logoWisproIxc} alt="Wispro + IXC" className="h-24 md:h-28 w-auto object-contain mb-2" />
-              )}
-            </div>
+         <div className="flex justify-center mb-4">
+  {isAssinaQuote ? (
+    <img src={logoAssina} alt="IXC Assina" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
+  ) : isOpaQuote ? (
+    <img src={logoOpa} alt="Opa! Suite" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
+  ) : (
+    <img src={logoWisproIxc} alt="Wispro + IXC" className="h-16 max-w-[180px] w-auto object-contain mb-2" />
+  )}
+</div>
             <CardTitle className="text-xl text-black-500">
               {isAssinaQuote ? "Resumo da Cotação" : isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
             </CardTitle>
