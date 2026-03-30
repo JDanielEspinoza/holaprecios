@@ -347,7 +347,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             <Download className="h-5 w-5" />
-            {isOpa ? "Baixar Cotação" : "Descargar Cotización"}
+            {(isOpa || isAssina) ? "Baixar Cotação" : "Descargar Cotización"}
           </Button>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
