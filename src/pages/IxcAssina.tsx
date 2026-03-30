@@ -278,7 +278,7 @@ const IxcAssina = () => {
                   </p>
                 </div>
               </div>
-              <p className={`text-sm ${isEspecialista && selectedPackage !== "profissional" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm ${isEspecialista ? "text-gray-400" : "text-gray-600"}`}>
                 Assinatura digital com detecção facial para validação de identidade.
               </p>
               {selectedPackage === "profissional" && (
