@@ -173,8 +173,34 @@ const Cotizacion = () => {
               </div>
             )}
 
+            {/* IXC Assina sections */}
+            {isAssinaQuote && (
+              <>
+                {items.filter((i) => i.section?.startsWith("assina_")).map((item, idx) => (
+                  item.value > 0 ? (
+                    <div key={idx} className="flex justify-between items-center text-sm py-1 text-foreground">
+                      <span>{item.label}</span>
+                      <span className="font-semibold">{f(item.value)}</span>
+                    </div>
+                  ) : (
+                    <div key={idx} className="text-sm py-0.5 text-gray-500">
+                      {item.label}
+                    </div>
+                  )
+                ))}
+                <div className="border-t-2 border-teal-500/30 pt-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xl font-bold text-black-500">Total Mensal</p>
+                    </div>
+                    <p className="text-4xl font-bold text-teal-600">{f(data.total)}</p>
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Opa! sections */}
-            {isOpaQuote && (
+            {isOpaQuote && !isAssinaQuote && (
               <>
                 {mensalidade.length > 0 && (
                   <div className="space-y-2">
