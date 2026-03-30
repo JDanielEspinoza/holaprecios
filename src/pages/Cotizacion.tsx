@@ -391,30 +391,30 @@ const Cotizacion = () => {
         <div className="w-full max-w-lg mt-4 no-print space-y-2 animate-fade-slide-up">
           <Button onClick={() => window.print()} className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white" size="lg">
             <Download className="h-5 w-5" />
-            {isOpaQuote ? "Baixar PDF" : "Descargar PDF"}
+            {(isOpaQuote || isAssinaQuote) ? "Baixar PDF" : "Descargar PDF"}
           </Button>
           <Button
             onClick={() => {
               const id = params.get("id") || "";
               const quoteUrl = `https://holaprecios.lovable.app/cotizacion?id=${id}`;
-              const sellerName = data?.seller_name || (isOpaQuote ? "seu especialista" : "tu asesor");
+              const sellerName = data?.seller_name || ((isOpaQuote || isAssinaQuote) ? "seu especialista" : "tu asesor");
               const eventName = data?.event_code && data.event_code !== "NONE"
                 ? ({"ANDINA26":"Andina Link 2026","APTC26":"APTC Cumbre 2026","ABRINT26":"Abrint 2026"} as Record<string,string>)[data.event_code] || data.event_code
                 : null;
               const eventSuffix = eventName
-                ? (isOpaQuote ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
+                ? ((isOpaQuote || isAssinaQuote) ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
                 : "";
-              const text = isOpaQuote
+              const text = (isOpaQuote || isAssinaQuote)
                 ? `Olá! Recebi esta cotação de ${sellerName}${eventSuffix} e gostaria de confirmar o valor! ${quoteUrl}`
                 : `Hola! Recibí esta cotización de parte de ${sellerName}${eventSuffix} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
-              const whatsappPhone = isOpaQuote ? "554931991780" : "5492615783684";
+              const whatsappPhone = isAssinaQuote ? "5549920009215" : isOpaQuote ? "554931991780" : "5492615783684";
               window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
             size="lg"
           >
             <Phone className="h-5 w-5" />
-            {isOpaQuote ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
+            {(isOpaQuote || isAssinaQuote) ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
           </Button>
         </div>
       </div>
