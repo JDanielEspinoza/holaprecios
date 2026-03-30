@@ -202,11 +202,11 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             {sending ? (
-              <><Loader2 className="h-5 w-5 animate-spin" /> {isOpa ? "Enviando..." : "Enviando..."}</>
+              <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>
             ) : sent ? (
-              <><CheckCircle className="h-5 w-5" /> {isOpa ? "Enviado por WhatsApp" : "Enviado por WhatsApp"}</>
+              <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
             ) : (
-              <><MessageCircle className="h-5 w-5" /> {isOpa ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
+              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
             )}
           </Button>
           {!hasPhone && (
