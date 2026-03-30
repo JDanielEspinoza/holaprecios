@@ -68,6 +68,7 @@ const App = () => (
               <Route path="/opa-suite-ia" element={<ProtectedRoute><OpaSuiteIA /></ProtectedRoute>} />
               <Route path="/hola-suite-ia" element={<ProtectedRoute><HolaSuiteIA /></ProtectedRoute>} />
               <Route path="/opa-suite" element={<ProtectedRoute><OpaSuite /></ProtectedRoute>} />
+              <Route path="/ixc-assina" element={<ProtectedRoute><IxcAssina /></ProtectedRoute>} />
               <Route path="/coming-soon" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-ixc" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-olli" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
