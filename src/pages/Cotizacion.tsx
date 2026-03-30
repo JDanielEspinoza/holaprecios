@@ -351,7 +351,7 @@ const Cotizacion = () => {
             {(data.seller_name || data.seller_cargo || data.seller_numero || data.seller_email) && (
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  {isOpaQuote ? "Especialista Comercial" : "Tu asesor"}
+                  {(isOpaQuote || isAssinaQuote) ? "Especialista Comercial" : "Tu asesor"}
                 </p>
                 <div className="flex items-start gap-3">
                   <Avatar className="h-14 w-14 border-2 border-orange-500/20">
