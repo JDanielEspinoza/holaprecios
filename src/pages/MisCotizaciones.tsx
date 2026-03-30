@@ -369,9 +369,14 @@ const MisCotizaciones = () => {
       const isOpaQuote = (q.items || []).some((i: any) => 
         i.section === "mensalidade" || i.section === "opa_cloud"
       );
-      const templateEventKey = isOpaQuote
-        ? (q.event_code || "ABRINT26")
-        : `HOLA_${q.event_code || "NONE"}`;
+      const isAssinaQuote = (q.items || []).some((i: any) =>
+        i.section?.startsWith("assina_")
+      );
+      const templateEventKey = isAssinaQuote
+        ? `ASSINA_${q.event_code || "ABRINT26"}`
+        : isOpaQuote
+          ? (q.event_code || "ABRINT26")
+          : `HOLA_${q.event_code || "NONE"}`;
 
       const { error } = await supabase.functions.invoke("send-whatsapp-template", {
         body: {
