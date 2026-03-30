@@ -211,7 +211,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
           </Button>
           {!hasPhone && (
             <p className="text-xs text-muted-foreground text-center">
-              {isOpa ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
+              {(isOpa || isAssina) ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
             </p>
           )}
         </div>
