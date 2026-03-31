@@ -438,19 +438,19 @@ const Cotizacion = () => {
             onClick={() => {
               const id = params.get("id") || "";
               const quoteUrl = `https://holaprecios.lovable.app/cotizacion?id=${id}`;
-              const sellerName = data?.seller_name || ((isOpaQuote || isAssinaQuote) ? "seu especialista" : "tu asesor");
+              const sellerName = data?.seller_name || ((isOpaQuote || isAssinaQuote || isInmapQuote) ? "seu especialista" : "tu asesor");
               const eventName = data?.event_code && data.event_code !== "NONE"
                 ? ({"ANDINA26":"Andina Link 2026","APTC26":"APTC Cumbre 2026","ABRINT26":"Abrint 2026"} as Record<string,string>)[data.event_code] || data.event_code
                 : null;
               const eventSuffix = eventName
-                ? ((isOpaQuote || isAssinaQuote) ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
+                ? ((isOpaQuote || isAssinaQuote || isInmapQuote) ? ` no evento ${eventName}` : ` en el evento ${eventName}`)
                 : "";
-              const text = (isOpaQuote || isAssinaQuote)
+              const text = (isOpaQuote || isAssinaQuote || isInmapQuote)
                 ? `Olá! Recebi esta cotação de ${sellerName}${eventSuffix} e gostaria de confirmar o valor! ${quoteUrl}`
                 : eventSuffix
                   ? `Hola! Recibí esta cotización de parte de ${sellerName}${eventSuffix} y me gustaría confirmar el valor que recibí! ${quoteUrl}`
                   : `Hola, he recibido esta cotización por parte de ${sellerName} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
-              const whatsappPhone = isAssinaQuote ? "5549920009215" : isOpaQuote ? "554931991780" : "5492615783684";
+              const whatsappPhone = (isAssinaQuote || isInmapQuote) ? "5549920009215" : isOpaQuote ? "554931991780" : "5492615783684";
               window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
             className="w-full gap-2 bg-[#25D366] hover:bg-[#1da851] text-white"
