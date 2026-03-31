@@ -17,6 +17,7 @@ import OpaSuiteIA from "./pages/OpaSuiteIA";
 import HolaSuiteIA from "./pages/HolaSuiteIA";
 import OpaSuite from "./pages/OpaSuite";
 import IxcAssina from "./pages/IxcAssina";
+import FamiliaInmap from "./pages/FamiliaInmap";
 import Landing from "./pages/Landing";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
