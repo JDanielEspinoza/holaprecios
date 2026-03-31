@@ -40,6 +40,7 @@ const menuItems: MenuItem[] = [
       { title: "Ecosistema Wispro + IXC", titlePt: "Ecossistema Wispro + IXC", path: "/", icon: Cpu },
       { title: "Opa! Suite", path: "/opa-suite", icon: Bot },
       { title: "IXC Assina", path: "/ixc-assina", icon: FileText },
+      { title: "Família Inmap", path: "/familia-inmap", icon: FileText },
       { title: "IXC Consult", path: "/coming-soon-ixc", icon: Bot, comingSoon: true },
       { title: "Olli", path: "/coming-soon-olli", icon: Bot, comingSoon: true },
     ],

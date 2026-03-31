@@ -12,6 +12,7 @@ interface QuoteShareProps {
   agentName?: string;
   isOpa?: boolean;
   isAssina?: boolean;
+  isInmap?: boolean;
   eventCode?: string | null;
 }
 
@@ -22,7 +23,7 @@ type SendResult = {
   raw?: string;
 } | null;
 
-export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, isAssina = false, eventCode }: QuoteShareProps) {
+export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa = false, isAssina = false, isInmap = false, eventCode }: QuoteShareProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [result, setResult] = useState<SendResult>(null);
@@ -60,7 +61,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       // Assina uses "ASSINA_" prefix (e.g. "ASSINA_ABRINT26")
       // Opa! Suite keeps its raw eventCode (e.g. "ABRINT26")
       // Hola! Suite prefixes with "HOLA_" (e.g. "HOLA_NONE", "HOLA_APTC26")
-      const templateEventKey = isAssina
+      const templateEventKey = (isAssina || isInmap)
         ? `ASSINA_${eventCode || "ABRINT26"}`
         : isOpa
           ? (eventCode || "ABRINT26")
@@ -69,7 +70,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       const functionName = "send-whatsapp-template";
       const body = {
         phone: cleanPhone,
-        agentName: agentName || (isAssina ? "Especialista Comercial" : isOpa ? "Especialista Comercial" : "Tu asesor"),
+        agentName: agentName || ((isAssina || isInmap) ? "Especialista Comercial" : isOpa ? "Especialista Comercial" : "Tu asesor"),
         linkPresupuesto: quoteUrl,
         eventCode: templateEventKey,
       };
@@ -127,7 +128,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
     } finally {
       setSending(false);
     }
-  }, [clientPhone, quoteUrl, agentName, isOpa, isAssina, eventCode]);
+  }, [clientPhone, quoteUrl, agentName, isOpa, isAssina, isInmap, eventCode]);
 
   const handleRegistroWispro = useCallback(async () => {
     if (!clientPhone) return;
@@ -189,7 +190,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          {(isOpa || isAssina) ? "Compartilhar Cotação" : "Compartir Cotización"}
+          {(isOpa || isAssina || isInmap) ? "Compartilhar Cotação" : "Compartir Cotización"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -206,12 +207,12 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             ) : sent ? (
               <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
             ) : (
-              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
+              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina || isInmap) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
             )}
           </Button>
           {!hasPhone && (
             <p className="text-xs text-muted-foreground text-center">
-              {(isOpa || isAssina) ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
+              {(isOpa || isAssina || isInmap) ? "Preencha o telefone do cliente para habilitar o WhatsApp" : "Completá el teléfono del cliente para habilitar WhatsApp"}
             </p>
           )}
         </div>
@@ -268,7 +269,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
         )}
 
         {/* Registro Wispro - hide for Opa and Assina */}
-        {!isOpa && !isAssina && (
+        {!isOpa && !isAssina && !isInmap && (
           <div className="space-y-3">
             <Button
               onClick={handleRegistroWispro}
@@ -347,14 +348,14 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             size="lg"
           >
             <Download className="h-5 w-5" />
-            {(isOpa || isAssina) ? "Baixar Cotação" : "Descargar Cotización"}
+            {(isOpa || isAssina || isInmap) ? "Baixar Cotação" : "Descargar Cotización"}
           </Button>
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-lg border border-border">
               <QRCodeSVG id="quote-qr" value={quoteUrl} size={100} level="L" />
             </div>
             <p className="text-xs text-muted-foreground">
-              {(isOpa || isAssina) ? "Escaneie o QR para ver a cotação no celular." : "Escaneá el QR para ver la cotización en el celular."}
+              {(isOpa || isAssina || isInmap) ? "Escaneie o QR para ver a cotação no celular." : "Escaneá el QR para ver la cotización en el celular."}
             </p>
           </div>
         </div>
