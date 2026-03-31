@@ -140,14 +140,16 @@ const Cotizacion = () => {
   )}
 </div>
             <CardTitle className="text-xl text-black-500">
-              {isAssinaQuote ? "Resumo da Cotação" : isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
+              {(isAssinaQuote || isInmapQuote) ? "Resumo da Cotação" : isOpaQuote ? "Resumo da Cotação" : "Resumen de Cotización"}
             </CardTitle>
             <p className="text-sm text-gray-500">
-              {isAssinaQuote
-                ? `Pacote para ${fc(data.clients_count)} documentos/mês`
-                : isOpaQuote
-                  ? `Detalhe para ${fc(data.clients_count)} clientes`
-                  : `Detalle para ${fc(data.clients_count)} clientes`}
+              {isInmapQuote
+                ? "Produtos selecionados"
+                : isAssinaQuote
+                  ? `Pacote para ${fc(data.clients_count)} documentos/mês`
+                  : isOpaQuote
+                    ? `Detalhe para ${fc(data.clients_count)} clientes`
+                    : `Detalle para ${fc(data.clients_count)} clientes`}
             </p>
             {/* Product logos */}
             {(hasWispro || hasAcs || hasHola) && (
