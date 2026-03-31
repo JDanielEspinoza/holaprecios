@@ -207,7 +207,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
             ) : sent ? (
               <><CheckCircle className="h-5 w-5" /> Enviado por WhatsApp</>
             ) : (
-              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
+              <><MessageCircle className="h-5 w-5" /> {(isOpa || isAssina || isInmap) ? "Enviar Cotação por WhatsApp" : "Enviar Cotización por WhatsApp"}</>
             )}
           </Button>
           {!hasPhone && (
