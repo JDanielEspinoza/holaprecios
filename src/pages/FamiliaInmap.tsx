@@ -55,6 +55,9 @@ const FamiliaInmap = () => {
     fiberdocs: false,
   });
 
+  // Which product card is actively being configured
+  const [activeProduct, setActiveProduct] = useState<"service" | "sales" | "fiberdocs" | null>(null);
+
   // Plan selections
   const [servicePlan, setServicePlan] = useState("");
   const [salesPlan, setSalesPlan] = useState("");
@@ -124,10 +127,19 @@ const FamiliaInmap = () => {
         if (key === "service") setServicePlan("");
         if (key === "sales") setSalesPlan("");
         if (key === "fiberdocs") setFiberdocsPlan("");
+        // If deselecting the active product, clear active
+        if (activeProduct === key) setActiveProduct(null);
+      } else {
+        // When selecting a product, make it active
+        setActiveProduct(key);
       }
       return next;
     });
     setQuoteId(null);
+  };
+
+  const expandProduct = (key: "service" | "sales" | "fiberdocs") => {
+    setActiveProduct(key);
   };
 
   const buildItems = () => {
@@ -398,30 +410,22 @@ const FamiliaInmap = () => {
           />
         </div>
 
-        {/* Plan selectors */}
-        {selectedProducts.service && (
-          <Card className="animate-fade-slide-up border-green-500/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <img src={inmapServiceLogo} alt="Inmap Service" className="h-6 w-6 rounded" />
-                Inmap Service — Selecione o plano
-              </CardTitle>
-              <p className="text-sm text-gray-500">Por logins ativos</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Select value={servicePlan} onValueChange={(v) => { setServicePlan(v); setQuoteId(null); }}>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="Selecione o plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  {inmapServiceTiers.map((t) => (
-                    <SelectItem key={t.plan} value={t.plan}>
-                      {t.plan} — {t.range} logins — {t.personalizado ? "Sob consulta" : fmtBRL(t.price)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedServiceTier && !selectedServiceTier.personalizado && (
+        {/* Plan selectors — active product expanded, others collapsed */}
+        {(() => {
+          const productConfigs = [
+            {
+              key: "service" as const,
+              selected: selectedProducts.service,
+              plan: servicePlan,
+              tier: selectedServiceTier,
+              logo: inmapServiceLogo,
+              title: "Inmap Service",
+              subtitle: "Por logins ativos",
+              borderColor: "border-green-500/20",
+              accentColor: "text-green-600",
+              tiers: inmapServiceTiers,
+              setPlan: (v: string) => { setServicePlan(v); setQuoteId(null); },
+              renderDetails: () => selectedServiceTier && !selectedServiceTier.personalizado ? (
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-600">Mensalidade</span>
@@ -440,84 +444,163 @@ const FamiliaInmap = () => {
                     </div>
                   )}
                 </div>
-              )}
-              {selectedServiceTier?.personalizado && (
+              ) : selectedServiceTier?.personalizado ? (
                 <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-center">
                   <p className="text-sm font-semibold text-amber-700">Plano personalizado — Sob consulta</p>
                   <p className="text-xs text-amber-600 mt-1">Entre em contato para um orçamento customizado.</p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {selectedProducts.sales && (
-          <Card className="animate-fade-slide-up border-orange-500/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <img src={inmapSalesLogo} alt="Inmap Sales" className="h-6 w-6 rounded" />
-                Inmap Sales — Selecione o plano
-              </CardTitle>
-              <p className="text-sm text-gray-500">Por clientes ativos + prospects + leads</p>
-            </CardHeader>
-            <CardContent>
-              <Select value={salesPlan} onValueChange={(v) => { setSalesPlan(v); setQuoteId(null); }}>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="Selecione o plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  {inmapSalesTiers.map((t) => (
-                    <SelectItem key={t.plan} value={t.plan}>
-                      {t.plan} — {t.range} clientes — {fmtBRL(t.price)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedSalesTier && (
-                <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
+              ) : null,
+              renderItem: (t: any) => `${t.plan} — ${t.range} logins — ${t.personalizado ? "Sob consulta" : fmtBRL(t.price)}`,
+              getPrice: () => selectedServiceTier && !selectedServiceTier.personalizado ? selectedServiceTier.price : null,
+              getPlanLabel: () => selectedServiceTier ? selectedServiceTier.plan : "",
+            },
+            {
+              key: "sales" as const,
+              selected: selectedProducts.sales,
+              plan: salesPlan,
+              tier: selectedSalesTier,
+              logo: inmapSalesLogo,
+              title: "Inmap Sales",
+              subtitle: "Por clientes ativos + prospects + leads",
+              borderColor: "border-orange-500/20",
+              accentColor: "text-orange-600",
+              tiers: inmapSalesTiers,
+              setPlan: (v: string) => { setSalesPlan(v); setQuoteId(null); },
+              renderDetails: () => selectedSalesTier ? (
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-600">Mensalidade</span>
                     <span className="text-lg font-bold text-orange-600">{fmtBRL(selectedSalesTier.price)}</span>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {selectedProducts.fiberdocs && (
-          <Card className="animate-fade-slide-up border-blue-500/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <img src={inmapFiberdocsLogo} alt="Inmap Fiberdocs" className="h-6 w-6 rounded" />
-                Inmap Fiberdocs — Selecione o plano
-              </CardTitle>
-              <p className="text-sm text-gray-500">Por logins ativos</p>
-            </CardHeader>
-            <CardContent>
-              <Select value={fiberdocsPlan} onValueChange={(v) => { setFiberdocsPlan(v); setQuoteId(null); }}>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="Selecione o plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  {inmapFiberdocsTiers.map((t) => (
-                    <SelectItem key={t.plan} value={t.plan}>
-                      {t.plan} — {t.range} logins — {fmtBRL(t.price)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedFiberdocsTier && (
-                <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
+              ) : null,
+              renderItem: (t: any) => `${t.plan} — ${t.range} clientes — ${fmtBRL(t.price)}`,
+              getPrice: () => selectedSalesTier?.price ?? null,
+              getPlanLabel: () => selectedSalesTier ? selectedSalesTier.plan : "",
+            },
+            {
+              key: "fiberdocs" as const,
+              selected: selectedProducts.fiberdocs,
+              plan: fiberdocsPlan,
+              tier: selectedFiberdocsTier,
+              logo: inmapFiberdocsLogo,
+              title: "Inmap Fiberdocs",
+              subtitle: "Por logins ativos",
+              borderColor: "border-blue-500/20",
+              accentColor: "text-blue-600",
+              tiers: inmapFiberdocsTiers,
+              setPlan: (v: string) => { setFiberdocsPlan(v); setQuoteId(null); },
+              renderDetails: () => selectedFiberdocsTier ? (
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-600">Mensalidade</span>
                     <span className="text-lg font-bold text-blue-600">{fmtBRL(selectedFiberdocsTier.price)}</span>
                   </div>
                 </div>
+              ) : null,
+              renderItem: (t: any) => `${t.plan} — ${t.range} logins — ${fmtBRL(t.price)}`,
+              getPrice: () => selectedFiberdocsTier?.price ?? null,
+              getPlanLabel: () => selectedFiberdocsTier ? selectedFiberdocsTier.plan : "",
+            },
+          ];
+
+          // Active product first, then collapsed ones
+          const activeConfig = activeProduct ? productConfigs.find(c => c.key === activeProduct && c.selected) : null;
+          const collapsedConfigs = productConfigs.filter(c => c.selected && c.plan && c.key !== activeProduct);
+          const unselectedWithoutPlan = productConfigs.filter(c => c.selected && !c.plan && c.key !== activeProduct);
+
+          return (
+            <>
+              {/* Active expanded card */}
+              {activeConfig && (
+                <Card className={`animate-fade-slide-up ${activeConfig.borderColor}`}>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <img src={activeConfig.logo} alt={activeConfig.title} className="h-6 w-6 rounded" />
+                      {activeConfig.title} — Selecione o plano
+                    </CardTitle>
+                    <p className="text-sm text-gray-500">{activeConfig.subtitle}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Select value={activeConfig.plan} onValueChange={activeConfig.setPlan}>
+                      <SelectTrigger className="h-12 text-base bg-white border-gray-300 shadow-sm hover:border-gray-400 transition-colors">
+                        <SelectValue placeholder="Selecione o plano" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {activeConfig.tiers.map((t: any) => (
+                          <SelectItem key={t.plan} value={t.plan} className="py-3 px-4 cursor-pointer">
+                            <div className="flex items-center justify-between w-full gap-4">
+                              <span className="font-semibold text-gray-800 min-w-[90px]">{t.plan}</span>
+                              <span className="text-gray-500 text-sm flex-1">{t.range} {activeConfig.key === "sales" ? "clientes" : "logins"}</span>
+                              <span className={`font-bold ${activeConfig.accentColor} ml-auto`}>
+                                {t.personalizado ? "Sob consulta" : fmtBRL(t.price)}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {activeConfig.renderDetails()}
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-        )}
+
+              {/* Unselected products without a plan yet — show expanded too */}
+              {unselectedWithoutPlan.map(cfg => (
+                <Card key={cfg.key} className={`animate-fade-slide-up ${cfg.borderColor}`} onClick={() => expandProduct(cfg.key)}>
+                  <CardHeader className="cursor-pointer">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <img src={cfg.logo} alt={cfg.title} className="h-6 w-6 rounded" />
+                      {cfg.title} — Selecione o plano
+                    </CardTitle>
+                    <p className="text-sm text-gray-500">{cfg.subtitle}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Select value={cfg.plan} onValueChange={(v) => { cfg.setPlan(v); setActiveProduct(cfg.key); }}>
+                      <SelectTrigger className="h-12 text-base bg-white border-gray-300 shadow-sm hover:border-gray-400 transition-colors">
+                        <SelectValue placeholder="Selecione o plano" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {cfg.tiers.map((t: any) => (
+                          <SelectItem key={t.plan} value={t.plan} className="py-3 px-4 cursor-pointer">
+                            <div className="flex items-center justify-between w-full gap-4">
+                              <span className="font-semibold text-gray-800 min-w-[90px]">{t.plan}</span>
+                              <span className="text-gray-500 text-sm flex-1">{t.range} {cfg.key === "sales" ? "clientes" : "logins"}</span>
+                              <span className={`font-bold ${cfg.accentColor} ml-auto`}>
+                                {(t as any).personalizado ? "Sob consulta" : fmtBRL(t.price)}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Collapsed bars for inactive products with a plan selected */}
+              {collapsedConfigs.length > 0 && (
+                <div className="space-y-2">
+                  {collapsedConfigs.map(cfg => (
+                    <div
+                      key={cfg.key}
+                      onClick={() => expandProduct(cfg.key)}
+                      className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:shadow-sm transition-all group"
+                    >
+                      <img src={cfg.logo} alt={cfg.title} className="h-7 w-7 rounded-lg" />
+                      <span className="font-medium text-gray-700 text-sm">{cfg.title}</span>
+                      <span className="text-gray-400 text-sm">—</span>
+                      <span className="text-gray-500 text-sm">{cfg.getPlanLabel()}</span>
+                      <span className={`ml-auto font-bold text-sm ${cfg.accentColor}`}>
+                        {cfg.getPrice() !== null ? fmtBRL(cfg.getPrice()!) : "Sob consulta"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         {/* Summary */}
         {hasAnySelection && (
