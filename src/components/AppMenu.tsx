@@ -130,7 +130,7 @@ const AppMenu = () => {
             <SelectTrigger className="h-14 text-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="animate-none data-[state=open]:animate-none data-[state=closed]:animate-none">
               <SelectItem value="NONE">{isPt ? "Sem evento" : EVENTS.NONE.name}</SelectItem>
               {ACTIVE_EVENTS.filter((e) => e.code !== "NONE").map((event) => (
                 <SelectItem key={event.code} value={event.code}>
