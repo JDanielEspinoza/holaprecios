@@ -206,6 +206,40 @@ const Cotizacion = () => {
               </>
             )}
 
+            {/* Inmap sections */}
+            {isInmapQuote && !isAssinaQuote && (
+              <>
+                {items.filter((i) => i.section?.startsWith("inmap_") && i.section !== "inmap_service_taxa").map((item, idx) => (
+                  item.value > 0 ? (
+                    <div key={idx} className="flex justify-between items-center text-sm py-1 text-foreground">
+                      <span>{item.label}</span>
+                      <span className="font-semibold">{f(item.value)}</span>
+                    </div>
+                  ) : (
+                    <div key={idx} className="text-sm py-0.5 text-gray-500">
+                      {item.label}
+                    </div>
+                  )
+                ))}
+                <div className="border-t-2 border-blue-500/30 pt-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xl font-bold text-black-500">Total Mensal</p>
+                    </div>
+                    <p className="text-4xl font-bold text-blue-600">{f(data.total)}</p>
+                  </div>
+                </div>
+                {data.installation_cost > 0 && (
+                  <div className="border-t border-gray-200 pt-3 space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Taxa de Implantação</span>
+                      <span className="font-bold text-gray-700">{f(data.installation_cost)}</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             {/* Opa! sections */}
             {isOpaQuote && !isAssinaQuote && (
               <>
