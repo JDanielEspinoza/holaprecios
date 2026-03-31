@@ -61,7 +61,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       // Assina uses "ASSINA_" prefix (e.g. "ASSINA_ABRINT26")
       // Opa! Suite keeps its raw eventCode (e.g. "ABRINT26")
       // Hola! Suite prefixes with "HOLA_" (e.g. "HOLA_NONE", "HOLA_APTC26")
-      const templateEventKey = isAssina
+      const templateEventKey = (isAssina || isInmap)
         ? `ASSINA_${eventCode || "ABRINT26"}`
         : isOpa
           ? (eventCode || "ABRINT26")
