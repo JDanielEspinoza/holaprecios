@@ -457,7 +457,7 @@ const Cotizacion = () => {
             size="lg"
           >
             <Phone className="h-5 w-5" />
-            {(isOpaQuote || isAssinaQuote) ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
+            {(isOpaQuote || isAssinaQuote || isInmapQuote) ? "Desejo confirmar minha cotação" : "Deseo confirmar mi cotización"}
           </Button>
         </div>
       </div>

@@ -384,7 +384,7 @@ const MisCotizaciones = () => {
       const { error } = await supabase.functions.invoke("send-whatsapp-template", {
         body: {
           phone: cleanPhone,
-          agentName: q.seller_name || profile?.nombre || (isAssinaQuote ? "Especialista Comercial" : isOpaQuote ? "Especialista Comercial" : "Tu asesor"),
+          agentName: q.seller_name || profile?.nombre || ((isAssinaQuote || isInmapQuote) ? "Especialista Comercial" : isOpaQuote ? "Especialista Comercial" : "Tu asesor"),
           linkPresupuesto: quoteUrl,
           eventCode: templateEventKey,
         },
