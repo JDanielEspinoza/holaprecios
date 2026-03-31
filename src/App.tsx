@@ -70,6 +70,7 @@ const App = () => (
               <Route path="/hola-suite-ia" element={<ProtectedRoute><HolaSuiteIA /></ProtectedRoute>} />
               <Route path="/opa-suite" element={<ProtectedRoute><OpaSuite /></ProtectedRoute>} />
               <Route path="/ixc-assina" element={<ProtectedRoute><IxcAssina /></ProtectedRoute>} />
+              <Route path="/familia-inmap" element={<ProtectedRoute><FamiliaInmap /></ProtectedRoute>} />
               <Route path="/coming-soon" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-ixc" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
               <Route path="/coming-soon-olli" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
