@@ -406,7 +406,9 @@ const Cotizacion = () => {
                 : "";
               const text = (isOpaQuote || isAssinaQuote)
                 ? `Olá! Recebi esta cotação de ${sellerName}${eventSuffix} e gostaria de confirmar o valor! ${quoteUrl}`
-                : `Hola! Recibí esta cotización de parte de ${sellerName}${eventSuffix} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
+                : eventSuffix
+                  ? `Hola! Recibí esta cotización de parte de ${sellerName}${eventSuffix} y me gustaría confirmar el valor que recibí! ${quoteUrl}`
+                  : `Hola, he recibido esta cotización por parte de ${sellerName} y me gustaría confirmar el valor que recibí! ${quoteUrl}`;
               const whatsappPhone = isAssinaQuote ? "5549920009215" : isOpaQuote ? "554931991780" : "5492615783684";
               window.open(`https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(text)}`, "_blank");
             }}
