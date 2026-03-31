@@ -130,13 +130,13 @@ const AppMenu = () => {
             <SelectTrigger className="h-14 text-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="animate-none data-[state=open]:animate-none data-[state=closed]:animate-none">
               <SelectItem value="NONE">{isPt ? "Sem evento" : EVENTS.NONE.name}</SelectItem>
               {ACTIVE_EVENTS.filter((e) => e.code !== "NONE").map((event) => (
                 <SelectItem key={event.code} value={event.code}>
                   <div className="flex items-center gap-2">
                     {EVENT_LOGOS[event.code] && (
-                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-8 w-auto object-contain" />
+                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-8 w-auto object-contain transition-none animate-none" loading="eager" decoding="sync" />
                     )}
                     <span>{event.name}</span>
                   </div>
