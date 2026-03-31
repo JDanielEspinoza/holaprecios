@@ -55,6 +55,9 @@ const FamiliaInmap = () => {
     fiberdocs: false,
   });
 
+  // Which product card is actively being configured
+  const [activeProduct, setActiveProduct] = useState<"service" | "sales" | "fiberdocs" | null>(null);
+
   // Plan selections
   const [servicePlan, setServicePlan] = useState("");
   const [salesPlan, setSalesPlan] = useState("");
