@@ -10,6 +10,9 @@ import logoAcs from "@/assets/logo-acs.png";
 import logoWisproIxc from "@/assets/logo-wispro-ixc.png";
 import logoOpa from "@/assets/logo-opa-suite-3.png";
 import logoAssina from "@/assets/ixc-assina-logo.png";
+import inmapServiceLogo from "@/assets/inmap-service.png";
+import inmapSalesLogo from "@/assets/inmap-sales.png";
+import inmapFiberdocsLogo from "@/assets/inmap-fiberdocs.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const fmt = (n: number, isOpa: boolean = false) =>
@@ -128,8 +131,10 @@ const Cotizacion = () => {
             {/* Company logo */}
          <div className="flex justify-center mb-4">
   {isInmapQuote ? (
-    <div className="text-center mb-2">
-      <p className="text-xl font-bold text-blue-700">Família Inmap</p>
+    <div className="flex items-center justify-center gap-3 mb-2">
+      {items.some(i => i.section === "inmap_service") && <img src={inmapServiceLogo} alt="Inmap Service" className="h-12 w-auto object-contain rounded-xl" />}
+      {items.some(i => i.section === "inmap_sales") && <img src={inmapSalesLogo} alt="Inmap Sales" className="h-12 w-auto object-contain rounded-xl" />}
+      {items.some(i => i.section === "inmap_fiberdocs") && <img src={inmapFiberdocsLogo} alt="Inmap Fiberdocs" className="h-12 w-auto object-contain rounded-xl" />}
     </div>
   ) : isAssinaQuote ? (
     <img src={logoAssina} alt="IXC Assina" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
@@ -304,7 +309,7 @@ const Cotizacion = () => {
             )}
 
             {/* Wispro sections */}
-            {!isOpaQuote && !isAssinaQuote && (
+            {!isOpaQuote && !isAssinaQuote && !isInmapQuote && (
               <>
                 {ecosystem.length > 0 && (
                   <div className="space-y-2">
