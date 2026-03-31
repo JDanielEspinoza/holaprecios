@@ -136,7 +136,7 @@ const AppMenu = () => {
                 <SelectItem key={event.code} value={event.code}>
                   <div className="flex items-center gap-2">
                     {EVENT_LOGOS[event.code] && (
-                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-4 w-auto object-contain" />
+                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-8 w-auto object-contain" />
                     )}
                     <span>{event.name}</span>
                   </div>
