@@ -252,8 +252,8 @@ const FamiliaInmap = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="w-full max-w-5xl mx-auto px-4 pt-6">
-          <div className="rounded-2xl overflow-hidden shadow-2xl">
-            <video src={inmapBannerVideo} className="w-full h-auto object-cover" autoPlay muted playsInline />
+          <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl aspect-[5/1] md:aspect-[6/1] bg-[#0B5ED7]">
+            <video src={inmapBannerVideo} className="absolute inset-0 h-full w-full object-cover object-center scale-[1.35]" autoPlay muted playsInline />
           </div>
         </header>
         <div className="absolute top-4 left-4 z-10">
