@@ -12,6 +12,7 @@ interface QuoteShareProps {
   agentName?: string;
   isOpa?: boolean;
   isAssina?: boolean;
+  isInmap?: boolean;
   eventCode?: string | null;
 }
 
