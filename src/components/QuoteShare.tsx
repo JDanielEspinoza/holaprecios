@@ -70,7 +70,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
       const functionName = "send-whatsapp-template";
       const body = {
         phone: cleanPhone,
-        agentName: agentName || (isAssina ? "Especialista Comercial" : isOpa ? "Especialista Comercial" : "Tu asesor"),
+        agentName: agentName || ((isAssina || isInmap) ? "Especialista Comercial" : isOpa ? "Especialista Comercial" : "Tu asesor"),
         linkPresupuesto: quoteUrl,
         eventCode: templateEventKey,
       };
