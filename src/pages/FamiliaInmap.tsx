@@ -13,7 +13,7 @@ import {
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import EventBadge from "@/components/EventBadge";
-import inmapBanner from "@/assets/inmap-banner.gif";
+const inmapBannerVideo = "/images/inmap-banner.mp4";
 import inmapServiceLogo from "@/assets/inmap-service.png";
 import inmapSalesLogo from "@/assets/inmap-sales.png";
 import inmapFiberdocsLogo from "@/assets/inmap-fiberdocs.png";
