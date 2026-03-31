@@ -432,7 +432,7 @@ const Cotizacion = () => {
         <div className="w-full max-w-lg mt-4 no-print space-y-2 animate-fade-slide-up">
           <Button onClick={() => window.print()} className="w-full gap-2 bg-orange-500 hover:bg-orange-600 text-white" size="lg">
             <Download className="h-5 w-5" />
-            {(isOpaQuote || isAssinaQuote) ? "Baixar PDF" : "Descargar PDF"}
+            {(isOpaQuote || isAssinaQuote || isInmapQuote) ? "Baixar PDF" : "Descargar PDF"}
           </Button>
           <Button
             onClick={() => {
