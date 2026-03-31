@@ -131,8 +131,10 @@ const Cotizacion = () => {
             {/* Company logo */}
          <div className="flex justify-center mb-4">
   {isInmapQuote ? (
-    <div className="text-center mb-2">
-      <p className="text-xl font-bold text-blue-700">Família Inmap</p>
+    <div className="flex items-center justify-center gap-3 mb-2">
+      {items.some(i => i.section === "inmap_service") && <img src={inmapServiceLogo} alt="Inmap Service" className="h-12 w-auto object-contain rounded-xl" />}
+      {items.some(i => i.section === "inmap_sales") && <img src={inmapSalesLogo} alt="Inmap Sales" className="h-12 w-auto object-contain rounded-xl" />}
+      {items.some(i => i.section === "inmap_fiberdocs") && <img src={inmapFiberdocsLogo} alt="Inmap Fiberdocs" className="h-12 w-auto object-contain rounded-xl" />}
     </div>
   ) : isAssinaQuote ? (
     <img src={logoAssina} alt="IXC Assina" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
