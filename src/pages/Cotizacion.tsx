@@ -102,7 +102,8 @@ const Cotizacion = () => {
   const hasHola = ecosystem.some((i) => i.label.includes("Hola"));
   const isOpaQuote = items.some((i) => i.section === "mensalidade");
   const isAssinaQuote = items.some((i) => i.section === "assina" || i.section?.startsWith("assina_"));
-  const isBRL = isOpaQuote || isAssinaQuote;
+  const isInmapQuote = items.some((i) => i.section?.startsWith("inmap_"));
+  const isBRL = isOpaQuote || isAssinaQuote || isInmapQuote;
   const f = (n: number) => fmt(n, isBRL);
   const fc = (n: number) => fmtClients(n, isBRL);
 
