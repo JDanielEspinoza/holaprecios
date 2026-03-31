@@ -252,8 +252,8 @@ const FamiliaInmap = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="w-full max-w-5xl mx-auto px-4 pt-6">
-          <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl aspect-[5/1] md:aspect-[6/1]" style={{ background: 'linear-gradient(to right, #0a4a7a, #1565a8, #1a6fb5)' }}>
-            <img src={inmapBannerImg} alt="Família Inmap" className="absolute left-0 top-0 h-full w-auto object-cover object-left" />
+          <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl aspect-[5/1] md:aspect-[6/1] bg-[#1565a8] flex items-center">
+            <img src={ixcProvedorLogo} alt="IXC Provedor" className="h-[50%] w-auto ml-8 md:ml-12" />
           </div>
         </header>
         <div className="absolute top-4 left-4 z-10">
