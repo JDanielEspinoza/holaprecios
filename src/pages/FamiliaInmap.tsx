@@ -13,7 +13,7 @@ import {
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import EventBadge from "@/components/EventBadge";
-import inmapBanner from "@/assets/inmap-banner.gif";
+const inmapBannerVideo = "/images/inmap-banner.mp4";
 import inmapServiceLogo from "@/assets/inmap-service.png";
 import inmapSalesLogo from "@/assets/inmap-sales.png";
 import inmapFiberdocsLogo from "@/assets/inmap-fiberdocs.png";
@@ -253,7 +253,7 @@ const FamiliaInmap = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="w-full max-w-5xl mx-auto px-4 pt-6">
           <div className="rounded-2xl overflow-hidden shadow-2xl">
-            <img src={inmapBanner} alt="Família Inmap" className="w-full h-auto object-cover" />
+            <video src={inmapBannerVideo} className="w-full h-auto object-cover" autoPlay muted playsInline />
           </div>
         </header>
         <div className="absolute top-4 left-4 z-10">
@@ -323,7 +323,7 @@ const FamiliaInmap = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="w-full max-w-5xl mx-auto px-4 pt-6">
         <div className="rounded-2xl overflow-hidden shadow-2xl">
-          <img src={inmapBanner} alt="Família Inmap" className="w-full h-auto object-cover" />
+          <video src={inmapBannerVideo} className="w-full h-auto object-cover" autoPlay muted playsInline />
         </div>
       </header>
 
@@ -638,7 +638,7 @@ function InmapProductCard({
           />
         </div>
         <div className="flex items-center justify-center mb-2 md:mb-3">
-          <img src={logo} alt={title} className="h-10 md:h-16 w-auto object-contain rounded-xl" />
+          <img src={logo} alt={title} className="h-10 md:h-16 w-auto object-contain" />
         </div>
         {price !== null && !personalizado && (
           <>
@@ -648,9 +648,6 @@ function InmapProductCard({
         )}
         {personalizado && (
           <p className="text-sm font-semibold text-amber-600">Sob consulta</p>
-        )}
-        {price === null && !personalizado && (
-          <p className="text-xs text-muted-foreground mt-1">Selecione o plano</p>
         )}
       </CardContent>
     </Card>
