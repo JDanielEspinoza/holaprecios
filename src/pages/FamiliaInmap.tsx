@@ -127,10 +127,19 @@ const FamiliaInmap = () => {
         if (key === "service") setServicePlan("");
         if (key === "sales") setSalesPlan("");
         if (key === "fiberdocs") setFiberdocsPlan("");
+        // If deselecting the active product, clear active
+        if (activeProduct === key) setActiveProduct(null);
+      } else {
+        // When selecting a product, make it active
+        setActiveProduct(key);
       }
       return next;
     });
     setQuoteId(null);
+  };
+
+  const expandProduct = (key: "service" | "sales" | "fiberdocs") => {
+    setActiveProduct(key);
   };
 
   const buildItems = () => {
