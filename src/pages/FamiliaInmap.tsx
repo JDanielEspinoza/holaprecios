@@ -638,7 +638,7 @@ function InmapProductCard({
           />
         </div>
         <div className="flex items-center justify-center mb-2 md:mb-3">
-          <img src={logo} alt={title} className="h-16 md:h-24 w-auto object-contain" />
+          <img src={logo} alt={title} className="h-20 md:h-28 w-auto object-contain rounded-2xl" />
         </div>
         {price !== null && !personalizado && (
           <>
