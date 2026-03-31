@@ -649,9 +649,6 @@ function InmapProductCard({
         {personalizado && (
           <p className="text-sm font-semibold text-amber-600">Sob consulta</p>
         )}
-        {price === null && !personalizado && (
-          <p className="text-xs text-muted-foreground mt-1">Selecione o plano</p>
-        )}
       </CardContent>
     </Card>
   );
