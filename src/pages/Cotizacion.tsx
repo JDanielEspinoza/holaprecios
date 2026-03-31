@@ -127,7 +127,11 @@ const Cotizacion = () => {
           <CardHeader className="text-center pb-4">
             {/* Company logo */}
          <div className="flex justify-center mb-4">
-  {isAssinaQuote ? (
+  {isInmapQuote ? (
+    <div className="text-center mb-2">
+      <p className="text-xl font-bold text-blue-700">Família Inmap</p>
+    </div>
+  ) : isAssinaQuote ? (
     <img src={logoAssina} alt="IXC Assina" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
   ) : isOpaQuote ? (
     <img src={logoOpa} alt="Opa! Suite" className="h-16 max-w-[180px] w-auto object-contain mb-2 rounded-xl" />
