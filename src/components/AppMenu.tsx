@@ -122,15 +122,12 @@ const AppMenu = () => {
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
               {isPt ? "Evento ativo" : "Evento activo"}
             </span>
-            {eventLogo && (
-              <img src={eventLogo} alt={activeEvent.name} className="h-5 w-auto object-contain ml-auto" />
-            )}
           </div>
           <Select
             value={activeEvent.code}
             onValueChange={(v) => setActiveEventCode(v)}
           >
-            <SelectTrigger className="h-9 text-sm">
+            <SelectTrigger className="h-14 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -139,7 +136,7 @@ const AppMenu = () => {
                 <SelectItem key={event.code} value={event.code}>
                   <div className="flex items-center gap-2">
                     {EVENT_LOGOS[event.code] && (
-                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-4 w-auto object-contain" />
+                      <img src={EVENT_LOGOS[event.code]} alt="" className="h-8 w-auto object-contain" />
                     )}
                     <span>{event.name}</span>
                   </div>
