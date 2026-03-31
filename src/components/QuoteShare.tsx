@@ -269,7 +269,7 @@ export function QuoteShare({ quoteUrl, clientPhone, clientName, agentName, isOpa
         )}
 
         {/* Registro Wispro - hide for Opa and Assina */}
-        {!isOpa && !isAssina && (
+        {!isOpa && !isAssina && !isInmap && (
           <div className="space-y-3">
             <Button
               onClick={handleRegistroWispro}
