@@ -1,115 +1,143 @@
 
 
-## Plan: Create IXC Assina Product
+## Plan: Create "Família Inmap" Product
 
 ### Overview
-New quotation product "IXC Assina" — Brazilian document signing service with two packages (Profissional and Especialista). Full integration: pricing data, calculator page, menu entry, WhatsApp template, public quote view, and banner.
+New Brazilian quotation product with 3 sub-products (Inmap Service, Sales, Fiberdocs), CNPJ input with config gear, and full integration into quotes, menu, and WhatsApp messaging. Uses real pricing from the uploaded CSV. The uploaded video will be converted to a GIF banner (blue section only).
 
 ### Pricing Data (from CSV)
 
-**Pacote Profissional** (face detection only):
-| Docs/mês | Unit price | Package price | Excess | Min value |
-|---|---|---|---|---|
-| 20 | R$ 3,40 | R$ 68,00 | R$ 3,17 | R$ 63,00 |
-| 50 | R$ 2,72 | R$ 136,00 | R$ 2,61 | R$ 116,00 |
-| 100 | R$ 2,27 | R$ 227,00 | R$ 2,20 | R$ 190,00 |
-| 200 | R$ 2,14 | R$ 428,00 | R$ 2,09 | R$ 338,00 |
-| 400 | R$ 2,02 | R$ 808,00 | R$ 1,96 | R$ 656,00 |
-| 700 | R$ 1,91 | R$ 1.337,00 | R$ 1,85 | R$ 1.070,00 |
-| 1000 | R$ 1,80 | R$ 1.800,00 | R$ 1,75 | R$ 1.356,00 |
-| 1500 | R$ 1,70 | R$ 2.550,00 | R$ 1,61 | R$ 1.896,00 |
-| 3000 | R$ 1,50 | R$ 4.500,00 | R$ 1,48 | R$ 3.730,00 |
+**Inmap Sales** (by clientes ativos+prospects+leads):
+| Plan | Range | Price |
+|---|---|---|
+| START | Até 3.000 | R$ 310,00 |
+| ESSENCIAL | 3.001 - 6.000 | R$ 461,00 |
+| MEDIUM | 6.001 - 12.000 | R$ 613,00 |
+| BUSINESS | 12.001 - 24.000 | R$ 771,00 |
+| PREMIUM | 24.001 - 48.000 | R$ 922,00 |
+| FULL | Acima de 48.000 | R$ 1.079,00 |
 
-**Pacote Especialista** (face detection + face comparison):
-| Docs/mês | Unit price | Package price | Excess | Min value |
-|---|---|---|---|---|
-| 20 | R$ 4,45 | R$ 89,00 | R$ 4,23 | R$ 84,00 |
-| 50 | R$ 3,78 | R$ 189,00 | R$ 3,67 | R$ 169,00 |
-| 100 | R$ 3,33 | R$ 333,00 | R$ 3,26 | R$ 296,00 |
-| 200 | R$ 3,20 | R$ 640,00 | R$ 3,14 | R$ 550,00 |
-| 400 | R$ 3,08 | R$ 1.232,00 | R$ 3,02 | R$ 1.080,00 |
-| 700 | R$ 2,97 | R$ 2.079,00 | R$ 2,91 | R$ 1.812,00 |
-| 1000 | R$ 2,86 | R$ 2.860,00 | R$ 2,81 | R$ 2.416,00 |
-| 1500 | R$ 2,75 | R$ 4.125,00 | R$ 2,67 | R$ 3.486,00 |
-| 3000 | R$ 2,56 | R$ 7.680,00 | R$ 2,54 | R$ 6.910,00 |
+**Inmap Service** (by logins ativos, includes Taxa de Implantação):
+| Plan | Range | Price | Taxa Implantação |
+|---|---|---|---|
+| START | Até 500 | R$ 212,00 | gratuito |
+| LITE | 501 - 1.000 | R$ 371,00 | gratuito |
+| ESSENCIAL | 1.001 - 2.000 | R$ 636,00 | R$ 763,00 |
+| STANDARD | 2.001 - 3.000 | R$ 795,00 | R$ 954,00 |
+| MEDIUM | 3.001 - 4.000 | R$ 975,00 | R$ 1.170,00 |
+| SMART | 4.001 - 5.000 | R$ 1.113,00 | R$ 1.336,00 |
+| PRO | 5.001 - 8.000 | R$ 1.611,00 | R$ 1.933,00 |
+| BUSINESS | 8.001 - 10.000 | R$ 1.908,00 | R$ 2.290,00 |
+| PLUS | 10.001 - 15.000 | R$ 2.226,00 | R$ 2.671,00 |
+| PREMIUM | 15.001 - 30.000 | R$ 3.180,00 | R$ 3.816,00 |
+| ULTRA | 30.001 - 50.000 | R$ 4.240,00 | R$ 5.088,00 |
+| ADVANCED | 50.001 - 80.000 | R$ 5.936,00 | R$ 7.123,00 |
+| ULTIMATE | 80.001 - 100.000 | R$ 6.360,00 | R$ 7.632,00 |
+| FULL | Acima de 100.001 | personalizado | personalizado |
 
-Note: Packages 500 and 2000 are NOT available for sale.
+**Inmap Fiberdocs** (by logins ativos):
+| Plan | Range | Price |
+|---|---|---|
+| START | Até 1.000 | R$ 310,00 |
+| ESSENCIAL | 1.001 - 3.000 | R$ 461,00 |
+| MEDIUM | 3.001 - 8.000 | R$ 613,00 |
+| BUSINESS | 8.001 - 15.000 | R$ 771,00 |
+| PREMIUM | 15.001 - 30.000 | R$ 922,00 |
+| FULL | Acima de 30.000 | R$ 1.079,00 |
+
+**Taxa de Implantação note**: For Inmap Service, allows 10% discount with installments. Min installment R$ 530,00, max 6x. First payment required before implementation starts.
 
 ---
 
 ### Files to Create/Modify
 
-#### 1. Copy logo → `src/assets/ixc-assina-logo.png`
-Copy the uploaded IXC Assina image.
+#### 1. Copy uploaded logos → `src/assets/`
+- `src/assets/inmap-service.png` ← InmapService.PNG
+- `src/assets/inmap-sales.png` ← InmapSales.PNG
+- `src/assets/inmap-fiberdocs.png` ← InmapFiberdocs.PNG
 
-#### 2. Generate banner → `src/assets/ixc-assina-banner.jpg`
-Use AI image generation to create a banner matching the size/style of `opa-banner.jpg`, incorporating the IXC Assina branding (teal color `#2AACA1`, "IXC ASSINA" text).
+#### 2. Generate banner → `src/assets/inmap-banner.gif`
+Extract only the blue section from the uploaded video (not the black part), convert to GIF, matching the same dimensions/proportions as the Opa! Suite banner (`opa-banner.jpg`). The banner will be displayed in a `rounded-2xl overflow-hidden shadow-2xl` container like OpaSuite.
 
-#### 3. Create `src/data/assinaPricing.ts`
-- Define `AssinaTier` type with fields: `docs`, `unitPrice`, `packagePrice`, `excess`, `minValue`
-- Two arrays: `assinaProfissionalTiers` and `assinaEspecialistaTiers` with all rows above
-- Export a type for the package type: `"profissional" | "especialista"`
+#### 3. Create `src/data/inmapPricing.ts`
+- Types and arrays for all 3 products with real pricing data from CSV
+- Inmap Service includes `taxaImplantacao` field (0 for gratuito, numeric for others, -1 for personalizado)
+- FULL tier for Inmap Service marked as `personalizado: true`
 
-#### 4. Create `src/pages/IxcAssina.tsx`
-Calculator page following OpaSuite.tsx patterns but simpler:
-- Banner at top (same size as Opa)
-- Step 1: Select package type (Profissional / Especialista) — two prominent cards
-- When Especialista is selected, the entire UI shifts to a VIP/premium aesthetic (dark theme, gold accents, premium card styles, subtle gradients)
-- Step 2: Select document quantity from dropdown (filtered to available tiers for selected package)
-- Shows: Unit price, Package price, Excess rate, Min value
-- Client data fields (Nome, Empresa, Telefone, Email)
-- Generate quote button → saves to `quotes` table with items using `section: "assina_profissional"` or `section: "assina_especialista"`
+#### 4. Create `src/pages/FamiliaInmap.tsx`
+Following OpaSuite/Index patterns:
+- **Banner** at top (same layout as OpaSuite: `rounded-2xl overflow-hidden shadow-2xl`)
+- **CNPJ input** with gear icon on right (temporary config gear opens a small popover/modal for GET endpoint config)
+- **3 product cards** in a row (same visual style as Wispro/ACS/Hola cards in Index.tsx):
+  - Inmap Service (with its logo)
+  - Inmap Sales (with its logo)
+  - Inmap Fiberdocs (with its logo)
+  - Each toggleable via checkbox, showing selected plan price
+- When a product is selected, show a **plan selector dropdown** below (based on the product's tiers)
+- Inmap Service: when plan is selected, show Taxa de Implantação below with installment info
+- Client data fields (Nome, Empresa, Telefone, Email) in Portuguese
+- Generate quote button → saves to `quotes` table with `section: "inmap_service"`, `"inmap_sales"`, `"inmap_fiberdocs"`
 - Success screen with banner, QR, share buttons
-- WhatsApp confirmation number: `5549920009215`
-- Portuguese throughout
-- `seller_numero` set to the IXC Assina WhatsApp number
+- `seller_numero`: `"5549920009215"`
+- All text in Portuguese
+- Uses `ASSINA_ABRINT26` template key for WhatsApp (shared with Assina)
 
 #### 5. Update `src/components/AppMenu.tsx`
-Add "IXC Assina" to the "Cotar" submenu children.
+Add "Família Inmap" to the "Cotar" submenu children.
 
 #### 6. Update `src/App.tsx`
-Add route `/ixc-assina` → `<IxcAssina />`.
+Add route `/familia-inmap` → `<FamiliaInmap />`, import the component.
 
 #### 7. Update `src/pages/Cotizacion.tsx`
-- Detect IXC Assina quotes via `items.some(i => i.section?.startsWith("assina_"))`
-- Use the IXC Assina logo
-- Format in BRL / Portuguese
-- WhatsApp confirmation button → phone `5549920009215`
-- Message: `"Olá! Recebi esta cotação de ${sellerName}${eventSuffix} e gostaria de confirmar o valor! ${quoteUrl}"`
-- Event name mapping already includes ABRINT26
+- Import a logo for Inmap (e.g., `logo-inmap-sphere.png` already in assets)
+- Detect Inmap quotes: `items.some(i => i.section?.startsWith("inmap_"))`
+- When `isInmapQuote`: show Inmap logo, Portuguese text, BRL currency
+- Show selected products with their plan names and prices
+- Inmap Service: show Taxa de Implantação section with installment rules
+- WhatsApp confirmation → phone `5549920009215`
+- Same Portuguese message pattern as Assina
 
 #### 8. Update `src/components/QuoteShare.tsx`
-- Detect `isAssina` prop (or detect from a new prop)
-- Use event key `ASSINA_ABRINT26` for the template API call
-- Portuguese labels
+- Add `isInmap` prop
+- When `isInmap`: use `ASSINA_ABRINT26` template key, Portuguese labels
+- Hide "Registro Wispro" button for Inmap
 
-#### 9. Update `supabase/functions/send-whatsapp-template/index.ts`
-Add new config entry:
+#### 9. Update `src/pages/MisCotizaciones.tsx`
+- Detect Inmap quotes for BRL formatting and Portuguese labels
+
+### CNPJ + Config Gear
+```text
+┌──────────────────────────────────────────┐
+│  CNPJ da Empresa                         │
+│  ┌──────────────────────────────┐  ⚙️   │
+│  │  00.000.000/0000-00          │        │
+│  └──────────────────────────────┘        │
+└──────────────────────────────────────────┘
 ```
-ASSINA_ABRINT26: {
-  apiUrl: "https://suporte.ixcsoft.com.br/api/v1/template/send",
-  bearerSecretName: "ABRINT_WHATSAPP_BEARER",
-  templateId: "69cac994960782d8c4c7e9fa",
-  canalId: "67631010bda9205b3609811b",
-}
-```
-Variables: `[agentName, linkPresupuesto]` (same pattern as existing Opa templates).
+Gear opens a popover to set GET endpoint URL (temporary, for testing).
 
-#### 10. Update `src/pages/MisCotizaciones.tsx`
-Detect IXC Assina quotes for proper formatting (BRL, Portuguese labels) and WhatsApp template routing (use `ASSINA_` prefix).
-
-### VIP Especialista Design
-When the user selects "Pacote Especialista":
-- Cards switch to dark backgrounds (`bg-gray-900`, `bg-slate-800`)
-- Gold accent colors (`text-amber-400`, `border-amber-500`)
-- Subtle gradient overlays
-- Premium typography weight
-- A small "VIP" or crown badge appears
-- The package selection card for Especialista gets a gold border glow
+### Product Cards Layout
+Same 3-column grid as Index.tsx ProductCard component, with checkbox, logo, plan name, and price.
 
 ### Key Technical Decisions
-- Items saved with `section: "assina_profissional"` or `section: "assina_especialista"` to distinguish in Cotizacion.tsx
-- Reuse existing `ABRINT_WHATSAPP_BEARER` secret (same IXC Soft API)
-- Only ABRINT26 event supported for now — the calculator will use the active event but defaults to ABRINT26
-- No installment/adesão logic needed — IXC Assina is monthly subscription only
+- Items saved with `section: "inmap_service"`, `"inmap_sales"`, `"inmap_fiberdocs"`
+- Reuses `ASSINA_ABRINT26` WhatsApp template config (same API, bearer, template, canal)
+- Only ABRINT26 event supported initially
+- Inmap Service Taxa de Implantação: installment rules (min R$ 530, max 6x, 10% discount available)
+- FULL tier for Inmap Service is "personalizado" — shows "Sob consulta" instead of price
+
+### Files Summary
+| File | Action |
+|---|---|
+| `src/assets/inmap-service.png` | New — uploaded logo |
+| `src/assets/inmap-sales.png` | New — uploaded logo |
+| `src/assets/inmap-fiberdocs.png` | New — uploaded logo |
+| `src/assets/inmap-banner.gif` | New — from video blue section |
+| `src/data/inmapPricing.ts` | New — real pricing data |
+| `src/pages/FamiliaInmap.tsx` | New — calculator page |
+| `src/components/AppMenu.tsx` | Add menu entry |
+| `src/App.tsx` | Add route + import |
+| `src/pages/Cotizacion.tsx` | Detect + render Inmap quotes |
+| `src/components/QuoteShare.tsx` | Add isInmap support |
+| `src/pages/MisCotizaciones.tsx` | Detect Inmap for formatting |
 
