@@ -372,7 +372,10 @@ const MisCotizaciones = () => {
       const isAssinaQuote = (q.items || []).some((i: any) =>
         i.section?.startsWith("assina_")
       );
-      const templateEventKey = isAssinaQuote
+      const isInmapQuote = (q.items || []).some((i: any) =>
+        i.section?.startsWith("inmap_")
+      );
+      const templateEventKey = (isAssinaQuote || isInmapQuote)
         ? `ASSINA_${q.event_code || "ABRINT26"}`
         : isOpaQuote
           ? (q.event_code || "ABRINT26")
