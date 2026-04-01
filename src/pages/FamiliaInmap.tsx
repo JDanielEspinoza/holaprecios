@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover, PopoverContent, PopoverTrigger,
-} from "@/components/ui/popover";
 import { QuoteShare } from "@/components/QuoteShare";
 import AppMenu from "@/components/AppMenu";
 import EventBadge from "@/components/EventBadge";
@@ -23,7 +20,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, Settings,
+  Loader2, CheckCircle, ArrowLeft, User, Building, Phone, Mail, ClipboardPaste, Users, LogIn, UserCheck, ImageIcon,
 } from "lucide-react";
 import {
   inmapSalesTiers, inmapServiceTiers, inmapFiberdocsTiers,
@@ -38,6 +35,36 @@ const fmtBRL = (n: number) =>
 
 type ViewState = "form" | "loading" | "success";
 
+/* ── Particle effect data ── */
+const particles = Array.from({ length: 15 }, (_, i) => ({
+  size: 3 + (i * 7 % 5),
+  left: (i * 17 + 5) % 100,
+  top: (i * 23 + 10) % 100,
+  duration: 8 + (i % 4) * 3,
+  delay: (i * 0.7) % 5,
+  variant: (i % 3) + 1,
+}));
+
+/* ── Auto-plan matching ── */
+function parseRange(range: string): [number, number] {
+  const cleaned = range.replace(/\./g, "").replace(/,/g, "");
+  const ateMatch = cleaned.match(/Até\s+(\d+)/i);
+  if (ateMatch) return [0, parseInt(ateMatch[1])];
+  const acimaMatch = cleaned.match(/Acima\s+de\s+(\d+)/i);
+  if (acimaMatch) return [parseInt(acimaMatch[1]), Infinity];
+  const rangeMatch = cleaned.match(/(\d+)\s*-\s*(\d+)/);
+  if (rangeMatch) return [parseInt(rangeMatch[1]), parseInt(rangeMatch[2])];
+  return [0, Infinity];
+}
+
+function findTierPlan(tiers: { plan: string; range: string }[], value: number): string {
+  for (const t of tiers) {
+    const [min, max] = parseRange(t.range);
+    if (value >= min && value <= max) return t.plan;
+  }
+  return tiers[tiers.length - 1].plan;
+}
+
 const FamiliaInmap = () => {
   const { user } = useAuth();
   const { eventCode } = useEvent();
@@ -45,8 +72,15 @@ const FamiliaInmap = () => {
   const { toast } = useToast();
 
   const [view, setView] = useState<ViewState>("form");
-  const [cnpj, setCnpj] = useState("");
-  const [configEndpoint, setConfigEndpoint] = useState("");
+
+  // Extracted metrics
+  const [extractedData, setExtractedData] = useState<{
+    clientes_crm_ativo: number;
+    logins_ativos: number;
+    clientes_ativos: number;
+  } | null>(null);
+  const [pastedImage, setPastedImage] = useState<string | null>(null);
+  const [extracting, setExtracting] = useState(false);
 
   // Product selections
   const [selectedProducts, setSelectedProducts] = useState({
@@ -55,7 +89,6 @@ const FamiliaInmap = () => {
     fiberdocs: false,
   });
 
-  // Which product card is actively being configured
   const [activeProduct, setActiveProduct] = useState<"service" | "sales" | "fiberdocs" | null>(null);
 
   // Plan selections
@@ -71,6 +104,72 @@ const FamiliaInmap = () => {
 
   const [quoteId, setQuoteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  /* ── Paste handler ── */
+  const handlePaste = useCallback(async (e: ClipboardEvent) => {
+    const items = Array.from(e.clipboardData?.items || []);
+    const imageItem = items.find(i => i.type.startsWith("image"));
+    if (!imageItem) return;
+
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setPastedImage(dataUrl);
+      setExtracting(true);
+
+      try {
+        const base64 = dataUrl.split(",")[1];
+        const { data, error } = await supabase.functions.invoke("extract-inmap-data", {
+          body: { image: base64 },
+        });
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        setExtractedData({
+          clientes_crm_ativo: Number(data.clientes_crm_ativo) || 0,
+          logins_ativos: Number(data.logins_ativos) || 0,
+          clientes_ativos: Number(data.clientes_ativos) || 0,
+        });
+
+        toast({ title: "Dados extraídos!", description: "Os valores foram detectados automaticamente." });
+      } catch (err: any) {
+        toast({ title: "Erro na extração", description: err.message || "Não foi possível extrair os dados.", variant: "destructive" });
+        setExtractedData(null);
+      } finally {
+        setExtracting(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [toast]);
+
+  useEffect(() => {
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, [handlePaste]);
+
+  /* ── Auto-select plans when data is extracted ── */
+  useEffect(() => {
+    if (!extractedData) return;
+    // Auto-select for each enabled product
+    if (selectedProducts.service) {
+      const plan = findTierPlan(inmapServiceTiers, extractedData.logins_ativos);
+      setServicePlan(plan);
+    }
+    if (selectedProducts.sales) {
+      const plan = findTierPlan(inmapSalesTiers, extractedData.clientes_crm_ativo);
+      setSalesPlan(plan);
+    }
+    if (selectedProducts.fiberdocs) {
+      const plan = findTierPlan(inmapFiberdocsTiers, extractedData.logins_ativos);
+      setFiberdocsPlan(plan);
+    }
+  }, [extractedData, selectedProducts.service, selectedProducts.sales, selectedProducts.fiberdocs]);
 
   const selectedServiceTier = useMemo(() => {
     if (!servicePlan) return null;
@@ -111,15 +210,6 @@ const FamiliaInmap = () => {
     return Math.min(TAXA_MAX_PARCELAS, Math.floor(taxaImplantacao / TAXA_MIN_PARCELA) || 1);
   }, [taxaImplantacao]);
 
-  const formatCNPJ = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 14);
-    if (digits.length <= 2) return digits;
-    if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
-    if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
-    if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
-    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
-  };
-
   const toggleProduct = (key: keyof typeof selectedProducts) => {
     setSelectedProducts((p) => {
       const next = { ...p, [key]: !p[key] };
@@ -127,11 +217,15 @@ const FamiliaInmap = () => {
         if (key === "service") setServicePlan("");
         if (key === "sales") setSalesPlan("");
         if (key === "fiberdocs") setFiberdocsPlan("");
-        // If deselecting the active product, clear active
         if (activeProduct === key) setActiveProduct(null);
       } else {
-        // When selecting a product, make it active
         setActiveProduct(key);
+        // Auto-select plan if data is available
+        if (extractedData) {
+          if (key === "service") setServicePlan(findTierPlan(inmapServiceTiers, extractedData.logins_ativos));
+          if (key === "sales") setSalesPlan(findTierPlan(inmapSalesTiers, extractedData.clientes_crm_ativo));
+          if (key === "fiberdocs") setFiberdocsPlan(findTierPlan(inmapFiberdocsTiers, extractedData.logins_ativos));
+        }
       }
       return next;
     });
@@ -230,7 +324,6 @@ const FamiliaInmap = () => {
   };
 
   const handleNewQuote = () => {
-    setCnpj("");
     setSelectedProducts({ service: false, sales: false, fiberdocs: false });
     setServicePlan("");
     setSalesPlan("");
@@ -240,6 +333,8 @@ const FamiliaInmap = () => {
     setClientPhone("");
     setClientEmail("");
     setQuoteId(null);
+    setExtractedData(null);
+    setPastedImage(null);
     setView("form");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -333,9 +428,45 @@ const FamiliaInmap = () => {
   // Form view
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Particle keyframes */}
+      <style>{`
+        @keyframes float1 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          25% { transform: translate(15px, -20px) scale(1.2); opacity: 0.3; }
+          50% { transform: translate(-10px, -35px) scale(1); opacity: 0.2; }
+          75% { transform: translate(20px, -15px) scale(0.8); opacity: 0.25; }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.1; }
+          33% { transform: translate(-20px, -25px) scale(1.3); opacity: 0.25; }
+          66% { transform: translate(15px, -40px) scale(0.9); opacity: 0.2; }
+        }
+        @keyframes float3 {
+          0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+          50% { transform: translate(25px, -30px) scale(1.1); opacity: 0.35; }
+        }
+      `}</style>
+
       <header className="w-full max-w-5xl mx-auto px-4 pt-6">
         <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl aspect-[5/1] md:aspect-[6/1] bg-[#1565a8] flex items-center">
           <img src={ixcProvedorLogo} alt="IXC Provedor" className="h-[50%] w-auto ml-8 md:ml-12" />
+          {/* Floating particles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {particles.map((p, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  left: `${p.left}%`,
+                  top: `${p.top}%`,
+                  animation: `float${p.variant} ${p.duration}s ease-in-out infinite`,
+                  animationDelay: `${p.delay}s`,
+                }}
+              />
+            ))}
+          </div>
         </div>
       </header>
 
@@ -344,48 +475,81 @@ const FamiliaInmap = () => {
       </div>
       <EventBadge />
 
-      <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
-        {/* CNPJ input with config gear */}
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10 space-y-8">
+        {/* Image Paste Area */}
         <Card className="border-2 border-blue-500/20 bg-gradient-to-r from-blue-500/5 via-white to-blue-500/5 shadow-sm animate-fade-slide-up">
           <CardContent className="pt-6 pb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="cnpj" className="text-sm font-medium text-gray-600">
-                  CNPJ da Empresa
-                </Label>
-                <Input
-                  id="cnpj"
-                  placeholder="00.000.000/0000-00"
-                  value={cnpj}
-                  onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
-                  className="h-12 text-lg font-mono"
-                />
+            {!pastedImage && !extractedData && (
+              <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
+                <div className="h-16 w-16 rounded-2xl bg-blue-100 flex items-center justify-center">
+                  <ClipboardPaste className="h-8 w-8 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-700">Cole um print do painel IXC</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Use <kbd className="px-1.5 py-0.5 rounded bg-gray-200 text-xs font-mono">Ctrl+V</kbd> ou <kbd className="px-1.5 py-0.5 rounded bg-gray-200 text-xs font-mono">⌘+V</kbd> para colar a imagem
+                  </p>
+                </div>
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-gray-600 mt-6">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80" align="end">
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-gray-700">Configuração do GET</p>
-                    <p className="text-xs text-gray-500">Endpoint para consulta de CNPJ (temporário)</p>
-                    <Input
-                      placeholder="https://api.example.com/cnpj/"
-                      value={configEndpoint}
-                      onChange={(e) => setConfigEndpoint(e.target.value)}
-                      className="text-xs"
-                    />
+            )}
+
+            {extracting && (
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+                <p className="text-sm text-gray-600 font-medium">Extraindo dados da imagem...</p>
+                {pastedImage && (
+                  <img src={pastedImage} alt="Screenshot colado" className="max-h-32 rounded-lg border border-gray-200 shadow-sm" />
+                )}
+              </div>
+            )}
+
+            {!extracting && pastedImage && extractedData && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <img src={pastedImage} alt="Screenshot" className="h-16 w-auto rounded-lg border border-gray-200 shadow-sm" />
+                  <div>
+                    <p className="text-sm font-medium text-emerald-600 flex items-center gap-1.5">
+                      <CheckCircle className="h-4 w-4" /> Dados extraídos com sucesso
+                    </p>
+                    <button
+                      className="text-xs text-blue-500 hover:underline mt-1"
+                      onClick={() => { setPastedImage(null); setExtractedData(null); }}
+                    >
+                      Colar nova imagem
+                    </button>
                   </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Extracted Metrics Dashboard */}
+        {extractedData && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 animate-fade-slide-up">
+            <MetricCard
+              icon={<Users className="h-5 w-5 text-blue-500" />}
+              label="Total de clientes com CRM ativo"
+              value={extractedData.clientes_crm_ativo}
+              color="blue"
+            />
+            <MetricCard
+              icon={<LogIn className="h-5 w-5 text-emerald-500" />}
+              label="Total de logins ativos"
+              value={extractedData.logins_ativos}
+              color="emerald"
+            />
+            <MetricCard
+              icon={<UserCheck className="h-5 w-5 text-violet-500" />}
+              label="Total de clientes ativos"
+              value={extractedData.clientes_ativos}
+              color="violet"
+            />
+          </div>
+        )}
+
         {/* 3 Product cards */}
-        <div className="grid grid-cols-3 gap-3 md:gap-6 animate-fade-slide-up-1">
+        <div className="grid grid-cols-3 gap-3 md:gap-5 animate-fade-slide-up">
           <InmapProductCard
             title="Inmap Service"
             logo={inmapServiceLogo}
@@ -427,12 +591,12 @@ const FamiliaInmap = () => {
               setPlan: (v: string) => { setServicePlan(v); setQuoteId(null); },
               renderDetails: () => selectedServiceTier && !selectedServiceTier.personalizado ? (
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Mensalidade</span>
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-sm">
+                    <span className="text-gray-600 min-w-0">Mensalidade</span>
                     <span className="text-lg font-bold text-green-600">{fmtBRL(selectedServiceTier.price)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Taxa de Implantação</span>
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-sm">
+                    <span className="text-gray-600 min-w-0">Taxa de Implantação</span>
                     <span className={`font-semibold ${selectedServiceTier.taxaImplantacao === 0 ? "text-emerald-600" : "text-gray-700"}`}>
                       {selectedServiceTier.taxaImplantacao === 0 ? "Gratuito ✨" : fmtBRL(selectedServiceTier.taxaImplantacao)}
                     </span>
@@ -468,8 +632,8 @@ const FamiliaInmap = () => {
               setPlan: (v: string) => { setSalesPlan(v); setQuoteId(null); },
               renderDetails: () => selectedSalesTier ? (
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Mensalidade</span>
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-sm">
+                    <span className="text-gray-600 min-w-0">Mensalidade</span>
                     <span className="text-lg font-bold text-orange-600">{fmtBRL(selectedSalesTier.price)}</span>
                   </div>
                 </div>
@@ -492,8 +656,8 @@ const FamiliaInmap = () => {
               setPlan: (v: string) => { setFiberdocsPlan(v); setQuoteId(null); },
               renderDetails: () => selectedFiberdocsTier ? (
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Mensalidade</span>
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-sm">
+                    <span className="text-gray-600 min-w-0">Mensalidade</span>
                     <span className="text-lg font-bold text-blue-600">{fmtBRL(selectedFiberdocsTier.price)}</span>
                   </div>
                 </div>
@@ -504,14 +668,12 @@ const FamiliaInmap = () => {
             },
           ];
 
-          // Active product first, then collapsed ones
           const activeConfig = activeProduct ? productConfigs.find(c => c.key === activeProduct && c.selected) : null;
           const collapsedConfigs = productConfigs.filter(c => c.selected && c.plan && c.key !== activeProduct);
           const unselectedWithoutPlan = productConfigs.filter(c => c.selected && !c.plan && c.key !== activeProduct);
 
           return (
             <>
-              {/* Active expanded card */}
               {activeConfig && (
                 <Card className={`animate-fade-slide-up ${activeConfig.borderColor}`}>
                   <CardHeader>
@@ -545,7 +707,6 @@ const FamiliaInmap = () => {
                 </Card>
               )}
 
-              {/* Unselected products without a plan yet — show expanded too */}
               {unselectedWithoutPlan.map(cfg => (
                 <Card key={cfg.key} className={`animate-fade-slide-up ${cfg.borderColor}`} onClick={() => expandProduct(cfg.key)}>
                   <CardHeader className="cursor-pointer">
@@ -578,7 +739,6 @@ const FamiliaInmap = () => {
                 </Card>
               ))}
 
-              {/* Collapsed bars for inactive products with a plan selected */}
               {collapsedConfigs.length > 0 && (
                 <div className="space-y-2">
                   {collapsedConfigs.map(cfg => (
@@ -588,10 +748,10 @@ const FamiliaInmap = () => {
                       className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:shadow-sm transition-all group"
                     >
                       <img src={cfg.logo} alt={cfg.title} className="h-7 w-7 rounded-lg" />
-                      <span className="font-medium text-gray-700 text-sm">{cfg.title}</span>
+                      <span className="font-medium text-gray-700 text-sm truncate">{cfg.title}</span>
                       <span className="text-gray-400 text-sm">—</span>
-                      <span className="text-gray-500 text-sm">{cfg.getPlanLabel()}</span>
-                      <span className={`ml-auto font-bold text-sm ${cfg.accentColor}`}>
+                      <span className="text-gray-500 text-sm truncate">{cfg.getPlanLabel()}</span>
+                      <span className={`ml-auto font-bold text-sm whitespace-nowrap ${cfg.accentColor}`}>
                         {cfg.getPrice() !== null ? fmtBRL(cfg.getPrice()!) : "Sob consulta"}
                       </span>
                     </div>
@@ -610,36 +770,36 @@ const FamiliaInmap = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {selectedProducts.service && selectedServiceTier && (
-                <div className="flex justify-between items-center text-sm">
-                  <span>Inmap Service — {selectedServiceTier.plan}</span>
-                  <span className="font-semibold">
+                <div className="flex flex-wrap justify-between items-center gap-1 text-xs sm:text-sm">
+                  <span className="min-w-0 truncate">Inmap Service — {selectedServiceTier.plan}</span>
+                  <span className="font-semibold whitespace-nowrap">
                     {selectedServiceTier.personalizado ? "Sob consulta" : fmtBRL(selectedServiceTier.price)}
                   </span>
                 </div>
               )}
               {selectedProducts.sales && selectedSalesTier && (
-                <div className="flex justify-between items-center text-sm">
-                  <span>Inmap Sales — {selectedSalesTier.plan}</span>
-                  <span className="font-semibold">{fmtBRL(selectedSalesTier.price)}</span>
+                <div className="flex flex-wrap justify-between items-center gap-1 text-xs sm:text-sm">
+                  <span className="min-w-0 truncate">Inmap Sales — {selectedSalesTier.plan}</span>
+                  <span className="font-semibold whitespace-nowrap">{fmtBRL(selectedSalesTier.price)}</span>
                 </div>
               )}
               {selectedProducts.fiberdocs && selectedFiberdocsTier && (
-                <div className="flex justify-between items-center text-sm">
-                  <span>Inmap Fiberdocs — {selectedFiberdocsTier.plan}</span>
-                  <span className="font-semibold">{fmtBRL(selectedFiberdocsTier.price)}</span>
+                <div className="flex flex-wrap justify-between items-center gap-1 text-xs sm:text-sm">
+                  <span className="min-w-0 truncate">Inmap Fiberdocs — {selectedFiberdocsTier.plan}</span>
+                  <span className="font-semibold whitespace-nowrap">{fmtBRL(selectedFiberdocsTier.price)}</span>
                 </div>
               )}
-              <div className="border-t border-blue-200 pt-3 flex justify-between items-center">
-                <span className="text-xl font-bold text-gray-700">Total Mensal</span>
-                <span className="text-3xl font-bold text-blue-600">
+              <div className="border-t border-blue-200 pt-3 flex flex-wrap justify-between items-center gap-2">
+                <span className="text-lg sm:text-xl font-bold text-gray-700">Total Mensal</span>
+                <span className="text-2xl sm:text-3xl font-bold text-blue-600 whitespace-nowrap">
                   {hasPersonalizado && totalMensal === 0 ? "Sob consulta" : fmtBRL(totalMensal)}
                 </span>
               </div>
               {taxaImplantacao > 0 && (
                 <div className="border-t border-blue-200 pt-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Taxa de Implantação (Inmap Service)</span>
-                    <span className="font-bold text-gray-700">{fmtBRL(taxaImplantacao)}</span>
+                  <div className="flex flex-wrap justify-between items-center gap-1 text-xs sm:text-sm">
+                    <span className="text-gray-600 min-w-0">Taxa de Implantação (Inmap Service)</span>
+                    <span className="font-bold text-gray-700 whitespace-nowrap">{fmtBRL(taxaImplantacao)}</span>
                   </div>
                   {taxaMaxParcelas > 1 && (
                     <p className="text-xs text-blue-600 mt-1">
@@ -694,6 +854,34 @@ const FamiliaInmap = () => {
   );
 };
 
+/* ── Metric Card component ── */
+function MetricCard({ icon, label, value, color }: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: "blue" | "emerald" | "violet";
+}) {
+  const bgColor = color === "blue" ? "bg-blue-50" : color === "emerald" ? "bg-emerald-50" : "bg-violet-50";
+  const textColor = color === "blue" ? "text-blue-700" : color === "emerald" ? "text-emerald-700" : "text-violet-700";
+
+  return (
+    <Card className={`${bgColor} border-0 shadow-sm`}>
+      <CardContent className="pt-4 pb-4 px-4">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5">{icon}</div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-gray-500 leading-tight">{label}</p>
+            <p className={`text-2xl sm:text-3xl font-bold ${textColor} mt-1`}>
+              {value.toLocaleString("pt-BR")}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Product Card ── */
 function InmapProductCard({
   title, logo, checked, onToggle, price, personalizado = false,
 }: {
@@ -711,8 +899,8 @@ function InmapProductCard({
       }`}
       onClick={onToggle}
     >
-      <CardContent className="pt-3 md:pt-5 text-center">
-        <div className="flex items-center justify-center mb-1.5 md:mb-2">
+      <CardContent className="pt-2 md:pt-3 pb-3 text-center">
+        <div className="flex items-center justify-center mb-1 md:mb-1.5">
           <Checkbox
             checked={checked}
             className={`pointer-events-none h-4 w-4 md:h-5 md:w-5 ${
@@ -720,13 +908,18 @@ function InmapProductCard({
             }`}
           />
         </div>
-        <div className="flex items-center justify-center mb-2 md:mb-3">
-          <img src={logo} alt={title} className="h-20 md:h-28 w-auto object-contain rounded-2xl" />
+        <div className="flex items-center justify-center mb-1.5 md:mb-2">
+          <img
+            src={logo}
+            alt={title}
+            className="h-16 sm:h-20 md:h-24 w-auto object-contain rounded-2xl"
+            style={{ imageRendering: "auto" }}
+          />
         </div>
         {price !== null && !personalizado && (
           <>
-            <p className="text-lg md:text-2xl font-bold text-foreground">{fmtBRL(price)}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 md:mt-1">/ mês</p>
+            <p className="text-base sm:text-lg md:text-2xl font-bold text-foreground">{fmtBRL(price)}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">/ mês</p>
           </>
         )}
         {personalizado && (
