@@ -445,16 +445,83 @@ const MisCotizaciones = () => {
   };
 
   const getPlatforms = (items: any[]) => {
-    const sections = new Set(
-      (items || [])
-        .map((i: any) => {
-          if (i.section === "eco") return i.label;
-           if (i.section === "cloud") return null;
-          return null;
-        })
-        .filter(Boolean)
-    );
+    const sections = new Set<string>();
+    (items || []).forEach((i: any) => {
+      if (i.section === "eco") sections.add(i.label);
+      else if (i.section === "mensalidade" || i.section === "opa_cloud") sections.add("Opa! Suite");
+      else if (i.section?.startsWith("assina_")) sections.add("IXC Assina");
+      else if (i.section?.startsWith("inmap_")) sections.add("Família Inmap");
+    });
     return Array.from(sections).join(", ");
+  };
+
+  const detectProductType = (items: any[]): "opa" | "assina" | "inmap" | "hola" => {
+    const hasOpa = (items || []).some((i: any) => i.section === "mensalidade" || i.section === "opa_cloud");
+    const hasAssina = (items || []).some((i: any) => i.section?.startsWith("assina_"));
+    const hasInmap = (items || []).some((i: any) => i.section?.startsWith("inmap_"));
+    if (hasOpa) return "opa";
+    if (hasAssina) return "assina";
+    if (hasInmap) return "inmap";
+    return "hola";
+  };
+
+  const [sendingHubspot, setSendingHubspot] = useState<string | null>(null);
+
+  const sendToHubspot = async (q: QuoteRow) => {
+    const productType = detectProductType(q.items);
+    if (productType !== "opa") {
+      toast({ title: "HubSpot no disponible", description: "HubSpot está habilitado solo para cotizaciones de Opa! Suite actualmente.", variant: "destructive" });
+      return;
+    }
+    setSendingHubspot(q.id);
+    try {
+      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+      const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
+      const products = getPlatforms(q.items);
+      const userEmail = user?.email || profile?.email_contacto || "";
+
+      // Build adesão info
+      const adesaoItems = (q.items || []).filter((i: any) => i.section === "opa_cloud");
+      const adesaoTotal = adesaoItems.reduce((sum: number, i: any) => sum + (i.price || 0), 0);
+
+      const message = [
+        `Cotización generada por: ${userEmail}`,
+        `Productos: ${products}`,
+        `Mensalidade: ${fmt(q.total - adesaoTotal)}`,
+        `Adesão: ${fmt(adesaoTotal)}`,
+        `Total: ${fmt(finalTotal)}`,
+        `Link: ${quoteUrl}`,
+      ].join("\n");
+
+      const response = await fetch(HUBSPOT_OPA_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: [
+            { name: "firstname", value: q.client_name || "" },
+            { name: "email", value: q.client_email || "" },
+            { name: "mobilephone", value: q.client_phone || "" },
+            { name: "name", value: q.client_company || "" },
+            { name: "message", value: message },
+          ],
+          context: {
+            pageUri: "https://holaprecios.lovable.app/mis-cotizaciones",
+            pageName: "Mis Cotizaciones",
+          },
+        }),
+      });
+
+      if (response.ok) {
+        toast({ title: "Enviado a HubSpot correctamente" });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || `Error ${response.status}`);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al enviar a HubSpot", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingHubspot(null);
+    }
   };
 
   return (
