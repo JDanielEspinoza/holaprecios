@@ -80,6 +80,22 @@ const OpaSuite = () => {
   const [paymentType, setPaymentType] = useState<'vista' | 'parcelado'>('vista');
   const [selectedInstallments, setSelectedInstallments] = useState<number | null>(null);
 
+  // Upgrade mode
+  const [upgradeMode, setUpgradeMode] = useState(false);
+
+  // Agente + Base de Conhecimento
+  const [agentQty, setAgentQty] = useState(0);
+
+  const agentUnitPrice = 2500;
+  const agentDiscount = useMemo(() => {
+    if (agentQty >= 3) return 0.10;
+    if (agentQty === 2) return 0.05;
+    return 0;
+  }, [agentQty]);
+  const agentGross = agentQty * agentUnitPrice;
+  const agentDiscountAmount = agentGross * agentDiscount;
+  const agentTotal = agentGross - agentDiscountAmount;
+
   const addonTotal = useMemo(() => {
     return opaAddons.reduce((sum, a) => sum + (addonQty[a.name] || 0) * a.unitPrice, 0);
   }, [addonQty]);
