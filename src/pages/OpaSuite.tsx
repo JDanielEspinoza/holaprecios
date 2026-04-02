@@ -162,15 +162,26 @@ const OpaSuite = () => {
     setQuoteId(null);
     setPaymentType('vista');
     setSelectedInstallments(null);
+    setUpgradeMode(false);
+    setAgentQty(0);
   };
 
   const buildItems = () => {
     const items: { label: string; value: number; section: string }[] = [];
-    items.push({ label: "Licença Opa! Suite", value: opaBasePrice, section: "mensalidade" });
+    if (!upgradeMode) {
+      items.push({ label: "Licença Opa! Suite", value: opaBasePrice, section: "mensalidade" });
+    }
     opaAddons.forEach((a) => {
       const qty = addonQty[a.name] || 0;
       if (qty > 0) items.push({ label: `${a.name} (x${qty})`, value: qty * a.unitPrice, section: "mensalidade" });
     });
+    // Agent item
+    if (agentQty > 0) {
+      items.push({ label: `Agente + Base de Conhecimento (x${agentQty})`, value: agentGross, section: "mensalidade" });
+      if (agentDiscountAmount > 0) {
+        items.push({ label: `Desconto Agentes (${agentDiscount * 100}%)`, value: -agentDiscountAmount, section: "mensalidade" });
+      }
+    }
     // Group selections
     opaMensalidadeGroups.forEach((group, gi) => {
       const sel = groupSelections[gi];
@@ -178,7 +189,7 @@ const OpaSuite = () => {
         items.push({ label: group.options[sel].label, value: group.options[sel].price, section: "adesao" });
       }
     });
-    if (selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
+    if (!upgradeMode && selectedCloud) items.push({ label: selectedCloud, value: cloudPrice, section: "cloud" });
     items.push({ label: "Adesão Básica", value: adesaoBasicaPrice, section: "adesao" });
     if (fluxoBasicoEnabled) {
       items.push({ label: "Fluxo Básico entregue e configurado", value: fluxoBasicoPrice, section: "adesao" });
