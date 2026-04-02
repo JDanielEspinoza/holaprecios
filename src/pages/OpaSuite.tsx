@@ -414,11 +414,13 @@ const OpaSuite = () => {
                     </div>
                   </div>
 
-                  {/* Base license - always shown */}
-                  <div className="flex justify-between items-center text-sm py-1">
-                    <span className="font-medium text-foreground">Licença base</span>
-                    <span className="font-semibold text-foreground w-20 text-right">{fmtBRL(opaBasePrice)}</span>
-                  </div>
+                  {/* Base license - shown only when NOT in upgrade mode */}
+                  {!upgradeMode && (
+                    <div className="flex justify-between items-center text-sm py-1">
+                      <span className="font-medium text-foreground">Licença base</span>
+                      <span className="font-semibold text-foreground w-20 text-right">{fmtBRL(opaBasePrice)}</span>
+                    </div>
+                  )}
 
                   {/* Addon items */}
                   <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 sm:gap-x-3 gap-y-2 text-sm">
@@ -444,16 +446,63 @@ const OpaSuite = () => {
                     })}
                   </div>
 
-                  {/* Collapsible groups removed - moved to Adesão */}
+                  {/* Agente + Base de Conhecimento */}
+                  <div className="border-t border-border pt-3 space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-foreground text-sm">Agente + Base de Conhecimento</p>
+                        <p className="text-xs text-muted-foreground">{fmtBRL(agentUnitPrice)} cada</p>
+                        <p className="text-xs text-muted-foreground">2 agentes: 5% desc. · 3+ agentes: 10% desc.</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setAgentQty((q) => Math.max(0, q - 1))}>
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="w-8 text-center font-mono text-lg font-bold">{agentQty}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setAgentQty((q) => q + 1)}>
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    {agentQty > 0 && (
+                      <div className="flex flex-col gap-1 pl-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Subtotal Agentes</span>
+                          <span className="text-foreground">{fmtBRL(agentGross)}</span>
+                        </div>
+                        {agentDiscountAmount > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-emerald-600">Desconto ({agentDiscount * 100}%)</span>
+                            <span className="text-emerald-600 font-semibold">-{fmtBRL(agentDiscountAmount)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-sm font-semibold">
+                          <span className="text-foreground">Total Agentes</span>
+                          <span className="text-blue-600">{fmtBRL(agentTotal)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="border-t border-border pt-3 flex justify-between items-center">
                     <span className="font-semibold text-foreground">Subtotal Mensalidade</span>
-                    <span className="text-xl font-bold text-blue-600">{fmtBRL(mensalidadeTotal)}</span>
+                    <span className="text-xl font-bold text-blue-600">{fmtBRL(mensalidadeTotal + agentTotal)}</span>
                   </div>
+
+                  {/* Upgrade button */}
+                  <Button
+                    variant={upgradeMode ? "default" : "outline"}
+                    className={`w-full gap-2 mt-2 ${upgradeMode ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0" : "border-amber-400 text-amber-600 hover:bg-amber-50"}`}
+                    onClick={() => setUpgradeMode(!upgradeMode)}
+                  >
+                    <ArrowLeft className={`h-4 w-4 transition-transform ${upgradeMode ? "rotate-90" : "-rotate-90"}`} />
+                    {upgradeMode ? "Upgrade Ativado" : "Upgrade"}
+                  </Button>
                 </CardContent>
               </Card>
 
-              {/* Opa! Cloud - Flip Card */}
+              {/* Opa! Cloud - Flip Card — hidden in upgrade mode */}
+              {!upgradeMode && (
               <div style={{ perspective: "1200px" }}>
                 <div
                   style={{
