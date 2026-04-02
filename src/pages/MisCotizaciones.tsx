@@ -1032,7 +1032,39 @@ const MisCotizaciones = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ── Contact detail drawer ── */}
+      {/* HubSpot confirmation dialog */}
+      <AlertDialog open={!!confirmingHubspot} onOpenChange={(open) => { if (!open) setConfirmingHubspot(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full" />
+              Enviar a HubSpot
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Enviar los datos de la cotización #{confirmingHubspot?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingHubspot?.client_name || confirmingHubspot?.client_company || "cliente"}</span>{" "}
+              a HubSpot?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!sendingHubspot}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!!sendingHubspot}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (confirmingHubspot) {
+                  await sendToHubspot(confirmingHubspot);
+                  setConfirmingHubspot(null);
+                }
+              }}
+              className="bg-[#ff7a59] hover:bg-[#e5694d]"
+            >
+              {sendingHubspot ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Enviando...</> : "Sí, enviar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Sheet open={!!drawerQuote} onOpenChange={(open) => { if (!open) { setDrawerQuote(null); setCopiedField(null); } }}>
         <SheetContent side="right" className="w-full sm:max-w-md">
           <SheetHeader className="mb-6">
