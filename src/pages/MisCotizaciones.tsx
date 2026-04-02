@@ -659,7 +659,6 @@ const MisCotizaciones = () => {
                       <TableHead className="hidden xl:table-cell">Contacto</TableHead>
                       <TableHead className="hidden xl:table-cell">Productos</TableHead>
                       <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-center">Pago</TableHead>
                       <TableHead className="text-center">CRM</TableHead>
                       <TableHead className="text-center">Acciones</TableHead>
                     </TableRow>
@@ -709,26 +708,10 @@ const MisCotizaciones = () => {
                             {getPlatforms(q.items)}
                           </TableCell>
                           <TableCell className="text-right font-bold text-primary whitespace-nowrap text-sm">
-                            {fmt(finalTotal)}
-                          </TableCell>
-                          <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-center">
-                              <button
-                                className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-accent transition-colors disabled:pointer-events-none"
-                                onClick={() => {
-                                  if (q.entry_payment_paid) return;
-                                  setConfirmingPayment(q);
-                                }}
-                                title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                                disabled={q.entry_payment_paid}
-                              >
-                                {q.entry_payment_paid ? (
-                                  <CheckCircle2 size={24} className="text-emerald-600" />
-                                ) : (
-                                  <CircleDot size={24} className="text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
+                            {(() => {
+                              const pt = detectProductType(q.items);
+                              return (pt === "opa" || pt === "assina" || pt === "inmap") ? fmtBRL(finalTotal) : fmt(finalTotal);
+                            })()}
                           </TableCell>
                           <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-1">
@@ -745,9 +728,16 @@ const MisCotizaciones = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-9 w-9"
-                                onClick={() => toast({ title: "CRM no disponible", description: "HubSpot no está conectado a la plataforma actualmente." })}
+                                disabled={sendingHubspot === q.id}
+                                onClick={() => setConfirmingHubspot(q)}
                                 title="Enviar a HubSpot"
                               >
+                                {sendingHubspot === q.id ? (
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                  <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                                )}
+                              </Button>
                                 <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
                               </Button>
                             </div>
