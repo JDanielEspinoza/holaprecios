@@ -780,19 +780,32 @@ const OpaSuite = () => {
               <div>
                 <CardTitle className="text-xl">Resumo</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {clientCount ? `Para ${fmtClients(clientCount)} clientes` : "Selecione a quantidade de clientes"}
+                  {upgradeMode
+                    ? "Modo Upgrade ativado"
+                    : clientCount ? `Para ${fmtClients(clientCount)} clientes` : "Selecione a quantidade de clientes"}
                 </p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <OpaSummaryLine label="Licença Opa! Suite" value={opaBasePrice} />
+              {!upgradeMode && <OpaSummaryLine label="Licença Opa! Suite" value={opaBasePrice} />}
               {opaAddons.map((a) => {
                 const qty = addonQty[a.name] || 0;
                 return <OpaSummaryLine key={a.name} label={`${a.name} (x${qty})`} value={qty * a.unitPrice} />;
               })}
-              <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />
+              {agentQty > 0 && (
+                <>
+                  <OpaSummaryLine label={`Agente + Base de Conhecimento (x${agentQty})`} value={agentGross} />
+                  {agentDiscountAmount > 0 && (
+                    <div className="flex justify-between items-center text-sm py-1 text-emerald-600">
+                      <span>Desconto Agentes ({agentDiscount * 100}%)</span>
+                      <span className="font-semibold">-{fmtBRL(agentDiscountAmount)}</span>
+                    </div>
+                  )}
+                </>
+              )}
+              {!upgradeMode && <OpaSummaryLine label={selectedCloud || "Cloud"} value={cloudPrice} />}
             </div>
 
             {/* Adesão items in summary */}
