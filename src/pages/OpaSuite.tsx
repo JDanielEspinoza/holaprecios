@@ -110,14 +110,15 @@ const OpaSuite = () => {
     }, 0);
   }, [groupSelections]);
 
-  const mensalidadeTotal = opaBasePrice + addonTotal;
+  const mensalidadeTotal = (upgradeMode ? 0 : opaBasePrice) + addonTotal;
 
   const cloudPrice = useMemo(() => {
+    if (upgradeMode) return 0;
     if (!selectedCloud) return 0;
     return opaCloudPlans.find((p) => p.name === selectedCloud)?.price || 0;
-  }, [selectedCloud]);
+  }, [selectedCloud, upgradeMode]);
 
-  const totalMensal = mensalidadeTotal + cloudPrice;
+  const totalMensal = mensalidadeTotal + cloudPrice + agentTotal;
 
   const adesaoTotal = useMemo(() => {
     let total = adesaoBasicaPrice;
