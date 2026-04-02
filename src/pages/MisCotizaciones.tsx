@@ -864,37 +864,6 @@ const MisCotizaciones = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Payment confirmation dialog */}
-      <AlertDialog open={!!confirmingPayment} onOpenChange={(open) => { if (!open) setConfirmingPayment(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar pago de cliente</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Confirmar el pago de la cotización #{confirmingPayment?.quote_number} de{" "}
-              <span className="font-semibold">{confirmingPayment?.client_name || confirmingPayment?.client_company || "cliente"}</span>?
-              <br /><br />
-              Esto marcará la cotización como pagada y enviará la confirmación al cliente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={processingPayment}>No</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={processingPayment}
-              onClick={(e) => {
-                e.preventDefault();
-                if (confirmingPayment) handleConfirmPayment(confirmingPayment);
-              }}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              {processingPayment ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...</>
-              ) : (
-                "Sí, confirmar pago"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Pipedrive confirmation dialog */}
       <AlertDialog open={!!confirmingPipedrive} onOpenChange={(open) => { if (!open) setConfirmingPipedrive(null); }}>
