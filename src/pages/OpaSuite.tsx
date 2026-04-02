@@ -632,6 +632,7 @@ const OpaSuite = () => {
                   </Card>
                 </div>
               </div>
+              )}
             </div>
           </>
         )}
