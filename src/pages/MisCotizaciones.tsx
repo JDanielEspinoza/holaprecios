@@ -738,8 +738,6 @@ const MisCotizaciones = () => {
                                   <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
                                 )}
                               </Button>
-                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                              </Button>
                             </div>
                           </TableCell>
                           <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
