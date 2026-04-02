@@ -75,11 +75,9 @@ const MisCotizaciones = () => {
   const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
-  const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
   const [confirmingHubspot, setConfirmingHubspot] = useState<QuoteRow | null>(null);
   const [sendingHubspot, setSendingHubspot] = useState<string | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
-  const [processingPayment, setProcessingPayment] = useState(false);
   const [sendingRegistro, setSendingRegistro] = useState<string | null>(null);
   const [sentRegistros, setSentRegistros] = useState<Set<string>>(new Set());
 
