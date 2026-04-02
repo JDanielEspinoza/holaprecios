@@ -35,9 +35,12 @@ import { useToast } from "@/hooks/use-toast";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
+const HUBSPOT_OPA_ENDPOINT = "https://api.hsforms.com/submissions/v3/integration/submit/50388221/fe28553d-bda7-4abd-8581-e728da0f4925";
 
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtBRL = (n: number) =>
+  "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 interface QuoteRow {
   id: string;
