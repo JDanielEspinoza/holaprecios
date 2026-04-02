@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
+  MessageCircle, ChevronLeft, ChevronRight,
   Download, Trash2, Copy, Check, Linkedin,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
