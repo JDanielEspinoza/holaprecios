@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import {
   Loader2, ExternalLink, FileText, Search, Archive, ArchiveRestore,
-  CheckCircle2, CircleDot, MessageCircle, ChevronLeft, ChevronRight,
+  MessageCircle, ChevronLeft, ChevronRight,
   Download, Trash2, Copy, Check, Linkedin,
 } from "lucide-react";
 import pipedriveIcon from "@/assets/pipedrive-icon.png";
@@ -35,9 +35,12 @@ import { useToast } from "@/hooks/use-toast";
 
 const PUBLISHED_DOMAIN = "https://holaprecios.lovable.app";
 const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/26704853/uxo3v0o/";
+const HUBSPOT_OPA_ENDPOINT = "https://api.hsforms.com/submissions/v3/integration/submit/50388221/fe28553d-bda7-4abd-8581-e728da0f4925";
 
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtBRL = (n: number) =>
+  "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 interface QuoteRow {
   id: string;
@@ -72,9 +75,9 @@ const MisCotizaciones = () => {
   const [eventFilter, setEventFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
-  const [confirmingPayment, setConfirmingPayment] = useState<QuoteRow | null>(null);
+  const [confirmingHubspot, setConfirmingHubspot] = useState<QuoteRow | null>(null);
+  const [sendingHubspot, setSendingHubspot] = useState<string | null>(null);
   const [confirmingPipedrive, setConfirmingPipedrive] = useState<QuoteRow | null>(null);
-  const [processingPayment, setProcessingPayment] = useState(false);
   const [sendingRegistro, setSendingRegistro] = useState<string | null>(null);
   const [sentRegistros, setSentRegistros] = useState<Set<string>>(new Set());
 
@@ -284,78 +287,6 @@ const MisCotizaciones = () => {
     toast({ title: "CSV exportado", description: `${targetQuotes.length} cotización(es) exportada(s).`, duration: 2000 });
   };
 
-  const handleConfirmPayment = async (q: QuoteRow) => {
-    setProcessingPayment(true);
-    try {
-      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
-      const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
-
-      const getPlatformsLocal = (items: any[]) => {
-        const sections = new Set(
-          (items || [])
-            .map((i: any) => {
-              if (i.section === "eco") return i.label;
-              if (i.section === "cloud") return "Cloud";
-              return null;
-            })
-            .filter(Boolean)
-        );
-        return Array.from(sections).join(", ");
-      };
-
-      const formatDateStr = (iso: string) => {
-        const d = new Date(iso);
-        return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
-      };
-
-      await supabase
-        .from("quotes")
-        .update({ entry_payment_paid: true } as any)
-        .eq("id", q.id);
-
-      const { error } = await supabase.functions.invoke("confirm-payment", {
-        body: {
-          company_name: q.client_company || q.client_name || "",
-          cantidad_usuarios: String(q.clients_count),
-          products: getPlatformsLocal(q.items),
-          agent_name: q.seller_name || "",
-          numero_presupuesto: String(q.quote_number),
-          fecha: formatDateStr(q.created_at),
-          contacto: q.client_phone || q.client_email || "",
-          total: fmt(finalTotal),
-          link_presupuesto: quoteUrl,
-          client_name: q.client_name || "",
-          client_email: q.client_email || "",
-          client_phone: q.client_phone || "",
-        },
-      });
-
-      if (error) throw error;
-
-      setQuotes((prev) =>
-        prev.map((x) => (x.id === q.id ? { ...x, entry_payment_paid: true } : x))
-      );
-      toast({ title: "Pago confirmado", description: "Confirmación de pago procesada exitosamente." });
-    } catch (err: any) {
-      toast({
-        title: "Error al confirmar pago",
-        description: err.message,
-        variant: "destructive",
-        action: (
-          <button
-            className="shrink-0 rounded-md bg-destructive-foreground/10 px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive-foreground/20 transition-colors"
-            onClick={() => handleConfirmPayment(q)}
-          >
-            Reintentar
-          </button>
-        ),
-      });
-    } finally {
-      setProcessingPayment(false);
-      setConfirmingPayment(null);
-    }
-  };
-
   const sendWhatsApp = async (q: QuoteRow) => {
     if (!q.client_phone) {
       toast({ title: "Sin número de teléfono", description: "Esta cotización no tiene teléfono del cliente.", variant: "destructive" });
@@ -442,16 +373,81 @@ const MisCotizaciones = () => {
   };
 
   const getPlatforms = (items: any[]) => {
-    const sections = new Set(
-      (items || [])
-        .map((i: any) => {
-          if (i.section === "eco") return i.label;
-           if (i.section === "cloud") return null;
-          return null;
-        })
-        .filter(Boolean)
-    );
+    const sections = new Set<string>();
+    (items || []).forEach((i: any) => {
+      if (i.section === "eco") sections.add(i.label);
+      else if (i.section === "mensalidade" || i.section === "opa_cloud") sections.add("Opa! Suite");
+      else if (i.section?.startsWith("assina_")) sections.add("IXC Assina");
+      else if (i.section?.startsWith("inmap_")) sections.add("Família Inmap");
+    });
     return Array.from(sections).join(", ");
+  };
+
+  const detectProductType = (items: any[]): "opa" | "assina" | "inmap" | "hola" => {
+    const hasOpa = (items || []).some((i: any) => i.section === "mensalidade" || i.section === "opa_cloud");
+    const hasAssina = (items || []).some((i: any) => i.section?.startsWith("assina_"));
+    const hasInmap = (items || []).some((i: any) => i.section?.startsWith("inmap_"));
+    if (hasOpa) return "opa";
+    if (hasAssina) return "assina";
+    if (hasInmap) return "inmap";
+    return "hola";
+  };
+
+  const sendToHubspot = async (q: QuoteRow) => {
+    const productType = detectProductType(q.items);
+    if (productType !== "opa") {
+      toast({ title: "HubSpot no disponible", description: "HubSpot está habilitado solo para cotizaciones de Opa! Suite actualmente.", variant: "destructive" });
+      return;
+    }
+    setSendingHubspot(q.id);
+    try {
+      const finalTotal = q.discount_amount > 0 ? q.discounted_total : q.total;
+      const quoteUrl = `${PUBLISHED_DOMAIN}/cotizacion?id=${q.id}`;
+      const products = getPlatforms(q.items);
+      const userEmail = user?.email || profile?.email_contacto || "";
+
+      // Build adesão info
+      const adesaoItems = (q.items || []).filter((i: any) => i.section === "opa_cloud");
+      const adesaoTotal = adesaoItems.reduce((sum: number, i: any) => sum + (i.price || 0), 0);
+
+      const message = [
+        `Cotización generada por: ${userEmail}`,
+        `Productos: ${products}`,
+        `Mensalidade: ${fmt(q.total - adesaoTotal)}`,
+        `Adesão: ${fmt(adesaoTotal)}`,
+        `Total: ${fmt(finalTotal)}`,
+        `Link: ${quoteUrl}`,
+      ].join("\n");
+
+      const response = await fetch(HUBSPOT_OPA_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: [
+            { name: "firstname", value: q.client_name || "" },
+            { name: "email", value: q.client_email || "" },
+            { name: "mobilephone", value: q.client_phone || "" },
+            { name: "name", value: q.client_company || "" },
+            { name: "message", value: message },
+          ],
+          context: {
+            pageUri: "https://holaprecios.lovable.app/mis-cotizaciones",
+            pageName: "Mis Cotizaciones",
+          },
+        }),
+      });
+
+      if (response.ok) {
+        toast({ title: "Enviado a HubSpot correctamente" });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || `Error ${response.status}`);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al enviar a HubSpot", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingHubspot(null);
+    }
   };
 
   return (
@@ -589,7 +585,6 @@ const MisCotizaciones = () => {
                       <TableHead className="hidden xl:table-cell">Contacto</TableHead>
                       <TableHead className="hidden xl:table-cell">Productos</TableHead>
                       <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-center">Pago</TableHead>
                       <TableHead className="text-center">CRM</TableHead>
                       <TableHead className="text-center">Acciones</TableHead>
                     </TableRow>
@@ -639,26 +634,10 @@ const MisCotizaciones = () => {
                             {getPlatforms(q.items)}
                           </TableCell>
                           <TableCell className="text-right font-bold text-primary whitespace-nowrap text-sm">
-                            {fmt(finalTotal)}
-                          </TableCell>
-                          <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-center">
-                              <button
-                                className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-accent transition-colors disabled:pointer-events-none"
-                                onClick={() => {
-                                  if (q.entry_payment_paid) return;
-                                  setConfirmingPayment(q);
-                                }}
-                                title={q.entry_payment_paid ? "Pago confirmado" : "Confirmar pago"}
-                                disabled={q.entry_payment_paid}
-                              >
-                                {q.entry_payment_paid ? (
-                                  <CheckCircle2 size={24} className="text-emerald-600" />
-                                ) : (
-                                  <CircleDot size={24} className="text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
+                            {(() => {
+                              const pt = detectProductType(q.items);
+                              return (pt === "opa" || pt === "assina" || pt === "inmap") ? fmtBRL(finalTotal) : fmt(finalTotal);
+                            })()}
                           </TableCell>
                           <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-1">
@@ -675,10 +654,15 @@ const MisCotizaciones = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-9 w-9"
-                                onClick={() => toast({ title: "CRM no disponible", description: "HubSpot no está conectado a la plataforma actualmente." })}
+                                disabled={sendingHubspot === q.id}
+                                onClick={() => setConfirmingHubspot(q)}
                                 title="Enviar a HubSpot"
                               >
-                                <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                                {sendingHubspot === q.id ? (
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                  <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
+                                )}
                               </Button>
                             </div>
                           </TableCell>
@@ -880,37 +864,6 @@ const MisCotizaciones = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Payment confirmation dialog */}
-      <AlertDialog open={!!confirmingPayment} onOpenChange={(open) => { if (!open) setConfirmingPayment(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar pago de cliente</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Confirmar el pago de la cotización #{confirmingPayment?.quote_number} de{" "}
-              <span className="font-semibold">{confirmingPayment?.client_name || confirmingPayment?.client_company || "cliente"}</span>?
-              <br /><br />
-              Esto marcará la cotización como pagada y enviará la confirmación al cliente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={processingPayment}>No</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={processingPayment}
-              onClick={(e) => {
-                e.preventDefault();
-                if (confirmingPayment) handleConfirmPayment(confirmingPayment);
-              }}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              {processingPayment ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...</>
-              ) : (
-                "Sí, confirmar pago"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Pipedrive confirmation dialog */}
       <AlertDialog open={!!confirmingPipedrive} onOpenChange={(open) => { if (!open) setConfirmingPipedrive(null); }}>
@@ -974,7 +927,39 @@ const MisCotizaciones = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ── Contact detail drawer ── */}
+      {/* HubSpot confirmation dialog */}
+      <AlertDialog open={!!confirmingHubspot} onOpenChange={(open) => { if (!open) setConfirmingHubspot(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <img src={hubspotIcon} alt="HubSpot" className="h-6 w-6 rounded-full" />
+              Enviar a HubSpot
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Enviar los datos de la cotización #{confirmingHubspot?.quote_number} de{" "}
+              <span className="font-semibold">{confirmingHubspot?.client_name || confirmingHubspot?.client_company || "cliente"}</span>{" "}
+              a HubSpot?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!sendingHubspot}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!!sendingHubspot}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (confirmingHubspot) {
+                  await sendToHubspot(confirmingHubspot);
+                  setConfirmingHubspot(null);
+                }
+              }}
+              className="bg-[#ff7a59] hover:bg-[#e5694d]"
+            >
+              {sendingHubspot ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Enviando...</> : "Sí, enviar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Sheet open={!!drawerQuote} onOpenChange={(open) => { if (!open) { setDrawerQuote(null); setCopiedField(null); } }}>
         <SheetContent side="right" className="w-full sm:max-w-md">
           <SheetHeader className="mb-6">
