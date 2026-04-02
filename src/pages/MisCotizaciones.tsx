@@ -467,8 +467,6 @@ const MisCotizaciones = () => {
     return "hola";
   };
 
-  const [sendingHubspot, setSendingHubspot] = useState<string | null>(null);
-
   const sendToHubspot = async (q: QuoteRow) => {
     const productType = detectProductType(q.items);
     if (productType !== "opa") {
