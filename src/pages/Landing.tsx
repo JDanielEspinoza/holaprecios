@@ -16,7 +16,7 @@ const PRODUCTS = [
     name: "Ecosistema Wispro + IXC",
     description: "Wispro, ACS y Hola! Suite",
     logo: logoWispro,
-    route: "/",
+    route: "/hola-suite",
     color: "border-orange-500/30 hover:border-orange-500",
     iconBg: "bg-orange-500/10",
   },
